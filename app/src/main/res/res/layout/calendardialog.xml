@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:backgroundTint="@color/fabColorOriginal"
+    app:cardCornerRadius="10dp"
+    android:background="@color/blue"
+    android:layout_height="wrap_content">
+
+   <androidx.cardview.widget.CardView
+
+       android:layout_margin="5dp"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+           <LinearLayout
+
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:orientation="vertical"
+               android:background="@drawable/border"
+               android:padding="16dp"
+               android:layout_marginTop="2dp">
+
+               <TextView
+                   android:id="@+id/calendardialogtext"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="हिंदू पंचांग विवरण: "
+                   android:textSize="28sp"
+                   android:textColor="@android:color/holo_orange_dark" />
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="horizontal"
+                   android:layout_marginTop="4dp">
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="तिथि :-"
+                       android:textColor="@android:color/holo_orange_dark" />
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:id="@+id/calendardialogtext1"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="उपलब्ध नहीं"
+                       android:textColor="@android:color/holo_green_dark" />
+               </LinearLayout>
+
+
+
+               <LinearLayout
+
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="horizontal"
+                   android:layout_marginTop="2dp">
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="नक्षत्र :-"
+                       android:textColor="@android:color/holo_orange_dark" />
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:id="@+id/calendardialogtext3"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="उपलब्ध नहीं"
+                       android:textColor="@android:color/holo_green_dark"/>
+               </LinearLayout>
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="horizontal"
+                   android:layout_marginTop="2dp">
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="महीना :-"
+                       android:textColor="@android:color/holo_orange_dark" />
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:id="@+id/calendardialogtext4"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text=""
+                       android:textColor="@android:color/holo_green_dark" />
+               </LinearLayout>
+
+               <LinearLayout
+                   android:id="@+id/calendardialogtext5l"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="horizontal"
+                   android:layout_marginTop="2dp">
+
+                   <TextView
+                       android:textSize="25sp"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text="त्यौहार  :-"
+                       android:textColor="@android:color/holo_orange_dark" />
+
+                   <TextView
+                       android:textSize="22sp"
+                       android:id="@+id/calendardialogtext5"
+                       android:layout_width="0dp"
+                       android:layout_height="wrap_content"
+                       android:layout_weight="1"
+                       android:text=""
+                       android:textColor="@android:color/holo_green_dark" />
+               </LinearLayout>
+           </LinearLayout>
+
+
+   </androidx.cardview.widget.CardView>
+
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Mithila Panchang</string>
+    <string name="app_name_h">मिथिला पंचांग</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="configure">Configure</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

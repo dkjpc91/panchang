@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SET_ALARM" />
+
+    <application
+        android:name=".Utility.MyApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/om"
+        android:label="मिथिला पंचांग"
+        android:roundIcon="@mipmap/om"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MithilaPanchang"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".UI.View.BillingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UI.View.GitaChapterActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.AlarmActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.KathaDescriptionActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.MantraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.KathaActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.HolidayActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.CalendarActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.HolidayListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.BoardDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.HomeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".UI.View.MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".Notification.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".Utility.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.ALARM" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Utility.StopAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="STOP_AUDIO_ACTION" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".Utility.DateWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/date_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".Utility.GitaWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/gita_widget_info" />
+        </receiver>
+
+        <provider
+            android:name=".Utility.BitmapContentProvider"
+            android:authorities="${applicationId}.bitmapprovider"
+            android:exported="false"
+            android:grantUriPermissions="true"></provider>
+        <provider
+            android:name=".Utility.Bitmapgreeringprovider"
+            android:authorities="${applicationId}.bitmapprovider"
+            android:exported="false"
+            android:grantUriPermissions="true"></provider>
+        <property
+            android:name="android.adservices.AD_SERVICES_CONFIG"
+            android:resource="@xml/gma_ad_services_config"
+            tools:replace="android:resource" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/catest"
+           />
+    </application>
+
+</manifest>

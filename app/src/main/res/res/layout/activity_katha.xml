@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#E8F1F0"
+    tools:context=".UI.View.KathaActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="-90dp"
+        android:src="@drawable/header"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_marginTop="-130dp"
+        android:padding="27dp"
+        android:src="@drawable/splashtxt"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:elevation="10dp"
+        app:cardCornerRadius="18dp">
+
+        <LinearLayout
+            android:background="@drawable/header_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="व्रत कथा"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+
+                android:textColor="#000000"/>
+
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieAnimationView"
+        android:layout_gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        android:layout_centerInParent="true"
+        app:lottie_rawRes="@raw/download"/>
+    <TextView
+        android:id="@+id/loadingstatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="लोडिंग प्रगति पर कृपया प्रतीक्षा करू"
+        android:textSize="36sp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:gravity="center"
+        android:textColor="#F44336"/>
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:id="@+id/kathaRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+</LinearLayout>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="18dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    app:cardCornerRadius="30dp"
+    app:cardBackgroundColor="#E1F5FE"> <!-- Light blue background color -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Title TextView centered -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="30sp"
+            android:textColor="@color/red"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="8dp" />
+
+        <!-- Horizontal LinearLayout for buttons, centered -->
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center"> <!-- Center buttons horizontally -->
+
+
+
+            <!-- Play Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/playButton"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:padding="8dp"
+                app:icon="@drawable/play"
+                app:iconTint="@color/blue"
+                app:iconGravity="textStart"
+                android:background="@drawable/play"
+                android:text="" />
+
+            <!-- Stop Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/stopButton"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="28dp"
+                app:icon="@drawable/play"
+                app:iconTint="@color/blue"
+                app:iconGravity="textStart"
+                android:background="@drawable/pause"
+                />
+
+            <!-- Save Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:background="@drawable/button_background"
+                android:layout_marginStart="28dp"
+                 />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

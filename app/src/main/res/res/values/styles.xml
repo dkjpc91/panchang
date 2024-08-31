@@ -1,0 +1,22 @@
+<resources>
+
+    <style name="Widget.MithilaPanchang.AppWidget.Container" parent="android:Widget">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Widget.MithilaPanchang.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+
+    <style name="CurvedCardStyle" >
+        <item name="cardCornerRadius">150dp</item>
+        <item name="android:backgroundTint">#CEF1A3</item>
+    </style>
+
+    <style name="CollapsedTitleTextStyle">
+        <item name="android:textSize">35sp</item> <item name="android:textColor">#F41505</item>  </style>
+
+</resources>

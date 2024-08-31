@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="285dp"
+    android:background="@drawable/gitawidgetbackground"
+    android:id="@+id/widgetRoot"
+
+    android:layout_gravity="center"
+
+
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+
+        android:layout_marginTop="-40dp"
+        android:id="@+id/widgetimage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/logo"/>
+
+    
+    <TextView
+
+        android:id="@+id/widgettext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="अत्र शूरा महेष्वासा भीमार्जुनसमा युधि युयुधानो विराटश्च द्रुपदश्च महारथ: || 4||
+
+\n धृष्टकेतुश्चेकितान: काशिराजश्च वीर्यवान् |
+पुरुजित्कुन्तिभोजश्च शैब्यश्च नरपुङ्गव: || 5||"
+        android:textSize="18sp"
+        android:textColor="@color/red"
+        android:gravity="center"
+        android:layout_marginTop="-9dp"/>
+
+
+
+</LinearLayout>
+

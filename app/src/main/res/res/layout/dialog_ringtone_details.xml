@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="20dp"
+    android:background="@android:color/white">
+
+    <TextView
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="अलार्म मैसेज लिखू"
+        android:textSize="32sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:textColor="#F44336"/>
+
+    <EditText
+        android:id="@+id/titleEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="टाइटल दर्ज करू"
+        android:textColorHint="@color/secondary_text"
+        android:background="@drawable/edittext_background"
+        android:padding="12dp"
+        android:textSize="22sp"
+        android:layout_marginTop="9dp"
+        android:textColor="@android:color/black"
+        android:inputType="text" />
+
+    <EditText
+        android:layout_marginTop="21dp"
+        android:id="@+id/messageEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="मैसेज दर्ज करू "
+        android:background="@drawable/edittext_background"
+        android:padding="12dp"
+        android:gravity="top|start"
+        android:inputType="textMultiLine"
+        android:lines="5"
+        android:scrollbars="vertical"
+        android:textColor="@android:color/black"
+        android:textSize="20sp" />
+</LinearLayout>

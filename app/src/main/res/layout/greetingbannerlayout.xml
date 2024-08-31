@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:backgroundTint="#00FFFFFF">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/gitatextbackground"
+        android:padding="10dp">
+
+        <!-- Image View -->
+        <ImageView
+            android:id="@+id/holidayimage"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter"
+            android:layout_alignParentTop="true"/>
+
+        <!-- Sanskrit Quote TextView -->
+        <TextView
+            android:id="@+id/holidayname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/holidayimage"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:padding="1dp"
+            android:gravity="center"
+            android:text="अहिंसा परमो धर्मः धर्म हिंसा तथैव च ।"
+            android:textColor="@color/red"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:maxLines="5"
+            android:ellipsize="none" />
+
+        <!-- Hindi Translation TextView -->
+        <TextView
+            android:id="@+id/holidaygreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/holidayname"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:padding="1dp"
+            android:gravity="center"
+            android:text="अहिंसा सबसे बड़ा धर्म है, लेकिन धर्म की रक्षा के लिए हिंसा भी धर्म है।"
+            android:textColor="#3F51B5"
+            android:textSize="22sp"
+            android:maxLines="5"
+            android:ellipsize="none" />
+    </RelativeLayout>
+</LinearLayout>

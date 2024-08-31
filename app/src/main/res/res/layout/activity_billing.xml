@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UI.View.BillingActivity">
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="-90dp"
+        android:src="@drawable/header"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_marginTop="-130dp"
+        android:padding="27dp"
+        android:src="@drawable/splashtxt"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/pptest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:elevation="10dp"
+        app:cardCornerRadius="18dp">
+
+        <LinearLayout
+            android:background="@drawable/header_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="योगदान"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:padding="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+
+                android:textColor="#FF5722"/>
+            <TextView
+                android:padding="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="हमर सबहक प्रयास में अहाँक सहयोग अमूल्य अछि। अहाँक योगदान हमरा लोकनि केँ मिथिला पंचांग केँ व्यापक दर्शक वर्गक लेल सुलभ बनेबाक लक्ष्य केँ प्राप्त करबाक एक डेग नजदीक पहुँचा दैत | नीचाँ देल यूपीआई आईडी पर मदद क सकई छी। "
+                android:textSize="22sp"
+
+                android:layout_marginBottom="28sp"
+                android:textColor="#041053"/>
+
+            <TextView
+                android:id="@+id/upiid"
+                android:padding="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="mithilakshar@upi"
+                android:textSize="24sp"
+                android:layout_marginRight="12dp"
+                android:drawableEnd="@drawable/copy"
+                android:layout_marginBottom="28sp"
+                android:textColor="#041053"/>
+
+
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:id="@+id/billingrecycler"
+        tools:listitem="@layout/purchaseitem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+</LinearLayout>

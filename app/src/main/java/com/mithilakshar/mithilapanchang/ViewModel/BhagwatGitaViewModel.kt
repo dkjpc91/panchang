@@ -16,10 +16,10 @@ class BhagwatGitaViewModel(private val firebaseFileDownloader: FirebaseFileDownl
     val downloadProgressLiveData: LiveData<Int> = firebaseFileDownloader.downloadProgressLiveData
 
 
-    fun retrieveAndDownloadFile(documentPath: String, action: String, urlFieldName: String) {
-        firebaseFileDownloader.retrieveURL(documentPath, action, urlFieldName) { file ->
+    fun retrieveAndDownloadFile(documentPath: String, action: String, urlFieldName: String,progressCallback: (Int) -> Unit) {
+        firebaseFileDownloader.retrieveURL(documentPath, action, urlFieldName, { file ->
             // Handle the downloaded file if needed
-        }
+        },progressCallback)
     }
 
     class factory(private val firebaseFileDownloader: FirebaseFileDownloader) : ViewModelProvider.Factory {

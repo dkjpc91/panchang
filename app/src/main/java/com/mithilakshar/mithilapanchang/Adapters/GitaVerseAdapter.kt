@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.mithilakshar.mithilapanchang.UI.Fragments.BhagwatGitaVerseFragmentDirections
 
 import com.mithilakshar.mithilapanchang.databinding.ItemGitachapterBinding
 
@@ -35,8 +36,8 @@ class GitaVerseAdapter(private val rows: List<Map<String, Any?>>) : RecyclerView
             // Set click listener to navigate to details fragment with integer data
             binding.root.setOnClickListener {
 
-                //val action = BhagwatGitaVerseFragmentDirections.actionBhagwatGitaVerseFragmentToBhagwatGitaDetailsverseFragment(verseids.toInt())
-               // binding.root.findNavController().navigate(action)
+                val action = BhagwatGitaVerseFragmentDirections.actionBhagwatGitaVerseFragmentToBhagwatGitaDetailsverseFragment(verseids.toInt())
+               binding.root.findNavController().navigate(action)
             }
         }
     }

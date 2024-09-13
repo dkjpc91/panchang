@@ -29,7 +29,8 @@ class dbDownloader(
          lifecycleOwner: LifecycleOwner,
          coroutineScope: CoroutineScope,
          updatedaoid: Int,
-         homeActivity: HomeActivity
+         homeActivity: HomeActivity,
+         progressCallback: (Int) -> Unit
      ) {
         var fileExistenceLiveData = checkFileExistence("$filename.db",homeActivity)
         val db = FirebaseFirestore.getInstance()
@@ -47,10 +48,8 @@ class dbDownloader(
                         coroutineScope.launch {
                             val updates = updatesDao.getfileupdate(fileName)
                             if (updates.get(0).uniqueString == actions) {
-                                //readFileContent()
-                                //binding.lottieAnimationView .visibility=View.GONE
-                                //binding.loadingstatus.visibility=View.GONE
 
+                                progressCallback(100)
                                 Log.d("dbd", "actionmatch $actions, uiqueid ${updates.get(0).uniqueString} ")
                             } else {
 
@@ -65,7 +64,7 @@ class dbDownloader(
 
                                 Log.d("dbd", "actionmismatch new file download} ")
                                 val storagePath = "SQLdb/$filename"
-                                downloadFile(storagePath, "delete", "$filename.db")
+                                downloadFile(storagePath, "delete", "$filename.db",progressCallback)
 
 
                             }
@@ -89,7 +88,7 @@ class dbDownloader(
                 Log.d("dbd", "no file exist ")
 
                 val storagePath = "SQLdb/$filename"
-                downloadFile(storagePath, "delete", "$filename.db")
+                downloadFile(storagePath, "delete", "$filename.db",progressCallback)
 
 
                 documentRef.get().addOnSuccessListener {
@@ -133,9 +132,9 @@ class dbDownloader(
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String) {
+    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
 
-            firebaseFileDownloader.retrieveURL(storagePath, action, localFileName) { downloadedFile ->
+            firebaseFileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
                 if (downloadedFile != null) {
                     // File downloaded successfully, do something with the file if needed
                     Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
@@ -145,7 +144,7 @@ class dbDownloader(
                     // Handle the case where download failed
                     Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
                 }
-            }
+            },progressCallback)
         }
     }
 

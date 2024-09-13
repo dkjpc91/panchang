@@ -12,7 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-@Database(entities = [Updates::class], version = 1)
+@Database(entities = [Updates::class], version = 1,exportSchema = false)
 abstract class UpdatesDatabase : RoomDatabase() {
     abstract fun UpdatesDao(): UpdatesDao
 

@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.animation.ObjectAnimator
 
 import com.mithilakshar.mithilapanchang.R
+import com.mithilakshar.mithilapanchang.Utility.AppOpenAdManager
 
 import com.mithilakshar.mithilapanchang.databinding.ActivityMainBinding
 
@@ -43,11 +44,30 @@ class MainActivity : AppCompatActivity() {
         colorFade.start()
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val i = Intent(this, HomeActivity::class.java)
-            startActivity(i)
-            finish()
-        }, 2500)
+
+           // showAdOrProceed()
+            startMainActivity()
+        }, 3000)
     }
+
+
+    private fun showAdOrProceed() {
+        AppOpenAdManager.showAdIfAvailable(this) {
+            // Proceed to the main activity after the ad is dismissed
+
+            startMainActivity()
+        }
+    }
+
+    private fun startMainActivity() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish() // Close the splash activity
+    }
+
+
+
+
 
 
 }

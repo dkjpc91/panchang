@@ -13,11 +13,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Adapters.holidayadapter
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
+import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.Updates
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
@@ -35,7 +41,7 @@ import java.io.File
 class HolidayListActivity : AppCompatActivity() {
 
     private lateinit var downloadmanager: DownloadManager
-
+    private lateinit var adView5: AdView
     lateinit var binding:ActivityHolidaylistBinding
     private lateinit var fileExistenceLiveData: LiveData<Boolean>
     private lateinit var updatesDao: UpdatesDao
@@ -64,6 +70,22 @@ class HolidayListActivity : AppCompatActivity() {
 
             }
         })
+
+        MobileAds.initialize(this)
+        adView5 = findViewById(R.id.adView5)
+        val adRequest = AdRequest.Builder().build()
+        // Set an AdListener to make the AdView visible when the ad is loaded
+        adView5.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                // Make the AdView visible when the ad is loaded
+                adView5.visibility = View.VISIBLE
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                // Optionally, you can log or handle the error here
+            }
+        }
+        adView5.loadAd(adRequest)
 
         fileDownloader = FirebaseFileDownloader(this)
         updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
@@ -149,9 +171,9 @@ class HolidayListActivity : AppCompatActivity() {
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String) {
+    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
         if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName) { downloadedFile ->
+            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
                 if (downloadedFile != null) {
                     // File downloaded successfully, do something with the file if needed
                     Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
@@ -162,7 +184,7 @@ class HolidayListActivity : AppCompatActivity() {
                     // Handle the case where download failed
                     Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
                 }
-            }
+            },progressCallback)
         } else {
             Log.e(ContentValues.TAG, "fileDownloader is not initialized.")
         }
@@ -211,7 +233,10 @@ class HolidayListActivity : AppCompatActivity() {
 
 
                                 val storagePath = "SQLdb/holiday"
-                                downloadFile(storagePath, "delete", "holiday.db")
+                                downloadFile(storagePath, "delete", "holiday.db", progressCallback = { progress ->
+                                    // Update your progress UI, e.g., a ProgressBar or TextView
+                                    Log.d("DownloadProgress", "Download is $progress% done")
+                                })
                                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this@HolidayListActivity, {
 
                                     if (it >=100){
@@ -242,7 +267,10 @@ class HolidayListActivity : AppCompatActivity() {
             } else {
 
                 val storagePath = "SQLdb/holiday"
-                downloadFile(storagePath, "delete", "holiday.db")
+                downloadFile(storagePath, "delete", "holiday.db", progressCallback = { progress ->
+                    // Update your progress UI, e.g., a ProgressBar or TextView
+                    Log.d("DownloadProgress", "Download is $progress% done")
+                })
                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
 
                     if (it >=100){

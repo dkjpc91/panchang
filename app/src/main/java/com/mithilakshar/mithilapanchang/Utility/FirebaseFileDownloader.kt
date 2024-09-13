@@ -23,7 +23,11 @@ class FirebaseFileDownloader(private val context: Context) {
 
 
 
-    fun retrieveURL(documentPath: String,action: String, urlFieldName: String, callback: (File?) -> Unit) {
+    fun retrieveURL(documentPath: String,action: String,
+                    urlFieldName: String,
+                    callback: (File?) -> Unit,
+                progressCallback: (Int) -> Unit)
+    {
         // Retrieve the URL from Firestore
         firestore.document(documentPath)
             .get()
@@ -48,7 +52,7 @@ class FirebaseFileDownloader(private val context: Context) {
                             } else if (action == "delete") {
                                 // Delete the file and then download it
                                 localFile.delete()
-                                downloadFile(url, localFile, callback)
+                                downloadFile(url, localFile, callback,progressCallback)
                             }
                             //
 
@@ -57,7 +61,7 @@ class FirebaseFileDownloader(private val context: Context) {
                             // File does not exist locally
                             if (action == "return" || action == "delete") {
                                 // Download from Firebase Storage
-                                downloadFile(url, localFile, callback)
+                                downloadFile(url, localFile, callback,progressCallback)
                             }
                             // File does not exist locally, download from Firebase Storage
 
@@ -78,7 +82,7 @@ class FirebaseFileDownloader(private val context: Context) {
     }
 
 
-    private fun downloadFile(url: String, localFile: File, callback: (File?) -> Unit) {
+    private fun downloadFile(url: String, localFile: File, callback: (File?) -> Unit,progressCallback: (Int) -> Unit) {
         val storageRef = storage.getReferenceFromUrl(url)
         val downloadTask = storageRef.getFile(localFile)
 
@@ -88,9 +92,9 @@ class FirebaseFileDownloader(private val context: Context) {
             Log.e(TAG, "Error downloading file", e)
             callback(null)
         }.addOnProgressListener { taskSnapshot ->
-            val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
-            Log.d(TAG, "Download is $progress% done")
-            downloadProgressLiveData.postValue(progress.toInt())
+            val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
+            progressCallback(progress) // Send progress updates
+            downloadProgressLiveData.postValue(progress)
         }.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d(TAG, "Download complete")
@@ -100,13 +104,6 @@ class FirebaseFileDownloader(private val context: Context) {
         }
     }
 
-     fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath = context.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
-    }
 
     private fun performAnotherTask() {
         // Placeholder for additional tasks after download completion

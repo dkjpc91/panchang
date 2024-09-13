@@ -83,9 +83,9 @@ class MantraActivity : AppCompatActivity() {
 
     }
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String) {
+    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
         if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName) { downloadedFile ->
+            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
                 if (downloadedFile != null) {
                     // File downloaded successfully, do something with the file if needed
                     Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
@@ -96,7 +96,7 @@ class MantraActivity : AppCompatActivity() {
                     // Handle the case where download failed
                     Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
                 }
-            }
+            },progressCallback)
         } else {
             Log.e(ContentValues.TAG, "fileDownloader is not initialized.")
         }
@@ -145,7 +145,10 @@ class MantraActivity : AppCompatActivity() {
 
 
                                 val storagePath = "SQLdb/mantra"
-                                downloadFile(storagePath, "delete", "mantra.db")
+                                downloadFile(storagePath, "delete", "mantra.db", progressCallback = { progress ->
+                                    // Update your progress UI, e.g., a ProgressBar or TextView
+                                    Log.d("DownloadProgress", "Download is $progress% done")
+                                })
                                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this@MantraActivity, {
 
                                     if (it >=100){
@@ -180,7 +183,10 @@ class MantraActivity : AppCompatActivity() {
             } else {
 
                 val storagePath = "SQLdb/mantra"
-                downloadFile(storagePath, "delete", "mantra.db")
+                downloadFile(storagePath, "delete", "mantra.db", progressCallback = { progress ->
+                    // Update your progress UI, e.g., a ProgressBar or TextView
+                    Log.d("DownloadProgress", "Download is $progress% done")
+                })
                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
 
                     if (it >=100){

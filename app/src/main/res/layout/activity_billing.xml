@@ -48,6 +48,16 @@
                 android:paddingRight="16dp"
 
                 android:textColor="#FF5722"/>
+
+            <TextView
+                android:padding="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="मैथिली पंचांग के प्रयोग करबाक लेल बहुत बहुत धन्यवाद। अहाँ सबहक सहयोग आ विश्वास हमरा सब के निरंतर सुधार आ प्रगति के लेल प्रेरित केलक अछि। "
+                android:textSize="22sp"
+
+                android:layout_marginBottom="8sp"
+                android:textColor="#041053"/>
             <TextView
                 android:padding="13dp"
                 android:layout_width="wrap_content"
@@ -55,7 +65,7 @@
                 android:text="हमर सबहक प्रयास में अहाँक सहयोग अमूल्य अछि। अहाँक योगदान हमरा लोकनि केँ मिथिला पंचांग केँ व्यापक दर्शक वर्गक लेल सुलभ बनेबाक लक्ष्य केँ प्राप्त करबाक एक डेग नजदीक पहुँचा दैत | नीचाँ देल यूपीआई आईडी पर मदद क सकई छी। "
                 android:textSize="22sp"
 
-                android:layout_marginBottom="28sp"
+                android:layout_marginBottom="18sp"
                 android:textColor="#041053"/>
 
             <TextView

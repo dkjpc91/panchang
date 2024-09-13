@@ -12,6 +12,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
@@ -40,7 +45,7 @@ class CalendarActivity : AppCompatActivity() {
     private lateinit var updatesDao: UpdatesDao
 
     private lateinit var fileDownloader: FirebaseFileDownloader
-
+    private lateinit var adView4: AdView
 
     private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
 
@@ -65,6 +70,20 @@ class CalendarActivity : AppCompatActivity() {
             }
         })
 
+        adView4 = findViewById(R.id.adView4)
+        val adRequest = AdRequest.Builder().build()
+        // Set an AdListener to make the AdView visible when the ad is loaded
+        adView4.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                // Make the AdView visible when the ad is loaded
+                adView4.visibility = View.VISIBLE
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                // Optionally, you can log or handle the error here
+            }
+        }
+        adView4.loadAd(adRequest)
 
 
         fileDownloader = FirebaseFileDownloader(this)
@@ -94,9 +113,9 @@ class CalendarActivity : AppCompatActivity() {
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String) {
+    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
         if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName) { downloadedFile ->
+            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
                 if (downloadedFile != null) {
                     // File downloaded successfully, do something with the file if needed
                     Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
@@ -107,7 +126,7 @@ class CalendarActivity : AppCompatActivity() {
                     // Handle the case where download failed
                     Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
                 }
-            }
+            },progressCallback)
         } else {
             Log.e(ContentValues.TAG, "fileDownloader is not initialized.")
         }
@@ -156,7 +175,10 @@ class CalendarActivity : AppCompatActivity() {
 
 
                                 val storagePath = "SQLdb/calander"
-                                downloadFile(storagePath, "delete", "calander.db")
+                                downloadFile(storagePath, "delete", "calander.db", progressCallback = { progress ->
+                                    // Update your progress UI, e.g., a ProgressBar or TextView
+                                    Log.d("DownloadProgress", "Download is $progress% done")
+                                })
                                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this@CalendarActivity, {
 
                                     if (it >=100){
@@ -189,7 +211,10 @@ class CalendarActivity : AppCompatActivity() {
             } else {
 
                 val storagePath = "SQLdb/calander"
-                downloadFile(storagePath, "delete", "calander.db")
+                downloadFile(storagePath, "delete", "calander.db", progressCallback = { progress ->
+                    // Update your progress UI, e.g., a ProgressBar or TextView
+                    Log.d("DownloadProgress", "Download is $progress% done")
+                })
                 bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
 
                     if (it >=100){

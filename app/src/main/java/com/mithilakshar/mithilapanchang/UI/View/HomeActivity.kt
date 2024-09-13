@@ -51,13 +51,16 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 import android.content.ContentValues.TAG
-import android.content.Context
-import android.graphics.Bitmap
+
+import android.net.Uri
 
 
 import android.util.Log
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.GridLayout
+import androidx.cardview.widget.CardView
 
 
 import androidx.lifecycle.LiveData
@@ -67,9 +70,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 
+
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
+
 
 import com.google.firebase.auth.FirebaseAuth
 
@@ -101,7 +105,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var appUpdateManager: AppUpdateManager
     private val updateType = AppUpdateType.IMMEDIATE
     private lateinit var updatesDao: UpdatesDao
-    private val firestoreRepo = FirestoreRepo()
+
     private lateinit var dbHelpercalander: dbHelper
     private lateinit var dbHelperimage: dbHelper
     private lateinit var dbHelperholiday: dbHelper
@@ -137,13 +141,16 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     var G2 = ""
 
     private lateinit var fileExistenceLiveData: LiveData<Boolean>
-    private lateinit var adView: AdView
+
     private lateinit var adView1: AdView
+    private lateinit var adView: AdView
+    private lateinit var adviewMR: AdView
+
 
     //slider
     private lateinit var handler1: Handler
     private lateinit var runnable: Runnable
-    private var delayMillis: Long = 3000
+    private var delayMillis: Long = 4000
     private lateinit var viewPager: ViewPager2
     private lateinit var sliderAdapter: SliderAdapter
 
@@ -181,13 +188,15 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         })
 
-
-        //add
-        // Initialize the Mobile Ads SDK
-        MobileAds.initialize(this)
-        adView = findViewById(R.id.adView)
         adView1 = findViewById(R.id.adView1)
+
+        adView = binding.adView
+        adviewMR = binding.adviewMR
+
+
         val adRequest = AdRequest.Builder().build()
+
+
         // Set an AdListener to make the AdView visible when the ad is loaded
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
@@ -209,8 +218,31 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 // Optionally, you can log or handle the error here
             }
         }
-        adView.loadAd(adRequest)
-        adView1.loadAd(adRequest)
+        adviewMR.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                // Make the AdView visible when the ad is loaded
+                adviewMR.visibility = View.VISIBLE
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                // Optionally, you can log or handle the error here
+            }
+        }
+
+        val randomValue = (1..100).random()
+
+        if (randomValue <= 70) {
+            // Load adviewMR 70% of the time
+            adviewMR.loadAd(adRequest)
+        } else {
+            // Load adView 30% of the time
+            adView.loadAd(adRequest)
+        }
+
+
+       adView1.loadAd(adRequest)
+
+
 
 
         val maxHeightInDp = 700
@@ -250,9 +282,27 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val dbDownloader= dbDownloader(updatesDao,fileDownloader)
 
-        dbDownloader.observeFileExistence("imageauto",this,lifecycleScope,5,this)
-        dbDownloader.observeFileExistence("calander",this,lifecycleScope,3,this)
-        dbDownloader.observeFileExistence("holiday",this,lifecycleScope,2,this)
+        dbDownloader.observeFileExistence("imageauto",this,lifecycleScope,5,this,progressCallback = { progress ->
+            runOnUiThread {
+                // Update UI with the progress
+                Log.d("HomeActivity", "Download progress: $progress%")
+                // You can display progress using a ProgressBar or any other UI component
+            }
+        })
+        dbDownloader.observeFileExistence("calander",this,lifecycleScope,3,this,progressCallback = { progress ->
+            runOnUiThread {
+                // Update UI with the progress
+                Log.d("HomeActivity", "Download progress: $progress%")
+                // You can display progress using a ProgressBar or any other UI component
+            }
+        })
+        dbDownloader.observeFileExistence("holiday",this,lifecycleScope,2,this,progressCallback = { progress ->
+            runOnUiThread {
+                // Update UI with the progress
+                Log.d("HomeActivity", "Download progress: $progress%")
+                // You can display progress using a ProgressBar or any other UI component
+            }
+        })
 
 
         dbHelpercalander = dbHelper(this, "calander.db")
@@ -615,6 +665,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             startActivity(Intent.createChooser(intent, "साझा करू : "))
         }
 
+        binding.otherapps.setOnClickListener {
+
+            val developerPageUrl = "https://play.google.com/store/apps/dev?id=8281901881443422197&hl=en-IN"
+
+            // Create an Intent to open the URL in a browser
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(developerPageUrl)
+            }
+
+            // Start the activity to open the URL
+            startActivity(intent)
+
+        }
+
 
     }
 
@@ -937,9 +1001,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String) {
+    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
         if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName) { downloadedFile ->
+            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
                 if (downloadedFile != null) {
                     // File downloaded successfully, do something with the file if needed
                     Log.d(TAG, "File downloaded successfully: $downloadedFile")
@@ -950,7 +1014,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     // Handle the case where download failed
                     Log.d(TAG, "Download failed for file: $localFileName")
                 }
-            }
+            }, progressCallback)
         } else {
             Log.e(TAG, "fileDownloader is not initialized.")
         }
@@ -1024,8 +1088,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             val updates = updatesDao.getfileupdate(fileName)
                             if (updates.get(0).uniqueString == actions) {
                                 readFileContent()
-
-
+                                binding.Gita.visibility=View.VISIBLE
+                                Log.d("DownloadProgress", "reached here is $100% done")
 
                             } else {
 
@@ -1037,9 +1101,19 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
                                 val storagePath = "SQLdb/Gita"
-                                downloadFile(storagePath, "delete", "Gita.db")
+                                downloadFile(
+                                    storagePath,
+                                    "delete",
+                                    "Gita.db",
+                                    progressCallback = { progress ->
+                                        if(progress==100){
+                                            binding.Gita.visibility=View.VISIBLE
 
+                                        }
+                                        // Update your progress UI, e.g., a ProgressBar or TextView
+                                        Log.d("DownloadProgress", "Gita  is $progress% done")
 
+                                    })
                             }
                         }
 
@@ -1059,7 +1133,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             } else {
 
                 val storagePath = "SQLdb/Gita"
-                downloadFile(storagePath, "delete", "Gita.db")
+                downloadFile(storagePath, "delete", "Gita.db", progressCallback = { progress ->
+                    // Update your progress UI, e.g., a ProgressBar or TextView
+                    if(progress==100){
+                        binding.Gita.visibility=View.VISIBLE
+
+                    }
+                    Log.d("DownloadProgress", " Gita Download is $progress% done")
+                })
                 documentRef.get().addOnSuccessListener {
                     if (it != null) {
                         val fileUrl = it.getString("test") ?: ""
@@ -1099,25 +1180,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getTodayDayName(): String {
-        val today = LocalDate.now()
-        val dayNameFormatter = DateTimeFormatter.ofPattern("EEEE")
-        return today.format(dayNameFormatter).uppercase(Locale.getDefault())
-    }
-
-    fun extractColumnValues(data: List<Map<String, String>>, columnName: String): ArrayList<String> {
-        val columnValues = arrayListOf<String>()
-
-        for (row in data) {
-            val value = row[columnName] ?: ""
-            if (value.isNotEmpty()) {
-                columnValues.add(value)
-            }
-        }
-
-        return columnValues
-    }
 
 
 
@@ -1233,20 +1295,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-
-    fun saveBitmapToTempFile(context: Context, bitmap: Bitmap): File? {
-        val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-        try {
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-                out.flush()
-            }
-            return file
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
-        }
-    }
 
 
 

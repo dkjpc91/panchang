@@ -8,6 +8,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Utility.InAppReviewUtil
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
@@ -27,6 +31,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class BhagwatGitaDetailsverseFragment : Fragment() {
     lateinit var binding: FragmentBhagwatGitaDetailsverseBinding
+    private lateinit var adView6: AdView
     private val args: BhagwatGitaDetailsverseFragmentArgs by navArgs()
     lateinit var dbHelper: dbHelper
     private lateinit var inAppReviewUtil: InAppReviewUtil
@@ -49,6 +54,21 @@ class BhagwatGitaDetailsverseFragment : Fragment() {
         // Inflate the layout for this fragment
 
         binding= FragmentBhagwatGitaDetailsverseBinding.inflate(layoutInflater,container,false)
+        adView6 = binding.adView6
+
+        val adRequest = AdRequest.Builder().build()
+        // Set an AdListener to make the AdView visible when the ad is loaded
+        adView6.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                // Make the AdView visible when the ad is loaded
+                adView6.visibility = View.VISIBLE
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                // Optionally, you can log or handle the error here
+            }
+        }
+        adView6.loadAd(adRequest)
 
         dbHelper = dbHelper(requireContext(), "Gita.db")
         val rowsvalue= dbHelper.getRowById(args.versenumber)

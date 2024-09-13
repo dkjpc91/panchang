@@ -53,7 +53,14 @@
     </androidx.cardview.widget.CardView>
 
 
-
+    <com.google.android.gms.ads.AdView
+        android:visibility="gone"
+        android:id="@+id/adView3"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        app:adSize="BANNER"
+        app:adUnitId="@string/bannerunitholiday" />
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimationView"

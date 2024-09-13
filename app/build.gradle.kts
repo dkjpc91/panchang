@@ -14,8 +14,8 @@ android {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
         targetSdk = 34
-        versionCode = 18
-        versionName = "18.0"
+        versionCode = 19
+        versionName = "19.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -78,6 +78,7 @@ dependencies {
 
     implementation(libs.play.services.ads.lite)
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.inappmessaging.display)
 
 
     annotationProcessor(libs.androidx.room.room.compiler)

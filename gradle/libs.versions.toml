@@ -38,6 +38,7 @@ workRuntime = "2.9.1"
 navigationFragmentKtx= "2.7.7"
 playServicesAdsLite = "23.3.0"
 firebaseAnalytics = "22.1.0"
+firebaseInappmessagingDisplay = "21.0.0"
 
 
 [libraries]
@@ -85,6 +86,7 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "converte
 review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "reviewKtx" }
 play-services-ads-lite = { group = "com.google.android.gms", name = "play-services-ads-lite", version.ref = "playServicesAdsLite" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
+firebase-inappmessaging-display = { group = "com.google.firebase", name = "firebase-inappmessaging-display", version.ref = "firebaseInappmessagingDisplay" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

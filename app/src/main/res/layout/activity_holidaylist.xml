@@ -21,7 +21,14 @@
         android:padding="27dp"
         android:src="@drawable/splashtxt"/>
 
-
+    <com.google.android.gms.ads.AdView
+        android:visibility="gone"
+        android:id="@+id/adView5"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        app:adSize="BANNER"
+        app:adUnitId="@string/bannerunitholidaylist"/>
 
 
       <com.airbnb.lottie.LottieAnimationView

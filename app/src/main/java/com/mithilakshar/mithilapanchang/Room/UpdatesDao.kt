@@ -18,7 +18,7 @@ interface  UpdatesDao  {
     suspend fun getallupdates(): List<Updates>
 
     @Query("SELECT * FROM files WHERE id = :id")
-    suspend fun findById(id: Int): Updates
+    suspend fun findById(id: kotlin.Int): Updates
 
     @Query("SELECT * FROM files WHERE fileName = :fileName")
     suspend fun getfileupdate(fileName: String): List<Updates>

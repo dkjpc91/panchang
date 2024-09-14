@@ -19,4 +19,15 @@
     <color name="background">#E9FF14</color>
 
 
+        <!-- Background color for the spinner item -->
+        <color name="spinner_item_background_color">#FFFFFF</color>
+
+        <!-- Border color for the spinner item -->
+        <color name="spinner_item_border_color">#DDDDDD</color>
+
+        <!-- Text color for the spinner item -->
+        <color name="spinner_text_color">#333333</color>
+
+
+
 </resources>

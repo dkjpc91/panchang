@@ -54,7 +54,6 @@ class BhagwatGitaDetailsverseFragment : Fragment() {
         // Inflate the layout for this fragment
 
         binding= FragmentBhagwatGitaDetailsverseBinding.inflate(layoutInflater,container,false)
-        adView6 = binding.adView6
 
         val adRequest = AdRequest.Builder().build()
         // Set an AdListener to make the AdView visible when the ad is loaded

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Adapters.kathaapapter
-import com.mithilakshar.mithilapanchang.Adapters.mantraadapter
+
 
 
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog

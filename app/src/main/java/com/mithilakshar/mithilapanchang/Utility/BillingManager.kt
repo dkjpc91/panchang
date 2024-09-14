@@ -93,7 +93,7 @@ class BillingManager(private val activity: Activity) : PurchasesUpdatedListener,
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
             for (purchase in purchases) {
 
-                val productDetails = Updates(id = 9,fileName = "iap", uniqueString = purchase.purchaseTime.toString())
+                val productDetails = Updates(id = 9, fileName = "iap", uniqueString = purchase.purchaseTime.toString())
                 handlePurchase(purchase,productDetails)
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
@@ -126,7 +126,7 @@ class BillingManager(private val activity: Activity) : PurchasesUpdatedListener,
         billingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP) { billingResult, purchases ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 for (purchase in purchases) {
-                    val productDetails = Updates(id = 10,fileName = "iap", uniqueString = "25")
+                    val productDetails = Updates(id = 10, fileName = "iap", uniqueString = "25")
                     handlePurchase(purchase, productDetails)
                 }
             }

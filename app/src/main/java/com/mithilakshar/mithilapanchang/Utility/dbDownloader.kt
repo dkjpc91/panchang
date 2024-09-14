@@ -1,5 +1,6 @@
 package com.mithilakshar.mithilapanchang.Utility
 
+import android.app.Activity
 import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
@@ -9,7 +10,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Room.Updates
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
-import com.mithilakshar.mithilapanchang.UI.View.HomeActivity
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ class dbDownloader(
          lifecycleOwner: LifecycleOwner,
          coroutineScope: CoroutineScope,
          updatedaoid: Int,
-         homeActivity: HomeActivity,
+         homeActivity: Activity,
          progressCallback: (Int) -> Unit
      ) {
         var fileExistenceLiveData = checkFileExistence("$filename.db",homeActivity)
@@ -100,7 +100,9 @@ class dbDownloader(
 
                             Log.d("dbd", "no file exist newfile download")
 
-                            val holiday = Updates(id = updatedaoid.toLong(),fileName = "$filename.db", uniqueString = "${filename}")
+                            val holiday = Updates(
+                                id = updatedaoid,
+                                fileName = "$filename.db", uniqueString = "${filename}")
                             updatesDao.insert(holiday)
 
                             val holidayupdate = updatesDao.findById(updatedaoid)
@@ -123,7 +125,7 @@ class dbDownloader(
 
 
 
-    fun checkFileExistence(fileName: String, homeActivity: HomeActivity): LiveData<Boolean> {
+    fun checkFileExistence(fileName: String, homeActivity: Activity): LiveData<Boolean> {
         val fileExistsLiveData = MutableLiveData<Boolean>()
         val dbFolderPath = homeActivity.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
         val dbFile = File(dbFolderPath, fileName)

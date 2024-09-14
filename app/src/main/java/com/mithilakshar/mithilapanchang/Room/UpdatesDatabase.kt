@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -54,8 +53,8 @@ abstract class UpdatesDatabase : RoomDatabase() {
 
     private suspend fun prepopulateDatabase(updatesDao: UpdatesDao) {
         // Insert dummy data here
-        val gita = Updates(id = 4 ,fileName = "Gita.db", uniqueString = "Gita")
-        val holiday = Updates(id = 2,fileName = "holiday.db", uniqueString = "holiday")
+        val gita = Updates(id = 4 , fileName = "Gita.db", uniqueString = "Gita")
+        val holiday = Updates(id = 2, fileName = "holiday.db", uniqueString = "holiday")
         val mantra = Updates(id = 1, fileName = "mantra.db", uniqueString = "mantra")
         val calander = Updates(id = 3, fileName = "calander.db", uniqueString = "calander")
         val vrat = Updates(id = 5, fileName = "vrat.db", uniqueString = "vrat")

@@ -16,7 +16,6 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
@@ -27,14 +26,12 @@ import com.mithilakshar.mithilapanchang.Room.Updates
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 
-import com.mithilakshar.mithilapanchang.ViewModel.HomeViewModel
 import com.mithilakshar.mithilapanchang.databinding.ActivityCalendarBinding
 import com.mithilakshar.mithilapanchang.UI.Fragments.mayfragment
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
 import kotlinx.coroutines.launch
 import java.io.File
-import java.time.LocalDate
 
 class CalendarActivity : AppCompatActivity() {
 

@@ -159,6 +159,47 @@ class dbHelper(context: Context, dbName: String) {
     }
 
     @SuppressLint("Range")
+    fun getHolidaysByMonthanddb(monthName: String,dbName: String): List<Map<String, String>> {
+        val holidays = mutableListOf<Map<String, String>>()
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading holidays for month: $monthName")
+                return emptyList()
+            }
+
+            val query = "SELECT * FROM $dbName WHERE month = ?"
+            val selectionArgs = arrayOf(monthName)
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val rowData = mutableMapOf<String, String>()
+                    val month = cursor.getString(cursor.getColumnIndex("month"))
+                    val value1 = cursor.getString(cursor.getColumnIndex("date"))
+                    val value2 = cursor.getString(cursor.getColumnIndex("name"))
+                    val value3 = cursor.getString(cursor.getColumnIndex("desc"))
+                    rowData["month"] = month
+                    rowData["date"] = value1
+                    rowData["name"] = value2
+                    rowData["desc"] = value3
+                    holidays.add(rowData)
+                }
+            }
+        }
+
+        if (holidays.isEmpty()) {
+            // Example: Return a default value indicating no holidays found
+            val defaultHoliday = mutableMapOf<String, String>()
+            defaultHoliday["month"] = monthName
+            defaultHoliday["date"] = ""
+            defaultHoliday["name"] = "मिथिला पंचांग के प्रयोग के लेल धन्यवाद।"
+            holidays.add(defaultHoliday)
+        }
+
+        return holidays
+    }
+
+
+    @SuppressLint("Range")
     fun getHolidaysByMonth(monthName: String): List<Map<String, String>> {
         val holidays = mutableListOf<Map<String, String>>()
         db?.let { database ->
@@ -197,6 +238,7 @@ class dbHelper(context: Context, dbName: String) {
 
         return holidays
     }
+
 
     @SuppressLint("Range")
     fun getHolidaysByMonthdate(monthName: String, startDate: String): List<Map<String, String>> {

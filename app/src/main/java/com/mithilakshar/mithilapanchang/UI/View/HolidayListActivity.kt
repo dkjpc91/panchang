@@ -36,6 +36,7 @@ import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
 import com.mithilakshar.mithilapanchang.databinding.ActivityHolidaylistBinding
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Calendar
 
 
 class HolidayListActivity : AppCompatActivity() {
@@ -133,16 +134,13 @@ class HolidayListActivity : AppCompatActivity() {
         val month = intent.getStringExtra("month").toString()
         val monthEng = intent.getStringExtra("monthEng").toString()
         val intValue = intent.getIntExtra("intValue", 1)
+        val selectedyear = intent.getIntExtra("year", getCurrentYear())
 
 
-        observeFileExistence(monthEng)
+        //observeFileExistence(monthEng)
 
 
-
-
-
-
-
+        readFileContent(monthEng,selectedyear)
 
 
 
@@ -151,7 +149,11 @@ class HolidayListActivity : AppCompatActivity() {
 
 
 
-        binding.title.text="हिन्दू त्योहार - "+"$month"+"2024"
+
+
+
+
+        binding.title.text="हिन्दू त्योहार - "+"$month"+"$selectedyear"
 
 
 
@@ -162,11 +164,26 @@ class HolidayListActivity : AppCompatActivity() {
 
 
 
-    private fun readFileContent(month:String) {
-        val dbHelper = dbHelper(applicationContext, "holiday.db")
-        val av = dbHelper.getHolidaysByMonth(month)
-        holidays.addAll(av)
-        adapter.notifyDataSetChanged()
+    private fun readFileContent(month:String,year:Int) {
+
+        if (year>getCurrentYear()){
+            val a="holiday$year.db"
+
+            val dbHelper = dbHelper(applicationContext, a)
+           val av = dbHelper.getHolidaysByMonthanddb(month,"holiday$year")
+            Log.d("selectedyear", "year: $av")
+            holidays.addAll(av)
+            adapter.notifyDataSetChanged()
+
+        }
+        else{
+            val dbHelper = dbHelper(applicationContext, "holiday.db")
+            val av = dbHelper.getHolidaysByMonth(month)
+            holidays.addAll(av)
+            adapter.notifyDataSetChanged()
+
+        }
+
 
     }
 
@@ -203,7 +220,7 @@ class HolidayListActivity : AppCompatActivity() {
         return fileExistsLiveData
     }
 
-    private fun observeFileExistence(month:String) {
+    /*private fun observeFileExistence(month:String,year: Int) {
         fileExistenceLiveData = checkFileExistence("holiday.db")
         val db = FirebaseFirestore.getInstance()
         val collectionRef = db.collection("SQLdb")
@@ -221,7 +238,7 @@ class HolidayListActivity : AppCompatActivity() {
                             if (updates.get(0).uniqueString == actions) {
                                 //readFileContent()
                                 binding.lottieAnimationView .visibility=View.GONE
-                                readFileContent(month)
+
 
 
                             } else {
@@ -303,9 +320,14 @@ class HolidayListActivity : AppCompatActivity() {
             }
         }
 
+    }*/
+
+
+
+    fun getCurrentYear(): Int {
+        val calendar = Calendar.getInstance()
+        return calendar.get(Calendar.YEAR)
     }
-
-
 
 
 }

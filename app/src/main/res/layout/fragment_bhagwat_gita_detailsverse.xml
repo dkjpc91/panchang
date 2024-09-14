@@ -63,15 +63,6 @@
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
-            <com.google.android.gms.ads.AdView
-                android:visibility="gone"
-                android:id="@+id/adView6"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                app:adSize="BANNER"
-                app:adUnitId="@string/bannerunitGitachapter" />
-
             <!-- Hindi Translation -->
             <TextView
 

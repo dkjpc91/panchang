@@ -21,6 +21,15 @@
         android:padding="27dp"
         android:src="@drawable/splashtxt"/>
 
+    <Spinner
+        android:layout_marginTop="20dp"
+        android:visibility="gone"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -83,6 +92,8 @@
         android:textColor="#F44336"/>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/monthview"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

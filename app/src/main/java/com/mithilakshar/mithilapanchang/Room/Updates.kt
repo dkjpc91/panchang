@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "files")
 data class Updates(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Int,
     val fileName: String,
     var uniqueString: String
 )

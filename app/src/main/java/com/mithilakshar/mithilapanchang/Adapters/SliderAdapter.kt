@@ -11,9 +11,9 @@ import com.mithilakshar.mithilapanchang.databinding.HolidaybanneritemBinding
 class SliderAdapter(private val itemList: List<Map<String, String>>) : RecyclerView.Adapter<SliderAdapter.SliderViewHolder>() {
 
     // Create a new list where each item is duplicated
-    private val modifiedList: List<Map<String, String>> = itemList.flatMap { item ->
+  /*  private val modifiedList: List<Map<String, String>> = itemList.flatMap { item ->
         listOf(item, item) // Each item appears twice
-    }
+    }*/
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SliderViewHolder {
         val binding = HolidaybanneritemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -28,7 +28,7 @@ class SliderAdapter(private val itemList: List<Map<String, String>>) : RecyclerV
         holder.bind(item,useCustomFont)
     }
 
-    override fun getItemCount(): Int = modifiedList.size
+    override fun getItemCount(): Int = itemList.size
 
     class SliderViewHolder(private val binding: HolidaybanneritemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Map<String, String>,useCustomFont: Boolean) {
@@ -41,7 +41,7 @@ class SliderAdapter(private val itemList: List<Map<String, String>>) : RecyclerV
 
             val typeface = if (useCustomFont) {
                 // Get the custom typeface from res/font
-                ResourcesCompat.getFont(binding.root.context, R.font.mithilakshar_dkj)
+                ResourcesCompat.getFont(binding.root.context, R.font.kalam)
             } else {
 
                 ResourcesCompat.getFont(binding.root.context, R.font.kalam)

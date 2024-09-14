@@ -4,21 +4,20 @@ import android.content.ContentValues
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.Spinner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 import com.mithilakshar.mithilapanchang.databinding.ActivityHolidayBinding
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
@@ -26,9 +25,7 @@ import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.Updates
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
-import com.mithilakshar.mithilapanchang.Utility.FileDownloaderProgress
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
-import com.mithilakshar.mithilapanchang.Utility.InAppReviewUtil
 import com.mithilakshar.mithilapanchang.Utility.dbDownloader
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
 import kotlinx.coroutines.launch
@@ -41,11 +38,11 @@ class HolidayActivity : AppCompatActivity() {
     private lateinit var fileExistenceLiveData: LiveData<Boolean>
     private lateinit var adView3: AdView
     private lateinit var updatesDao: UpdatesDao
-
     private lateinit var fileDownloader: FirebaseFileDownloader
     private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
+    private  var selectedyear:Int = getCurrentYear()
 
-
+    private lateinit var spinner: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityHolidayBinding.inflate(layoutInflater)
@@ -89,15 +86,75 @@ class HolidayActivity : AppCompatActivity() {
             ViewModelProvider(this, factory).get(BhagwatGitaViewModel::class.java)
 
 
-        observeFileExistence("holiday")
+        observeFileExistence("holiday",2)
 
 
+        fileDownloader = FirebaseFileDownloader(this)
+
+        updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
+
+        val dbDownloader= dbDownloader(updatesDao,fileDownloader)
+
+        val items = listOf(
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2024"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2025"),
+            )
+
+
+
+        val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, items)
+        spinner=binding.spinner
+        spinner.adapter = adapter
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedItem = parent?.getItemAtPosition(position) as? CustomSpinnerAdapter.SpinnerItem
+                selectedItem?.let {
+                    // Access the properties of SpinnerItem
+                    val iconResId = it.iconResId
+                    val text = it.text
+                    // Do something with the selected item
+
+                    binding.header.text="वार्षिक त्योहार कैलेंडर - $text"
+                    if (text == "2024") {
+                        // Perform action for Item 1
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    } else if (text == "2025") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    } else {
+                        // Default action
+
+                    }
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Handle the case when no item is selected (optional)
+            }
+        }
+
+
+
+        dbDownloader.observeFileExistence("holiday2025",this,lifecycleScope,11,this,progressCallback = { progress ->
+            runOnUiThread {
+                // Update UI with the progress
+                if (progress==100){
+
+                binding.spinner.visibility=View.VISIBLE
+                binding.monthview.visibility=View.VISIBLE
+
+                }
+            }
+        })
 
         binding.jan .setOnClickListener {
             val intent = Intent(this, HolidayListActivity::class.java)
             intent.putExtra("month", "जनवरी ")
             intent.putExtra("monthEng", "january")
             intent.putExtra("intValue", 1)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -107,6 +164,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "फरवरी ")
             intent.putExtra("monthEng", "february")
             intent.putExtra("intValue", 2)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -115,6 +173,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "मार्च ")
             intent.putExtra("monthEng", "march")
             intent.putExtra("intValue", 3)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -124,6 +183,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "अप्रैल ")
             intent.putExtra("monthEng", "april")
             intent.putExtra("intValue", 4)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -132,6 +192,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "मई ")
             intent.putExtra("monthEng", "may")
             intent.putExtra("intValue", 5)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -141,6 +202,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "जून ")
             intent.putExtra("monthEng", "june")
             intent.putExtra("intValue", 6)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -149,6 +211,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "जुलाई ")
             intent.putExtra("monthEng", "july")
             intent.putExtra("intValue", 7)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -158,6 +221,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "अगस्त ")
             intent.putExtra("monthEng", "august")
             intent.putExtra("intValue", 8)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -166,6 +230,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "सितंबर ")
             intent.putExtra("monthEng", "september")
             intent.putExtra("intValue", 9)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -175,6 +240,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "अक्टूबर ")
             intent.putExtra("monthEng", "october")
             intent.putExtra("intValue", 10)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -183,6 +249,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "नवंबर ")
             intent.putExtra("monthEng", "november")
             intent.putExtra("intValue", 11)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -192,6 +259,7 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("month", "दिसंबर ")
             intent.putExtra("monthEng", "december")
             intent.putExtra("intValue", 12)
+            intent.putExtra("year", selectedyear)
             startActivity(intent)
 
         }
@@ -228,11 +296,11 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-    private fun observeFileExistence(month:String) {
-        fileExistenceLiveData = checkFileExistence("holiday.db")
+    private fun observeFileExistence(month:String,id:Int) {
+        fileExistenceLiveData = checkFileExistence("$month.db")
         val db = FirebaseFirestore.getInstance()
         val collectionRef = db.collection("SQLdb")
-        val documentRef = collectionRef.document("holiday")
+        val documentRef = collectionRef.document("$month")
         fileExistenceLiveData.observe(this) { fileExists ->
             if (fileExists) {
 
@@ -240,7 +308,7 @@ class HolidayActivity : AppCompatActivity() {
                 documentRef.get().addOnSuccessListener {
                     if (it != null) {
                         val actions = it.getString("action") ?: "delete"
-                        val fileName = "holiday.db"
+                        val fileName = "$month.db"
                         lifecycleScope.launch {
                             val updates = updatesDao.getfileupdate(fileName)
                             if (updates.get(0).uniqueString == actions) {
@@ -250,15 +318,15 @@ class HolidayActivity : AppCompatActivity() {
 
 
                             } else {
-                                val holidayupdate = updatesDao.findById(2)
+                                val holidayupdate = updatesDao.findById(id)
                                 holidayupdate.let {
                                     it.uniqueString = actions
                                     updatesDao.update(it)
                                 }
 
 
-                                val storagePath = "SQLdb/holiday"
-                                downloadFile(storagePath, "delete", "holiday.db",progressCallback = { progress ->
+                                val storagePath = "SQLdb/$month"
+                                downloadFile(storagePath, "delete", "$month.db",progressCallback = { progress ->
                                     // Update your progress UI, e.g., a ProgressBar or TextView
                                     Log.d("DownloadProgress", "Download is $progress% done")
                                 })
@@ -293,8 +361,8 @@ class HolidayActivity : AppCompatActivity() {
                 // File does not exist, handle accordingly
             } else {
 
-                val storagePath = "SQLdb/holiday"
-                downloadFile(storagePath, "delete", "holiday.db",progressCallback = { progress ->
+                val storagePath = "SQLdb/$month"
+                downloadFile(storagePath, "delete", "$month.db",progressCallback = { progress ->
                     // Update your progress UI, e.g., a ProgressBar or TextView
                     Log.d("DownloadProgress", "Download is $progress% done")
                 })
@@ -313,13 +381,13 @@ class HolidayActivity : AppCompatActivity() {
                     if (it != null) {
                         val fileUrl = it.getString("test") ?: ""
                         val actions = it.getString("action") ?: "delete"
-                        val fileName = "holiday.db"
+                        val fileName = "$month.db"
                         lifecycleScope.launch {
 
-                            val holiday = Updates(id = 2,fileName = "holiday.db", uniqueString = "holiday")
+                            val holiday = Updates(id = id, fileName = "$month.db", uniqueString = "holiday")
                             updatesDao.insert(holiday)
 
-                            val holidayupdate = updatesDao.findById(2)
+                            val holidayupdate = updatesDao.findById(id)
                             holidayupdate.let {
                                 it.uniqueString = actions
                                 updatesDao.update(it)

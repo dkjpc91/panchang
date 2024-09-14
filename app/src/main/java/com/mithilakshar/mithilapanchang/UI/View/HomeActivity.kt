@@ -2,8 +2,6 @@ package com.mithilakshar.mithilapanchang.UI.View
 
 
 
-import java.io.FileOutputStream
-import java.io.IOException
 import android.content.Intent
 import java.time.format.TextStyle
 import android.media.AudioAttributes
@@ -37,8 +35,6 @@ import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
 
 
-import com.mithilakshar.mithilapanchang.Repository.FirestoreRepo
-
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.dbHelper
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
@@ -56,11 +52,8 @@ import android.net.Uri
 
 
 import android.util.Log
-import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.GridLayout
-import androidx.cardview.widget.CardView
 
 
 import androidx.lifecycle.LiveData
@@ -92,7 +85,6 @@ import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 import com.mithilakshar.mithilapanchang.Utility.dbDownloader
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
 import java.io.File
-import java.time.format.DateTimeFormatter
 
 
 @RequiresApi(Build.VERSION_CODES.DONUT)
@@ -475,7 +467,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        observeFileExistence("Gita")
+        //observeFileExistence("Gita")
 
 
 
@@ -612,12 +604,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
 
-        binding.mantra.setOnClickListener {
-            val i = Intent(this, MantraActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
 
         binding.katha.setOnClickListener {
             val i = Intent(this, KathaActivity::class.java)
@@ -626,12 +612,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             stopAudio()
         }
 
-        binding.Gita.setOnClickListener {
-            val i = Intent(this, GitaChapterActivity::class.java)
 
-            startActivity(i)
-            stopAudio()
-        }
 
         binding.purchase.setOnClickListener {
             val i = Intent(this, BillingActivity::class.java)
@@ -1088,7 +1069,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             val updates = updatesDao.getfileupdate(fileName)
                             if (updates.get(0).uniqueString == actions) {
                                 readFileContent()
-                                binding.Gita.visibility=View.VISIBLE
+                               // binding.Gita.visibility=View.VISIBLE
                                 Log.d("DownloadProgress", "reached here is $100% done")
 
                             } else {
@@ -1107,7 +1088,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     "Gita.db",
                                     progressCallback = { progress ->
                                         if(progress==100){
-                                            binding.Gita.visibility=View.VISIBLE
+                                            //binding.Gita.visibility=View.VISIBLE
 
                                         }
                                         // Update your progress UI, e.g., a ProgressBar or TextView
@@ -1136,7 +1117,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 downloadFile(storagePath, "delete", "Gita.db", progressCallback = { progress ->
                     // Update your progress UI, e.g., a ProgressBar or TextView
                     if(progress==100){
-                        binding.Gita.visibility=View.VISIBLE
+                       // binding.Gita.visibility=View.VISIBLE
 
                     }
                     Log.d("DownloadProgress", " Gita Download is $progress% done")
@@ -1149,7 +1130,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                         lifecycleScope.launch {
 
-                            val gita = Updates(id = 4 ,fileName = "Gita.db", uniqueString = "Gita")
+                            val gita = Updates(id = 4 , fileName = "Gita.db", uniqueString = "Gita")
                             updatesDao.insert(gita)
 
                             val gitaUpdate = updatesDao.findById(4)

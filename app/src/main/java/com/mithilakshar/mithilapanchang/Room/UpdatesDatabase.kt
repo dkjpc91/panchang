@@ -58,8 +58,11 @@ abstract class UpdatesDatabase : RoomDatabase() {
         val mantra = Updates(id = 1, fileName = "mantra.db", uniqueString = "mantra")
         val calander = Updates(id = 3, fileName = "calander.db", uniqueString = "calander")
         val vrat = Updates(id = 5, fileName = "vrat.db", uniqueString = "vrat")
+        val masterupdate = Updates(id = 99 , fileName = "masterupdate.db", uniqueString = "n")
+
 
         updatesDao.insert(gita)
+        updatesDao.insert(masterupdate)
 
 
     }

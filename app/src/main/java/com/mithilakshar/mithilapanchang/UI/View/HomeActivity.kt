@@ -47,6 +47,7 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
 import android.content.ContentValues.TAG
+import android.content.Context
 
 import android.net.Uri
 
@@ -80,9 +81,11 @@ import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
+import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 
 import com.mithilakshar.mithilapanchang.Utility.dbDownloader
+import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
 import java.io.File
 
@@ -100,7 +103,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var dbHelpercalander: dbHelper
     private lateinit var dbHelperimage: dbHelper
-    private lateinit var dbHelperholiday: dbHelper
+    private lateinit var dbHelperHoliday: dbHelper
+
 
     private lateinit var auth: FirebaseAuth
 
@@ -128,24 +132,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         private const val REQUEST_WRITE_STORAGE = 1
     }
 
-    var G1 = ""
-    var G2 = ""
 
-    private lateinit var fileExistenceLiveData: LiveData<Boolean>
+
 
     private lateinit var adView1: AdView
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
 
 
-    //slider
-    private lateinit var handler1: Handler
-    private lateinit var runnable: Runnable
     private var delayMillis: Long = 4000
-    private lateinit var viewPager: ViewPager2
-    private lateinit var sliderAdapter: SliderAdapter
 
-    var holidayMonthList: MutableList<Map<String, String>> = mutableListOf()
+    private lateinit var dbDownloadersequence: dbDownloadersequence
+
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,6 +162,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
         checkForAppUpdate()
+
+
 
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
@@ -261,7 +263,19 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        val cDate: LocalDate = LocalDate.now()
+
+
+
+
+
+
+
+
+
+
+
+
+    val cDate: LocalDate = LocalDate.now()
         val currentMonthString: String = cDate.month.name // Gets the current month in uppercase (e.g., "JANUARY")
         val currentDay: Int = cDate.dayOfMonth
 
@@ -270,74 +284,84 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         fileDownloader = FirebaseFileDownloader(this)
 
         updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-
         val dbDownloader= dbDownloader(updatesDao,fileDownloader)
+        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
 
-        dbDownloader.observeFileExistence("imageauto",this,lifecycleScope,5,this,progressCallback = { progress ->
-            runOnUiThread {
-                // Update UI with the progress
-                Log.d("HomeActivity", "Download progress: $progress%")
-                // You can display progress using a ProgressBar or any other UI component
+        val filesWithIds = listOf(
+            Pair("holiday", 2),
+            Pair("calander", 3),
+            Pair("holiday2025",11),
+            Pair("imageauto", 5)
+        )
+
+        lifecycleScope.launch {
+            val updateChecker = UpdateChecker(updatesDao)
+            val isUpdateNeeded = updateChecker.getUpdateStatus()
+            if (isUpdateNeeded!="a") {
+
+                Log.d("updatechecker", " :  needed $isUpdateNeeded")
+
+                dbDownloadersequence.observeMultipleFileExistence(
+                    filesWithIds,
+                    this@HomeActivity,
+                    lifecycleScope,
+                    homeActivity = this@HomeActivity, // Your activity
+                    progressCallback = { progress, filePair  ->
+
+
+
+                        Log.d("Progress", "File: $filePair, Progress: $progress%")
+
+
+                    },{
+
+
+
+                        dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
+
+
+                        setupViewPagerAndDatabase(
+                            context =this@HomeActivity,
+                            currentMonthString = currentMonthString,
+                            currentDay = currentDay,
+                            delayMillis = delayMillis,
+                            dbHelperHoliday
+                        )
+
+
+
+                    }
+                )
+
+
+            } else {
+                dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
+                dbHelpercalander = dbHelper(this@HomeActivity, "calander.db")
+                dbHelperimage = dbHelper(this@HomeActivity, "imageauto.db")
+                handleHolidayData(
+                    dbHelpercalander =dbHelpercalander,
+                    dbHelperimage =dbHelperimage,
+                    currentMonthString = currentMonthString,
+                    currentDay = currentDay,
+                    currentDayName = currentDayName
+                )
+
+                setupViewPagerAndDatabase(
+                    context =this@HomeActivity,
+                    currentMonthString = currentMonthString,
+                    currentDay = currentDay,
+                    delayMillis = delayMillis,
+                    dbHelperHoliday
+                )
+
+                Log.d("updatechecker", " : not needed $isUpdateNeeded")
             }
-        })
-        dbDownloader.observeFileExistence("calander",this,lifecycleScope,3,this,progressCallback = { progress ->
-            runOnUiThread {
-                // Update UI with the progress
-                Log.d("HomeActivity", "Download progress: $progress%")
-                // You can display progress using a ProgressBar or any other UI component
-            }
-        })
-        dbDownloader.observeFileExistence("holiday",this,lifecycleScope,2,this,progressCallback = { progress ->
-            runOnUiThread {
-                // Update UI with the progress
-                Log.d("HomeActivity", "Download progress: $progress%")
-                // You can display progress using a ProgressBar or any other UI component
-            }
-        })
-
-
-        dbHelpercalander = dbHelper(this, "calander.db")
-
-        dbHelperimage = dbHelper(this, "imageauto.db")
-        dbHelperholiday = dbHelper(this, "holiday.db")
-
-        val doescolumnexist=dbHelperholiday.doesColumnExist("holiday","datenumber")
-        Log.d("doescolumnexist", "$doescolumnexist")
-        holidayMonthList.add(mapOf(
-            "month" to "",
-            "date" to "",
-            "name" to "मिथिला पंचांग",
-            "desc" to ""
-            ))
-
-        if (doescolumnexist){
-
-            holidayMonthList= dbHelperholiday.getHolidaysByMonthdate(currentMonthString.lowercase(Locale.getDefault()),
-                currentDay.toString()).toMutableList()
-            Log.d("doescolumnexist", "dateexist $doescolumnexist")
-
-        }else{
-
-            holidayMonthList= dbHelperholiday.getHolidaysByMonth(currentMonthString.lowercase(Locale.getDefault()))
-                .toMutableList()
-            Log.d("doescolumnexist", "notexist $doescolumnexist")
         }
 
 
 
-        Log.d("holidaymonthlist", "$holidayMonthList")
-        handler1 = Handler(Looper.getMainLooper())
-        sliderAdapter = SliderAdapter(holidayMonthList)
-        viewPager=binding.viewPager
-        viewPager.adapter=sliderAdapter
 
-        runnable = object : Runnable {
-            override fun run() {
-                val nextItem = (viewPager.currentItem + 1) % sliderAdapter.itemCount
-                viewPager.setCurrentItem(nextItem, true)
-                handler.postDelayed(this, delayMillis)
-            }
-        }
+
 
 
         auth = FirebaseAuth.getInstance()
@@ -356,7 +380,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         "",
                         Toast.LENGTH_SHORT,
                     ).show()
-                   // updateUI(null)
+
                 }
             }
 
@@ -365,81 +389,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-         startAutoScroll()
 
 
 
 
-
-
-        val rowsFormonthdate = dbHelpercalander.getRowByMonthAndDate(currentMonthString,currentDay.toString())
-
-         speak = rowsFormonthdate?.get(key = "speak") ?:"मिथिला पंचांग में आहाँ के स्वागत अई"
-        Log.d("speak", "$speak")
-
-
-
-        val holidaytoday= rowsFormonthdate?.get(key = "holiday")
-        val holidaydesc= rowsFormonthdate?.get(key = "holidaydesc")
-        Log.d("todayimage", "$holidaytoday")
-        val holidayurl= dbHelperimage.getimageByholidayname(rowsFormonthdate?.get("holiday").toString())
-        Log.d("holidayurl", "$holidayurl")
-
-        if (holidayurl.isNotEmpty()) {
-            Log.d("holidayurl", "holidayurl.isNotEmpty()")
-            // Select a random entry from the list
-            val randomEntry = holidayurl[Random.nextInt(holidayurl.size)]
-            val randomImageUrl = randomEntry["imageurl"] // Replace "url" with the actual key that holds the image URL
-            Log.d("holidayurl", "$randomImageUrl")
-            // Now you can use randomImageUrl in your generateBitmap function
-
-            if (randomImageUrl != null) {
-                holidaybannerurl=randomImageUrl
-            }
-
-            val holidayNameData = holidaytoday.toString()
-            val holidayGreetingData = holidaydesc.toString()
-            val layoutBitmapGenerator = LayoutBitmapGenerator(this)
-
-            // Generate bitmap from the layout
-            layoutBitmapGenerator.generateBitmap(holidayNameData, holidayGreetingData, holidaybannerurl) { generatedBitmap ->
-                if (generatedBitmap != null) {
-                    // Use the generated bitmap, for example, display it in an ImageView
-
-                    Glide.with(this)
-                        .load(generatedBitmap)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE) // Avoid caching issues
-                        .skipMemoryCache(true) // Skip memory cache if needed
-                        .into(binding.homeBanner)
-                } else {
-                    // Handle the error
-                    Log.e("MyActivity", "Failed to generate bitmap from layout")
-                }
-            }
-
-            val todayimage=dbHelperimage.getimageByholidayname(holidaytoday.toString())
-
-
-
-            handler.postDelayed({
-
-                setupAppBarBanner(todayimage,viewModel)
-            }, 20000)
-
-
-
-
-
-
-        }else{
-            Log.d("holidayurl", "holidayurl.empty()")
-                val todayimage=dbHelperimage.getimageByDayName(currentDayName)
-                Log.d("holidayurl", "${currentDayName}")
-                Log.d("holidayurl", "$todayimage")
-
-                setupAppBarBanner(todayimage,viewModel)
-
-        }
 
 
         textToSpeech = TextToSpeech(this, TextToSpeech.OnInitListener { status ->
@@ -462,9 +415,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-
-
-        //observeFileExistence("Gita")
 
 
 
@@ -644,9 +594,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    private fun startAutoScroll() {
-        handler1.postDelayed(runnable, delayMillis)
-    }
+
 
 
     private fun switchFabColor(fab: FloatingActionButton) {
@@ -755,7 +703,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     override fun onDestroy() {
-        handler1.removeCallbacks(runnable)
+
 
         if (::adView1.isInitialized) {
             adView1.destroy()
@@ -779,7 +727,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onPause() {
-        handler1.removeCallbacks(runnable)
+
         if (::adView.isInitialized) {
             adView.pause()
         }
@@ -961,173 +909,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
-        if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
-                if (downloadedFile != null) {
-                    // File downloaded successfully, do something with the file if needed
-                    Log.d(TAG, "File downloaded successfully: $downloadedFile")
-
-                    // Notify UI or perform tasks with downloaded file
-                    handleDownloadedFile(downloadedFile)
-                } else {
-                    // Handle the case where download failed
-                    Log.d(TAG, "Download failed for file: $localFileName")
-                }
-            }, progressCallback)
-        } else {
-            Log.e(TAG, "fileDownloader is not initialized.")
-        }
-    }
-
-    private fun handleDownloadedFile(downloadedFile: File) {
-
-        readFileContent()
-
-    }
 
 
-    private fun readFileContent() {
-       // binding.HomeBoard.visibility=View.VISIBLE
 
-        val dbHelper = dbHelper(applicationContext, "Gita.db")
-        val av = dbHelper.getRowCount("Gita")
-        if (av > 0) {
-            val avt = dbHelper.getRowValues("Gita", Random.nextInt(av))
-            if (avt != null) {
-
-                G1 = avt[1].toString()
-                G2 = avt[2].toString()
-                Log.d("gita", "$G2")
-                Log.d("gita", "$G2")
-
-                if (G1 != null){
-                    val formattedText  = G1
-                    runOnUiThread {
-                        Log.d("gita", "$G1")
-
-                    }
-
-                }else{
-
-                    binding.homeBanner.visibility=View.GONE
-                }
-
-            }
-        } else {
-            // Handle case when file exists but is empty (if applicable)
-            binding.homeBanner.visibility=View.GONE
-
-        }
-    }
-
-
-    private fun recreateActivity() {
-        val intent = intent // Get the current intent to pass extras if needed
-
-        finish() // Finish the current activity
-        startActivity(intent) // Start the activity again
-    }
-
-
-    private fun observeFileExistence(month:String) {
-        fileExistenceLiveData = checkFileExistence("Gita.db")
-        val db = FirebaseFirestore.getInstance()
-        val collectionRef = db.collection("SQLdb")
-        val documentRef = collectionRef.document("Gita")
-        fileExistenceLiveData.observe(this) { fileExists ->
-            if (fileExists) {
-
-
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "Gita.db"
-                        lifecycleScope.launch {
-                            val updates = updatesDao.getfileupdate(fileName)
-                            if (updates.get(0).uniqueString == actions) {
-                                readFileContent()
-                               // binding.Gita.visibility=View.VISIBLE
-                                Log.d("DownloadProgress", "reached here is $100% done")
-
-                            } else {
-
-                                val gitaUpdate = updatesDao.findById(4)
-                                gitaUpdate.let {
-                                    it.uniqueString = actions
-                                    updatesDao.update(it)
-                                }
-
-
-                                val storagePath = "SQLdb/Gita"
-                                downloadFile(
-                                    storagePath,
-                                    "delete",
-                                    "Gita.db",
-                                    progressCallback = { progress ->
-                                        if(progress==100){
-                                            //binding.Gita.visibility=View.VISIBLE
-
-                                        }
-                                        // Update your progress UI, e.g., a ProgressBar or TextView
-                                        Log.d("DownloadProgress", "Gita  is $progress% done")
-
-                                    })
-                            }
-                        }
-
-
-                        // File exists, proceed with reading its content
-
-
-                    } else {
-
-
-                    }
-
-
-                }
-
-                // File does not exist, handle accordingly
-            } else {
-
-                val storagePath = "SQLdb/Gita"
-                downloadFile(storagePath, "delete", "Gita.db", progressCallback = { progress ->
-                    // Update your progress UI, e.g., a ProgressBar or TextView
-                    if(progress==100){
-                       // binding.Gita.visibility=View.VISIBLE
-
-                    }
-                    Log.d("DownloadProgress", " Gita Download is $progress% done")
-                })
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val fileUrl = it.getString("test") ?: ""
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "Gita.db"
-
-                        lifecycleScope.launch {
-
-                            val gita = Updates(id = 4 , fileName = "Gita.db", uniqueString = "Gita")
-                            updatesDao.insert(gita)
-
-                            val gitaUpdate = updatesDao.findById(4)
-                            gitaUpdate.let {
-                                it.uniqueString = actions
-                                updatesDao.update(it)
-                            }
-
-                        }
-
-                    }
-
-
-                }
-
-            }
-        }
-
-    }
 
     fun checkFileExistence(fileName: String): LiveData<Boolean> {
         val fileExistsLiveData = MutableLiveData<Boolean>()
@@ -1172,7 +956,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (todayimage.isNotEmpty()) {
                         val random = Random.nextInt(todayimage.size)
                         val randomImage = todayimage[random]
-                        Log.d("appbar", "$randomImage")
+                        Log.d("appbar", "rN$randomImage")
 
 // Adjust ImageView height
                         val maxHeightInDp = 700
@@ -1252,6 +1036,139 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 binding.floatingActionButton.visibility = View.VISIBLE
             }
         }
+    }
+
+
+    fun setupViewPagerAndDatabase(
+        context: Context,
+        currentMonthString: String,
+        currentDay: Int,
+        delayMillis: Long,
+        dbHelperHoliday:dbHelper
+    ) {
+
+
+        // Check if column exists
+        val doesColumnExist = dbHelperHoliday.doesColumnExist("holiday", "datenumber")
+        Log.d("doesColumnExist", "$doesColumnExist")
+
+        // Prepare holidayMonthList
+        val holidayMonthList: MutableList<Map<String, String>> = mutableListOf(
+            mapOf(
+                "month" to "मिथिला पंचांग",
+                "date" to "",
+                "name" to "मिथिला पंचांग",
+                "desc" to "मिथिला पंचांग में आहाँ के स्वागत आयी"
+            )
+        )
+
+        // Fetch holidays based on column existence
+        if (doesColumnExist) {
+            holidayMonthList.addAll(
+                dbHelperHoliday.getHolidaysByMonthdate(
+                    currentMonthString.lowercase(Locale.getDefault()),
+                    currentDay.toString()
+                )
+            )
+            Log.d("doesColumnExist", "dateExists $doesColumnExist")
+        } else {
+            holidayMonthList.addAll(
+                dbHelperHoliday.getHolidaysByMonth(
+                    currentMonthString.lowercase(Locale.getDefault())
+                )
+            )
+            Log.d("doesColumnExist", "notExist $doesColumnExist")
+        }
+
+        Log.d("holidayMonthList", "$holidayMonthList")
+
+        // Set up ViewPager and adapter
+        val handler = Handler(Looper.getMainLooper())
+        val sliderAdapter = SliderAdapter(holidayMonthList)
+        val viewPager: ViewPager2 = findViewById(R.id.viewPager) // Replace with actual ViewPager2 ID
+
+        viewPager.adapter = sliderAdapter
+        binding.frame.visibility=View.VISIBLE
+
+        // Runnable for ViewPager auto-scrolling
+        val runnable = object : Runnable {
+            override fun run() {
+                val nextItem = (viewPager.currentItem + 1) % sliderAdapter.itemCount
+                viewPager.setCurrentItem(nextItem, true)
+                handler.postDelayed(this, delayMillis)
+            }
+        }
+
+        // Start auto-scrolling
+        handler.postDelayed(runnable, delayMillis)
+    }
+
+
+
+
+    fun handleHolidayData(dbHelpercalander: dbHelper, dbHelperimage: dbHelper, currentMonthString: String, currentDay: Int, currentDayName: String) {
+        val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
+        val speak = rowsFormonthdate?.get("speak") ?: "मिथिला पंचांग में आहाँ के स्वागत अई"
+        Log.d("speak", "$speak")
+
+        val holidaytoday = rowsFormonthdate?.get("holiday")
+        val holidaydesc = rowsFormonthdate?.get("holidaydesc")
+        Log.d("todayimage", "$holidaytoday")
+
+        val holidayurl = dbHelperimage.getimageByholidayname(holidaytoday.toString())
+        Log.d("holidayurl", "HH $holidayurl")
+
+        if (holidayurl.isNotEmpty()) {
+            handleHolidayWithImage(holidayurl, holidaytoday, holidaydesc)
+            Log.d("holidayurl", "notempty")
+        } else {
+            handleHolidayWithoutImage(dbHelperimage, currentDayName)
+            Log.d("holidayurl", "empty")
+        }
+    }
+
+    fun getRowByMonthAndDate(dbHelpercalander: dbHelper, currentMonthString: String, currentDay: String): Map<String, String>? {
+        return dbHelpercalander.getRowByMonthAndDate(currentMonthString, currentDay)
+    }
+
+    fun handleHolidayWithImage(holidayurl: List<Map<String, String>>, holidaytoday: String?, holidaydesc: String?) {
+        Log.d("holidayurl", "holidayurl.isNotEmpty()")
+        val randomEntry = holidayurl[Random.nextInt(holidayurl.size)]
+        val randomImageUrl = randomEntry["imageurl"]
+        Log.d("holidayurl", "$randomImageUrl")
+
+        if (randomImageUrl != null) {
+            val holidaybannerurl = randomImageUrl
+            val holidayNameData = holidaytoday.toString()
+            val holidayGreetingData = holidaydesc.toString()
+
+            val layoutBitmapGenerator = LayoutBitmapGenerator(this)
+            layoutBitmapGenerator.generateBitmap(holidayNameData, holidayGreetingData, holidaybannerurl) { generatedBitmap ->
+                if (generatedBitmap != null) {
+                    Glide.with(this)
+                        .load(generatedBitmap)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .skipMemoryCache(true)
+                        .into(binding.homeBanner)
+                } else {
+                    Log.e("MyActivity", "Failed to generate bitmap from layout")
+                }
+            }
+
+            val todayimage = dbHelperimage.getimageByholidayname(holidaytoday.toString())
+            handler.postDelayed({
+                setupAppBarBanner(todayimage, viewModel)
+            }, 20000)
+        }
+    }
+
+    fun handleHolidayWithoutImage(dbHelperimage: dbHelper, currentDayName: String) {
+        Log.d("holidayurl", "holidayurl.empty()")
+        val todayimage = dbHelperimage.getimageByDayName(currentDayName)
+        Log.d("holidayurl", "$currentDayName")
+        Log.d("holidayurl", "$todayimage")
+
+        setupAppBarBanner(todayimage, viewModel)
     }
 
 

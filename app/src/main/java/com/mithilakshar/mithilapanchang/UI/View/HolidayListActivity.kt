@@ -30,6 +30,7 @@ import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.DownloadManager
 import com.mithilakshar.mithilapanchang.Utility.FileDownloaderProgress
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
+import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
 import com.mithilakshar.mithilapanchang.Utility.dbHelper
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
 
@@ -44,7 +45,6 @@ class HolidayListActivity : AppCompatActivity() {
     private lateinit var downloadmanager: DownloadManager
     private lateinit var adView5: AdView
     lateinit var binding:ActivityHolidaylistBinding
-    private lateinit var fileExistenceLiveData: LiveData<Boolean>
     private lateinit var updatesDao: UpdatesDao
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: holidayadapter
@@ -52,6 +52,9 @@ class HolidayListActivity : AppCompatActivity() {
 
     private lateinit var fileDownloader: FirebaseFileDownloader
     private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
+
+
+    private lateinit var dbDownloadersequence: dbDownloadersequence
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +93,44 @@ class HolidayListActivity : AppCompatActivity() {
 
         fileDownloader = FirebaseFileDownloader(this)
         updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
+
+        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
+        val filesWithIds = listOf(
+            Pair("file1", 20),
+            Pair("file2", 21),
+            Pair("file3", 22),
+            Pair("filef", 23)
+        )
+
+        val lastFile = filesWithIds.lastOrNull()?.first
+        dbDownloadersequence.observeMultipleFileExistence(
+            filesWithIds,
+            this,
+            lifecycleScope,
+            homeActivity = this, // Your activity
+            progressCallback = { progress, filePair  ->
+
+                val filename = filePair?.first()
+
+                Log.d("Progress", "File: $filename, Progress: $progress%")
+
+                if (filename != null) {
+                    if (filename.equals(lastFile) ) {
+                        // Check if progress is 100% for the last file
+                        if (progress == 100) {
+                            Log.d("Download", "The last file has been downloaded$filename.")
+                            // Handle completion logic here
+                        }
+                    }
+                }
+            },{
+
+                Log.d("Download", "All files have been processed")
+            }
+        )
+
+
+
 
         val factory = BhagwatGitaViewModel.factory(fileDownloader)
         bhagwatgitaviewmodel =

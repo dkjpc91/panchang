@@ -123,7 +123,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private lateinit var fileDownloader: FirebaseFileDownloader
-    private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
 
     companion object {
         private const val REQUEST_WRITE_STORAGE = 1
@@ -460,9 +459,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        val factory = BhagwatGitaViewModel.factory(fileDownloader)
-        bhagwatgitaviewmodel =
-            ViewModelProvider(this, factory).get(BhagwatGitaViewModel::class.java)
+
 
 
 
@@ -476,14 +473,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
-
-            if (it >=100){
-
-                binding.HomeBoard.visibility=View.VISIBLE
-            }
-
-        })
 
 
 
@@ -573,14 +562,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        binding.HomeBoard.setOnClickListener {
-            val i = Intent(this, BoardDetailActivity::class.java)
-            i.putExtra("g1",G1)
-            i.putExtra("g2",G2)
 
-            startActivity(i)
-            stopAudio()
-        }
 
         binding.alarm.setOnClickListener {
             val i = Intent(this, AlarmActivity::class.java)
@@ -627,10 +609,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         }
 
-        binding.bannerVerseshare.setOnClickListener {
-            ViewShareUtil.shareViewAsImageDirectly(binding.HomeBoard,this)
 
-        }
 
         binding.share.setOnClickListener {
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -1009,7 +988,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     private fun readFileContent() {
-        binding.HomeBoard.visibility=View.VISIBLE
+       // binding.HomeBoard.visibility=View.VISIBLE
 
         val dbHelper = dbHelper(applicationContext, "Gita.db")
         val av = dbHelper.getRowCount("Gita")
@@ -1026,8 +1005,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val formattedText  = G1
                     runOnUiThread {
                         Log.d("gita", "$G1")
-                        binding.bannerVerse.text = formattedText
-                        binding.bannerVerse.invalidate()
+
                     }
 
                 }else{

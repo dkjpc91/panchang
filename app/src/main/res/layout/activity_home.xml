@@ -159,57 +159,7 @@
                 android:layout_marginBottom="2.5dp">
 
 
-                <FrameLayout
-                    android:visibility="gone"
-                    android:background="@drawable/gitabanner"
-                    android:alpha="0.8"
-                    android:id="@+id/HomeBoard"
-                    android:layout_marginTop="1dp"
-                    android:layout_marginBottom="1dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_marginBottom="6dp"
-                            android:id="@+id/bannerVerse"
-                            android:layout_width="match_parent"
-                            android:layout_height="180dp"
-                            android:textSize="24sp"
-                            android:gravity="center"
-                            android:textColor="#F41505"
-                            android:layout_marginTop="178dp"
-                            android:padding="2dp"
-                            />
-
-
-                        <ImageView
-                            android:id="@+id/bannerVerseshare"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/forward"
-                            android:layout_below="@id/bannerVerse"
-                            android:layout_alignParentEnd="true"
-                            android:layout_marginTop="-16dp"
-                            android:layout_marginRight="10dp"
-                            app:tint="@color/blue" />
-
-
-
-
-                    </RelativeLayout>
-
-
-
-
-
-
-                </FrameLayout>
 
                 <com.google.android.gms.ads.AdView
                     android:visibility="gone"

@@ -14,8 +14,8 @@ android {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
         targetSdk = 34
-        versionCode = 22
-        versionName = "22.0"
+        versionCode = 23
+        versionName = "23.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

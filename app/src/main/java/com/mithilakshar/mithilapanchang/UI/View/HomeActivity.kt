@@ -335,9 +335,32 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
             } else {
+
                 dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
                 dbHelpercalander = dbHelper(this@HomeActivity, "calander.db")
                 dbHelperimage = dbHelper(this@HomeActivity, "imageauto.db")
+                homeBroadcast = viewModel.gethomeBroadcast()
+                Log.d("homeBroadcast", "$homeBroadcast")
+
+                if (homeBroadcast.isNullOrEmpty()) {
+                    binding.floatingActionButton.visibility = View.GONE
+                } else {
+                    binding.floatingActionButton.visibility = View.VISIBLE
+                }
+                val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
+                speak = rowsFormonthdate?.get("speak") ?: "मिथिला पंचांग में आहाँ के स्वागत अई"
+                textToSpeech = TextToSpeech(this@HomeActivity, TextToSpeech.OnInitListener { status ->
+                    if (status == TextToSpeech.SUCCESS) {
+                        textToSpeech?.language = Locale.forLanguageTag("hi")
+                        Log.d("speak", "TTS success")
+                        delayedTask(1000,speak.toString())
+                    } else {
+                        Log.d("speak", "TTS failed")
+                    }
+                })
+
+
+
                 handleHolidayData(
                     dbHelpercalander =dbHelpercalander,
                     dbHelperimage =dbHelperimage,
@@ -394,16 +417,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-
-        textToSpeech = TextToSpeech(this, TextToSpeech.OnInitListener { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                textToSpeech?.language = Locale.forLanguageTag("hi")
-                Log.d("speak", "TTS success")
-                delayedTask(1000,speak.toString())
-            } else {
-                Log.d("speak", "TTS failed")
-            }
-        })
 
 
 
@@ -476,7 +489,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                 switchFabColor(binding.floatingActionButton)
 
-                delayedBroadcast(500)
+                delayedBroadcast(1000,binding.floatingActionButton)
 
 
             } else {
@@ -853,12 +866,12 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    private fun delayedBroadcast(delayMillis: Int) {
+    private fun delayedBroadcast(delayMillis: Int,fab: FloatingActionButton) {
         handler.postDelayed({ // Your code to be executed after the delay
 
             stopAudio()
-            playAudio(homeBroadcast)
-
+            playAudio(homeBroadcast,fab)
+            Log.d("delayedBroadcast", "reached here delayedBroadcast")
         }, delayMillis.toLong())
     }
 
@@ -880,9 +893,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     }
 
-    fun playAudio(audioURL: String) {
+    fun playAudio(audioURL: String,fab:FloatingActionButton) {
 
-
+        Log.d("delayedBroadcast", "reached here playAudio $audioURL")
         try {
             // Set the data source for the MediaPlayer
             mediaPlayer.setDataSource(audioURL)
@@ -896,8 +909,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
 
             mediaPlayer.setOnCompletionListener {
-                Toast.makeText(this, "audio completed", Toast.LENGTH_SHORT).show()
-                isFabClicked = !isFabClicked
+                switchFabColor(fab)
             }
 
         } catch (e: Exception) {
@@ -928,114 +940,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    fun setupAppBarBanner(todayimage: List<Map<String, String>>) {
-        Log.d("holidayurl", "reached here ")
-        // Set up the app bar banner
-        lifecycleScope.launch {
-            val appbarbannerurls = viewModel.getappbarImagelist("appbar")
-            Log.d("holidayurl", " app bar url $appbarbannerurls")
 
-            val randomIndex = if (appbarbannerurls.isNotEmpty()) {
-                Random.nextInt(appbarbannerurls.size)
-            } else {
-                0
-            }
-
-            val appbarbannerurl = if (appbarbannerurls.isNotEmpty()) {
-                appbarbannerurls[randomIndex]
-            } else {
-                "empty"
-            }
-
-            Log.d("appbar", "$appbarbannerurl")
-
-
-                if (appbarbannerurl == "empty") {
-                    Log.d("appbar", "empty")
-                    if (todayimage.isNotEmpty()) {
-                        val random = Random.nextInt(todayimage.size)
-                        val randomImage = todayimage[random]
-                        Log.d("appbar", "rN$randomImage")
-
-// Adjust ImageView height
-                        val maxHeightInDp = 700
-                        val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
-
-                        val imageView = binding.homeBanner
-
-                        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-                            override fun onGlobalLayout() {
-                                val contentHeight = imageView.height
-                                val params = imageView.layoutParams as ViewGroup.LayoutParams
-
-                                // If the content height is greater than maxHeight, use maxHeight
-                                params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                                imageView.layoutParams = params
-
-                                // Remove the listener to prevent it from being called again
-                                imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                            }
-                        }
-
-                        // Add the global layout listener
-                        imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-
-                        Glide.with(binding.root.context).load(randomImage["imageurl"])
-                            .into(imageView)
-                        imageView.invalidate()
-
-                    } else {
-                        Log.d("appbar", "inelse")
-                    }
-                }
-
-
-            else {
-                Log.d("appbar", "notempty")
-                if (appbarbannerurls.isNotEmpty()) {
-                    val random = Random.nextInt(appbarbannerurls.size)
-
-
-                    ///
-                    val maxHeightInDp = 700
-                    val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
-
-                    val imageView = binding.homeBanner
-
-                    val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            val contentHeight = imageView.height
-                            val params = imageView.layoutParams as ViewGroup.LayoutParams
-
-                            // If the content height is greater than maxHeight, use maxHeight
-                            params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                            imageView.layoutParams = params
-
-                            // Remove the listener to prevent it from being called again
-                            imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        }
-                    }
-
-                    // Add the global layout listener
-                    imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-                    Log.d("appbar", "$appbarbannerurls")
-
-                    Glide.with(binding.root.context).load(appbarbannerurls[random])
-                        .into(imageView)
-                    imageView.invalidate()
-
-                }
-            }
-
-            val homeBroadcast = viewModel.gethomeBroadcast()
-
-            if (homeBroadcast.isNullOrEmpty()) {
-                binding.floatingActionButton.visibility = View.GONE
-            } else {
-                binding.floatingActionButton.visibility = View.VISIBLE
-            }
-        }
-    }
 
 
     fun setupViewPagerAndDatabase(
@@ -1107,22 +1012,25 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     fun handleHolidayData(dbHelpercalander: dbHelper, dbHelperimage: dbHelper, currentMonthString: String, currentDay: Int, currentDayName: String) {
         val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
-        val speak = rowsFormonthdate?.get("speak") ?: "मिथिला पंचांग में आहाँ के स्वागत अई"
-        Log.d("speak", "$speak")
+        Log.d("todayimage", "speak $speak")
 
         val holidaytoday = rowsFormonthdate?.get("holiday")
         val holidaydesc = rowsFormonthdate?.get("holidaydesc")
-        Log.d("todayimage", "$holidaytoday")
+        Log.d("todayimage", "imge $holidaytoday")
+        Log.d("todayimage", "desc$holidaydesc")
 
         val holidayurl = dbHelperimage.getimageByholidayname(holidaytoday.toString())
         Log.d("holidayurl", "HH $holidayurl")
 
-        if (holidayurl.isNotEmpty()) {
-            handleHolidayWithImage(holidayurl, holidaytoday, holidaydesc)
-            Log.d("holidayurl", "notempty")
-        } else {
+        if (holidaytoday.isNullOrEmpty()) {
+
             handleHolidayWithoutImage(dbHelperimage, currentDayName)
-            Log.d("holidayurl", "empty")
+            Log.d("holidayurl", "today empty")
+
+        } else {
+
+            handleHolidayWithImage(holidayurl, holidaytoday, holidaydesc)
+            Log.d("holidayurl", "today notempty")
         }
     }
 
@@ -1168,6 +1076,111 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         Log.d("holidayurl", "$todayimage")
 
         setupAppBarBanner(todayimage)
+    }
+
+
+
+    fun setupAppBarBanner(todayimage: List<Map<String, String>>) {
+        Log.d("holidayurl", "reached here ")
+        // Set up the app bar banner
+        lifecycleScope.launch {
+            val appbarbannerurls = viewModel.getappbarImagelist("appbar")
+            Log.d("holidayurl", " app bar url $appbarbannerurls")
+
+            val randomIndex = if (appbarbannerurls.isNotEmpty()) {
+                Random.nextInt(appbarbannerurls.size)
+            } else {
+                0
+            }
+
+            val appbarbannerurl = if (appbarbannerurls.isNotEmpty()) {
+                appbarbannerurls[randomIndex]
+            } else {
+                "empty"
+            }
+
+            Log.d("appbar", "$appbarbannerurl")
+
+
+            if (appbarbannerurl == "empty") {
+                Log.d("appbar", "empty")
+                if (todayimage.isNotEmpty()) {
+                    val random = Random.nextInt(todayimage.size)
+                    val randomImage = todayimage[random]
+                    Log.d("appbar", "rN$randomImage")
+
+// Adjust ImageView height
+                    val maxHeightInDp = 700
+                    val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
+
+                    val imageView = binding.homeBanner
+
+                    val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            val contentHeight = imageView.height
+                            val params = imageView.layoutParams as ViewGroup.LayoutParams
+
+                            // If the content height is greater than maxHeight, use maxHeight
+                            params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
+                            imageView.layoutParams = params
+
+                            // Remove the listener to prevent it from being called again
+                            imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        }
+                    }
+
+                    // Add the global layout listener
+                    imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+
+                    Glide.with(binding.root.context).load(randomImage["imageurl"])
+                        .into(imageView)
+                    imageView.invalidate()
+
+                } else {
+                    Log.d("appbar", "inelse")
+                }
+            }
+
+
+            else {
+                Log.d("appbar", "notempty")
+                if (appbarbannerurls.isNotEmpty()) {
+                    val random = Random.nextInt(appbarbannerurls.size)
+
+
+                    ///
+                    val maxHeightInDp = 700
+                    val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
+
+                    val imageView = binding.homeBanner
+
+                    val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            val contentHeight = imageView.height
+                            val params = imageView.layoutParams as ViewGroup.LayoutParams
+
+                            // If the content height is greater than maxHeight, use maxHeight
+                            params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
+                            imageView.layoutParams = params
+
+                            // Remove the listener to prevent it from being called again
+                            imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        }
+                    }
+
+                    // Add the global layout listener
+                    imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+                    Log.d("appbar", "$appbarbannerurls")
+
+                    Glide.with(binding.root.context).load(appbarbannerurls[random])
+                        .into(imageView)
+                    imageView.invalidate()
+
+                }
+            }
+
+
+        }
     }
 
 

@@ -928,13 +928,12 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    fun setupAppBarBanner(todayimage: List<Map<String, String>>, viewModel: HomeViewModel
-    ) {
+    fun setupAppBarBanner(todayimage: List<Map<String, String>>) {
         Log.d("holidayurl", "reached here ")
         // Set up the app bar banner
         lifecycleScope.launch {
             val appbarbannerurls = viewModel.getappbarImagelist("appbar")
-            Log.d("holidayurl", "$appbarbannerurls")
+            Log.d("holidayurl", " app bar url $appbarbannerurls")
 
             val randomIndex = if (appbarbannerurls.isNotEmpty()) {
                 Random.nextInt(appbarbannerurls.size)
@@ -1157,7 +1156,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             val todayimage = dbHelperimage.getimageByholidayname(holidaytoday.toString())
             handler.postDelayed({
-                setupAppBarBanner(todayimage, viewModel)
+                setupAppBarBanner(todayimage)
             }, 20000)
         }
     }
@@ -1168,7 +1167,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         Log.d("holidayurl", "$currentDayName")
         Log.d("holidayurl", "$todayimage")
 
-        setupAppBarBanner(todayimage, viewModel)
+        setupAppBarBanner(todayimage)
     }
 
 

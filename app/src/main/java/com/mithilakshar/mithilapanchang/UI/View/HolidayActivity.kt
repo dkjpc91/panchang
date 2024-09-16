@@ -26,6 +26,7 @@ import com.mithilakshar.mithilapanchang.Room.Updates
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
+import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.dbDownloader
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class HolidayActivity : AppCompatActivity() {
     private lateinit var fileDownloader: FirebaseFileDownloader
     private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
     private  var selectedyear:Int = getCurrentYear()
+    private lateinit var interstitialAdManager: InterstitialAdManager
 
     private lateinit var spinner: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +78,9 @@ class HolidayActivity : AppCompatActivity() {
             }
         }
         adView3.loadAd(adRequest)
+
+        interstitialAdManager = InterstitialAdManager(this)
+        interstitialAdManager.loadAd {  }
 
 
         fileDownloader = FirebaseFileDownloader(this)
@@ -157,6 +162,10 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("year", selectedyear)
             startActivity(intent)
 
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
+
         }
 
         binding.feb .setOnClickListener {
@@ -167,6 +176,10 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("year", selectedyear)
             startActivity(intent)
 
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
+
         }
         binding.mar .setOnClickListener {
             val intent = Intent(this, HolidayListActivity::class.java)
@@ -175,6 +188,10 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 3)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 
@@ -185,6 +202,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 4)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
         binding.may .setOnClickListener {
@@ -194,6 +214,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 5)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 
@@ -204,6 +227,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 6)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
         binding.jul .setOnClickListener {
@@ -213,6 +239,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 7)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 
@@ -223,6 +252,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 8)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
         binding.sep .setOnClickListener {
@@ -232,6 +264,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 9)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 
@@ -242,6 +277,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 10)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
         binding.nov .setOnClickListener {
@@ -251,6 +289,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 11)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 
@@ -261,6 +302,9 @@ class HolidayActivity : AppCompatActivity() {
             intent.putExtra("intValue", 12)
             intent.putExtra("year", selectedyear)
             startActivity(intent)
+            interstitialAdManager.showAd(this){
+                startActivity(intent)
+            }
 
         }
 

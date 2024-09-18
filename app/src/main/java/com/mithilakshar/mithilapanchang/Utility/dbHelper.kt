@@ -191,7 +191,7 @@ class dbHelper(context: Context, dbName: String) {
             val defaultHoliday = mutableMapOf<String, String>()
             defaultHoliday["month"] = monthName
             defaultHoliday["date"] = ""
-            defaultHoliday["name"] = "मिथिला पंचांग के प्रयोग के लेल धन्यवाद।"
+            defaultHoliday["name"] = "अपडेट प्रक्रिया में"
             holidays.add(defaultHoliday)
         }
 
@@ -232,7 +232,7 @@ class dbHelper(context: Context, dbName: String) {
             val defaultHoliday = mutableMapOf<String, String>()
             defaultHoliday["month"] = monthName
             defaultHoliday["date"] = ""
-            defaultHoliday["name"] = "मिथिला पंचांग के प्रयोग के लेल धन्यवाद।"
+            defaultHoliday["name"] = "अपडेट प्रक्रिया में।"
             holidays.add(defaultHoliday)
         }
 
@@ -274,7 +274,7 @@ class dbHelper(context: Context, dbName: String) {
             val defaultHoliday = mutableMapOf<String, String>()
             defaultHoliday["month"] = monthName
             defaultHoliday["date"] = ""
-            defaultHoliday["name"] = "मिथिला पंचांग के प्रयोग के लेल धन्यवाद।"
+            defaultHoliday["name"] = "मअपडेट प्रक्रिया में।"
             holidays.add(defaultHoliday)
         }
 
@@ -371,6 +371,77 @@ class dbHelper(context: Context, dbName: String) {
         }
         return rows
     }
+
+    //get row by getRowsByColumnKeywordIfExists
+
+    @SuppressLint("Range")
+    fun getRowsByColumnKeywordIfExists(tableName: String, columnName: String, keyword: String): List<Map<String, Any?>> {
+        val rows = mutableListOf<Map<String, Any?>>()
+
+        // Step 1: Check if column exists
+        val TAG_COLUMN_CHECK = "ColumnCheck"
+        Log.d(TAG_COLUMN_CHECK, "Checking if column $columnName exists in table $tableName")
+
+        if (!doesColumnExist(tableName, columnName)) {
+            Log.e(TAG_COLUMN_CHECK, "Column $columnName does not exist in table $tableName.")
+            return emptyList()  // Return an empty list if the column doesn't exist
+        }
+
+        Log.d(TAG_COLUMN_CHECK, "Column $columnName exists. Proceeding with query.")
+
+        db?.let { database ->
+            // Step 2: Database open check
+            val TAG_DB_CHECK = "DatabaseCheck"
+            if (!database.isOpen) {
+                Log.w(TAG_DB_CHECK, "Database not open for reading rows by column keyword")
+                return emptyList()
+            }
+            Log.d(TAG_DB_CHECK, "Database is open. Preparing to run query.")
+
+            // Step 3: Query execution with exact match
+            val TAG_QUERY_EXECUTION = "QueryExecution"
+            val query = "SELECT * FROM $tableName WHERE $columnName = ?"
+            val selectionArgs = arrayOf(keyword)  // No wildcards for exact match
+            Log.d(TAG_QUERY_EXECUTION, "Executing query: $query with keyword: $keyword")
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                // Step 4: Fetch column names
+                val TAG_COLUMN_FETCH = "ColumnFetch"
+                val columnNames = getColumnNames(tableName)
+                Log.d(TAG_COLUMN_FETCH, "Fetched column names: $columnNames")
+
+                var rowsFound = false
+                while (cursor.moveToNext()) {
+                    rowsFound = true
+                    val rowData = mutableMapOf<String, Any?>()
+                    Log.d(TAG_QUERY_EXECUTION, "Reading new row")
+
+                    // Step 5: Log each column and its value
+                    val TAG_ROW_DATA = "RowData"
+                    for (name in columnNames) {
+                        val value = cursor.getString(cursor.getColumnIndex(name))
+                        rowData[name] = value
+                        Log.d(TAG_ROW_DATA, "Column: $name, Value: $value")
+                    }
+
+                    rows.add(rowData)
+                    Log.d(TAG_ROW_DATA, "Row added to the result set: $rowData")
+                }
+
+                if (!rowsFound) {
+                    Log.d(TAG_QUERY_EXECUTION, "No rows matched the keyword: $keyword")
+                }
+            }
+
+            Log.d(TAG_QUERY_EXECUTION, "Query execution complete. Number of rows fetched: ${rows.size}")
+        }
+
+        return rows
+    }
+
+
+
+
 
     @SuppressLint("Range")
     fun getRowById(uid: Int): Map<String, Any?>? {

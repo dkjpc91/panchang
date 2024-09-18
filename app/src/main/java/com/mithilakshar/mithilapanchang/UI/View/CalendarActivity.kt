@@ -217,7 +217,7 @@ class CalendarActivity : AppCompatActivity() {
                     if (it >=100){
 
                         binding.lottieAnimationView .visibility=View.GONE
-                        binding.loadingstatus.text="लोडिंग पूर्ण भेल"
+                        binding.loadingstatus.text="लोडिंग पूर्ण"
                         replaceFragment(mayfragment())
                     }
 

@@ -16,7 +16,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/om"
-        android:label="मिथिला पंचांग"
+        android:label="पंचांग"
         android:roundIcon="@mipmap/om"
         android:supportsRtl="true"
         android:theme="@style/Theme.MithilaPanchang"
@@ -37,10 +37,7 @@
             android:name=".UI.View.KathaDescriptionActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".UI.View.MantraActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".UI.View.KathaActivity"
             android:exported="false"

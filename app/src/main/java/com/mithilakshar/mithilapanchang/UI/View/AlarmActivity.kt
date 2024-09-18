@@ -131,12 +131,10 @@ class AlarmActivity : AppCompatActivity() {
 
             if (notificationurl.isNotEmpty()) {
                 alarmHelper.cancelAlarm(it.title, it.message, it.selectedRingtone, notificationurl[0])
-                Toast.makeText(this, "आहाँ के अलार्म कैंसिल भ गेल ", Toast.LENGTH_LONG)
-                    .show()
+
             } else {
                 // Handle the case where notificationurl is empty
-                Toast.makeText(this, "आहाँ के अलार्म कैंसिल भ गेल ", Toast.LENGTH_LONG)
-                    .show()
+
             }
 
 
@@ -213,11 +211,11 @@ class AlarmActivity : AppCompatActivity() {
 
     private fun showRingtonePicker() {
         val ringtoneName = ringtones.map { resources.getResourceEntryName(it) }.toTypedArray()
-         val ringtoneNames = arrayOf(
+        val ringtoneNames = arrayOf(
             "राम",
-             "श्यामा",
-             "जय जय भैरव",
-             "मैथिली",
+            "श्यामा",
+            "जय जय भैरव",
+            "बिनती",
             "अच्युतम केशवम",
             "अधरम मधुरम",
             "बजरंग बाण",
@@ -244,10 +242,10 @@ class AlarmActivity : AppCompatActivity() {
 
         alertDialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("आगू बढू") { _, _ ->
+            .setPositiveButton("आगे") { _, _ ->
 
                 val title = if (titleEditText.text.isBlank()) "अलार्म" else titleEditText.text.toString()
-                val messageText = if (messageEditText.text.isBlank()) "मिथिला पंचांग" else messageEditText.text.toString()
+                val messageText = if (messageEditText.text.isBlank()) "पंचांग" else messageEditText.text.toString()
 
 
 
@@ -256,7 +254,7 @@ class AlarmActivity : AppCompatActivity() {
 
 
                 val ringtonePickerDialog = AlertDialog.Builder(this)
-                    .setTitle("मनपसंद टोन सेलेक्ट करू")
+                    .setTitle("मनपसंद टोन")
                     .setView(ringtonePickerView)
                     .create()
 
@@ -290,7 +288,7 @@ class AlarmActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = selectedDateTime.timeInMillis
         }
-        Toast.makeText(this, "आहाँ के अलार्म ${title} सेट भ गेल $selectedRingtone", Toast.LENGTH_LONG)
+        Toast.makeText(this, "अलार्म ${title} सेट $selectedRingtone", Toast.LENGTH_LONG)
             .show()
         alarmHelper.setAlarm (calendar,title,messageText,selectedRingtone,notificationurl[0])
 

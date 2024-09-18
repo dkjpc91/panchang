@@ -2,6 +2,7 @@ package com.mithilakshar.mithilapanchang.UI.Fragments
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -123,6 +124,10 @@ class mayfragment : Fragment() {
 
             dbHelper = dbHelper(requireContext(), "calander.db")
             val rowsForAugust = dbHelper.getRowsByMonth(path)
+
+            val rowsForkaybwordAugust2 = dbHelper.getRowsByColumnKeywordIfExists("calander","keyword","ekadashi")
+            Log.d("rowsForAugust", "calander data is $rowsForkaybwordAugust2")
+
 
 
             val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext())

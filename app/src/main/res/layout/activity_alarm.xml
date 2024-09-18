@@ -23,7 +23,7 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="अलार्म सूचि "
+        android:text="अलार्म लिस्ट"
         android:textSize="36sp"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"
@@ -44,7 +44,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="30dp"
-        android:text="अलार्म दर्ज करू"
+        android:text="अलार्म"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:background="@drawable/button_background"/>

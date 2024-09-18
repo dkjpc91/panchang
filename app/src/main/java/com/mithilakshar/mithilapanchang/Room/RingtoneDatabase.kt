@@ -63,7 +63,7 @@ abstract class RingtoneDatabase : RoomDatabase() {
             val dummyRingtone = Ringtone(
                 id = 1,
                 message = "सुप्रभात"  ,
-               title = "चुनौती कें सीढ़ी कें रूप मे, असफलता कें पुनर्निर्देशन कें अवसर कें रूप मे, आ गलती कें सीख कें रूप मे अपनाऊं. प्रत्येक अनुभवक संग अहाँ अपन एकटा मजबूत, बुद्धिमान संस्करण बनि जाइत छी । त' अन्वेषण करैत रहू, सीखैत रहू, आ अपना केँ खिलैत देखैत रहू।",
+                title = "",
                 selectedRingtone = R.raw.jai_jai_bhairab,
                 dateTimeInMillis = calendar.timeInMillis
             )
@@ -77,7 +77,7 @@ abstract class RingtoneDatabase : RoomDatabase() {
             val dummyRingtone1 = Ringtone(
                 id = 2,
                 message = "सुप्रभात"  ,
-                title = "चुनौती कें सीढ़ी कें रूप मे, असफलता कें पुनर्निर्देशन कें अवसर कें रूप मे, आ गलती कें सीख कें रूप मे अपनाऊं. प्रत्येक अनुभवक संग अहाँ अपन एकटा मजबूत, बुद्धिमान संस्करण बनि जाइत छी । त' अन्वेषण करैत रहू, सीखैत रहू, आ अपना केँ खिलैत देखैत रहू।",
+                title = "",
                 selectedRingtone = R.raw.jai_jai_bhairab,
                 dateTimeInMillis = futureTimeInMillis
             )

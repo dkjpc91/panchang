@@ -84,7 +84,7 @@
         android:id="@+id/loadingstatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="लोडिंग प्रगति पर कृपया प्रतीक्षा करू"
+        android:text="लोडिंग"
         android:textSize="36sp"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"

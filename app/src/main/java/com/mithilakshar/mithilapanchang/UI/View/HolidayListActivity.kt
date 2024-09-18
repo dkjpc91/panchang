@@ -229,37 +229,8 @@ class HolidayListActivity : AppCompatActivity() {
     }
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
-        if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
-                if (downloadedFile != null) {
-                    // File downloaded successfully, do something with the file if needed
-                    Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
 
-                    // Notify UI or perform tasks with downloaded file
-                    handleDownloadedFile(downloadedFile)
-                } else {
-                    // Handle the case where download failed
-                    Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
-                }
-            },progressCallback)
-        } else {
-            Log.e(ContentValues.TAG, "fileDownloader is not initialized.")
-        }
-    }
-    private fun handleDownloadedFile(downloadedFile: File) {
 
-        //readFileContent()
-
-    }
-
-    fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath = this.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
-    }
 
     /*private fun observeFileExistence(month:String,year: Int) {
         fileExistenceLiveData = checkFileExistence("holiday.db")

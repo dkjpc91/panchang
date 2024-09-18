@@ -118,7 +118,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var isFabClicked = false
 
     private var textToSpeech: TextToSpeech? = null
-    var speak: String? = "मिथिला पंचांग में आहाँ के स्वागत अई"
+    var speak: String? = ""
     var homeBroadcast: String = ""
 
 
@@ -135,7 +135,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    private lateinit var adView1: AdView
+
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
 
@@ -181,7 +181,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         })
 
-        adView1 = findViewById(R.id.adView1)
+
 
         adView = binding.adView
         adviewMR = binding.adviewMR
@@ -201,16 +201,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 // Optionally, you can log or handle the error here
             }
         }
-        adView1.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-                // Make the AdView visible when the ad is loaded
-                adView1.visibility = View.VISIBLE
-            }
 
-            override fun onAdFailedToLoad(p0: LoadAdError) {
-                // Optionally, you can log or handle the error here
-            }
-        }
         adviewMR.adListener = object : AdListener() {
             override fun onAdLoaded() {
                 // Make the AdView visible when the ad is loaded
@@ -233,7 +224,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
 
-       adView1.loadAd(adRequest)
 
 
 
@@ -320,13 +310,13 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
 
 
-                        setupViewPagerAndDatabase(
+                       /* setupViewPagerAndDatabase(
                             context =this@HomeActivity,
                             currentMonthString = currentMonthString,
                             currentDay = currentDay,
                             delayMillis = delayMillis,
                             dbHelperHoliday
-                        )
+                        )*/
 
 
 
@@ -348,7 +338,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     binding.floatingActionButton.visibility = View.VISIBLE
                 }
                 val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
-                speak = rowsFormonthdate?.get("speak") ?: "मिथिला पंचांग में आहाँ के स्वागत अई"
+                speak = rowsFormonthdate?.get("speak") ?: ""
                 textToSpeech = TextToSpeech(this@HomeActivity, TextToSpeech.OnInitListener { status ->
                     if (status == TextToSpeech.SUCCESS) {
                         textToSpeech?.language = Locale.forLanguageTag("hi")
@@ -369,14 +359,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     currentDayName = currentDayName
                 )
 
-                setupViewPagerAndDatabase(
+               /* setupViewPagerAndDatabase(
                     context =this@HomeActivity,
                     currentMonthString = currentMonthString,
                     currentDay = currentDay,
                     delayMillis = delayMillis,
                     dbHelperHoliday
                 )
-
+*/
                 Log.d("updatechecker", " : not needed $isUpdateNeeded")
             }
         }
@@ -550,13 +540,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        binding.katha.setOnClickListener {
-            val i = Intent(this, KathaActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
-
 
 
         binding.purchase.setOnClickListener {
@@ -578,29 +561,16 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 // Put the text to share in the intent
 
-                val shareText = "नीचा देल गेल लिंक पर क्लिक क मिथिला पंचांग ऐप्प डाउनलोड करू .\n https://play.google.com/store/apps/details?id=com.mithilakshar.mithilapanchang  \n\n\n @mithilakshar13"
+                val shareText = "पंचांग ऐप डाउनलोड करने के लिए नीचे दिए गए लिंक पर क्लिक करें .\n https://play.google.com/store/apps/details?id=com.mithilakshar.mithilapanchang  \n\n\n @mithilakshar13"
 
                 putExtra(Intent.EXTRA_TEXT, shareText)
                 // Set the MIME type
                 type = "text/plain"
             }
             // Start the activity with the intent
-            startActivity(Intent.createChooser(intent, "साझा करू : "))
+            startActivity(Intent.createChooser(intent, "शेयर: "))
         }
 
-        binding.otherapps.setOnClickListener {
-
-            val developerPageUrl = "https://play.google.com/store/apps/dev?id=8281901881443422197&hl=en-IN"
-
-            // Create an Intent to open the URL in a browser
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(developerPageUrl)
-            }
-
-            // Start the activity to open the URL
-            startActivity(intent)
-
-        }
 
 
     }
@@ -684,10 +654,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onResume() {
         super.onResume()
         if (::adView.isInitialized) {
-            adView1.resume()
+            adviewMR.resume()
         }
-        if (::adView1.isInitialized) {
-            adView1.resume()
+        if (::adviewMR.isInitialized) {
+            adviewMR.resume()
         }
 
 
@@ -718,8 +688,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onDestroy() {
 
 
-        if (::adView1.isInitialized) {
-            adView1.destroy()
+        if (::adviewMR.isInitialized) {
+            adviewMR.destroy()
         }
         if (::adView.isInitialized) {
             adView.destroy()
@@ -740,21 +710,23 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onPause() {
-
         if (::adView.isInitialized) {
             adView.pause()
         }
-        if (::adView1.isInitialized) {
-            adView1.pause()
+        if (::adviewMR.isInitialized) {
+            adviewMR.pause()
         }
         super.onPause()
 
-        textToSpeech!!.stop()
-        textToSpeech!!.shutdown()
+        // Null check for textToSpeech
+        textToSpeech?.let {
+            it.stop()
+            it.shutdown()
+        }
 
         pauseAudio()
-
     }
+
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -959,10 +931,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Prepare holidayMonthList
         val holidayMonthList: MutableList<Map<String, String>> = mutableListOf(
             mapOf(
-                "month" to "मिथिला पंचांग",
+                "month" to "पंचांग",
                 "date" to "",
-                "name" to "मिथिला पंचांग",
-                "desc" to "मिथिला पंचांग में आहाँ के स्वागत आयी"
+                "name" to "पंचांग",
+                "desc" to ""
             )
         )
 

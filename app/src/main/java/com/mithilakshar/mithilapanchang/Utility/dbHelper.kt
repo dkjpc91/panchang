@@ -73,6 +73,8 @@ class dbHelper(context: Context, dbName: String) {
 
 
     fun getAllTableData(tableName: String): List<Map<String, Any?>> {
+
+
         val dataList = mutableListOf<Map<String, Any?>>()
         db?.let { database ->
             if (!database.isOpen) {
@@ -197,6 +199,54 @@ class dbHelper(context: Context, dbName: String) {
 
         return holidays
     }
+
+
+    @SuppressLint("Range")
+    fun searchFilter(searchText: String, tableName: String): List<Map<String, String>> {
+        val filteredResults = mutableListOf<Map<String, String>>()
+        val TAG = "searchtable"
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for searching with filter: $searchText")
+                return emptyList()
+            }
+
+            Log.d(TAG, "Searching in table: $tableName for text: $searchText")
+
+            val query = "SELECT * FROM $tableName WHERE filter LIKE ?"
+            val selectionArgs = arrayOf("%$searchText%")
+
+            Log.d(TAG, "Executing query: $query with args: ${selectionArgs.joinToString()}")
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                val rowCount = cursor.count
+                Log.d(TAG, "Number of rows found: $rowCount")
+
+                while (cursor.moveToNext()) {
+                    val rowData = mutableMapOf<String, String>()
+
+                    val month = cursor.getString(cursor.getColumnIndex("month"))
+                    val value1 = cursor.getString(cursor.getColumnIndex("date"))
+                    val value2 = cursor.getString(cursor.getColumnIndex("name"))
+                    val value3 = cursor.getString(cursor.getColumnIndex("desc"))
+
+                    Log.d(TAG, "Retrieved row - Month: $month, Date: $value1, Name: $value2, Desc: $value3")
+
+                    rowData["month"] = month
+                    rowData["date"] = value1
+                    rowData["name"] = value2
+                    rowData["desc"] = value3
+
+                    filteredResults.add(rowData)
+                }
+            }
+        } ?: Log.e(TAG, "Database reference is null")
+
+        Log.d(TAG, "Filtered results: $filteredResults")
+        return filteredResults
+    }
+
 
 
     @SuppressLint("Range")

@@ -6,7 +6,9 @@ import androidx.lifecycle.Observer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.View
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +20,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mithilakshar.mithilapanchang.Adapters.holidayadapter
@@ -40,21 +43,20 @@ import java.io.File
 import java.util.Calendar
 
 
-class HolidayListActivity : AppCompatActivity() {
+class HolidayListActivity<Menu> : AppCompatActivity() {
 
-    private lateinit var downloadmanager: DownloadManager
+
     private lateinit var adView5: AdView
     lateinit var binding:ActivityHolidaylistBinding
     private lateinit var updatesDao: UpdatesDao
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: holidayadapter
     private var holidays: MutableList<Map<String, String>> = mutableListOf()
+    private lateinit var dbHelperHolidaylistfilter: dbHelper
 
-    private lateinit var fileDownloader: FirebaseFileDownloader
-    private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
+    private lateinit var searchView: SearchView
 
 
-    private lateinit var dbDownloadersequence: dbDownloadersequence
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,75 +93,7 @@ class HolidayListActivity : AppCompatActivity() {
         }
         adView5.loadAd(adRequest)
 
-        fileDownloader = FirebaseFileDownloader(this)
-        updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
 
-        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
-        val filesWithIds = listOf(
-            Pair("file1", 20),
-            Pair("file2", 21),
-            Pair("file3", 22),
-            Pair("filef", 23)
-        )
-
-        val lastFile = filesWithIds.lastOrNull()?.first
-        dbDownloadersequence.observeMultipleFileExistence(
-            filesWithIds,
-            this,
-            lifecycleScope,
-            homeActivity = this, // Your activity
-            progressCallback = { progress, filePair  ->
-
-                val filename = filePair?.first()
-
-                Log.d("Progress", "File: $filename, Progress: $progress%")
-
-                if (filename != null) {
-                    if (filename.equals(lastFile) ) {
-                        // Check if progress is 100% for the last file
-                        if (progress == 100) {
-                            Log.d("Download", "The last file has been downloaded$filename.")
-                            // Handle completion logic here
-                        }
-                    }
-                }
-            },{
-
-                Log.d("Download", "All files have been processed")
-            }
-        )
-
-
-
-
-        val factory = BhagwatGitaViewModel.factory(fileDownloader)
-        bhagwatgitaviewmodel =
-            ViewModelProvider(this, factory).get(BhagwatGitaViewModel::class.java)
-
-
-        downloadmanager=DownloadManager(this)
-        downloadmanager.getDownloadStatus().observe(this, Observer { isSuccess ->
-            if (isSuccess) {
-                // Handle successful download
-               // binding.title.text = "Download completed successfully."
-            } else {
-                // Handle failed download
-               // binding.title.text = "Download completed successfully."
-            }
-        })
-
-        downloadmanager.getDownloadProgress().observe(this, Observer { progress ->
-            // Update the ProgressBar with the download progress
-
-           // binding.title.text =  "Download progress: $progress%"
-        })
-
-        // Trigger the download
-        val fileUrl = "https://sharedby.blomp.com/IMN1j3"
-        val fileName = "file.db"
-        val deleteOrReturn = "delete" // or "return" based on your requirement
-
-        //downloadmanager.downloadFile(fileUrl, fileName, deleteOrReturn)
 
 
         recyclerView = binding.holidayrecycler
@@ -178,14 +112,34 @@ class HolidayListActivity : AppCompatActivity() {
         val selectedyear = intent.getIntExtra("year", getCurrentYear())
 
 
-        //observeFileExistence(monthEng)
 
 
         readFileContent(monthEng,selectedyear)
 
 
 
+        searchView=binding.searchview
 
+        if (selectedyear>getCurrentYear()){
+            val a="holiday$selectedyear.db"
+            val b="holiday$selectedyear"
+            dbHelperHolidaylistfilter=dbHelper(this@HolidayListActivity,a)
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    val filteredList =dbHelperHolidaylistfilter.searchFilter(newText ?: "", b)
+                    Log.d("filteredList", "filteredList   $b  : $filteredList")
+                    binding.title.text="हिन्दू त्योहार - "+"$selectedyear"
+                    adapter.updateHolidays(filteredList)
+                    return true
+                }
+            })
+
+
+        }
 
 
 
@@ -212,7 +166,13 @@ class HolidayListActivity : AppCompatActivity() {
 
             val dbHelper = dbHelper(applicationContext, a)
            val av = dbHelper.getHolidaysByMonthanddb(month,"holiday$year")
-            Log.d("selectedyear", "year: $av")
+            val filterexist=dbHelper.doesColumnExist("holiday$year","filter")
+            if (filterexist){
+                binding.searchview.visibility=View.VISIBLE
+
+            }
+            Log.d("filterexist", "year: $av")
+            Log.d("filterexist", "year: $filterexist")
             holidays.addAll(av)
             adapter.notifyDataSetChanged()
 
@@ -232,113 +192,25 @@ class HolidayListActivity : AppCompatActivity() {
 
 
 
-    /*private fun observeFileExistence(month:String,year: Int) {
-        fileExistenceLiveData = checkFileExistence("holiday.db")
-        val db = FirebaseFirestore.getInstance()
-        val collectionRef = db.collection("SQLdb")
-        val documentRef = collectionRef.document("holiday")
-        fileExistenceLiveData.observe(this) { fileExists ->
-            if (fileExists) {
 
-
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "holiday.db"
-                        lifecycleScope.launch {
-                            val updates = updatesDao.getfileupdate(fileName)
-                            if (updates.get(0).uniqueString == actions) {
-                                //readFileContent()
-                                binding.lottieAnimationView .visibility=View.GONE
-
-
-
-                            } else {
-                                val holidayupdate = updatesDao.findById(2)
-                                holidayupdate.let {
-                                    it.uniqueString = actions
-                                    updatesDao.update(it)
-                                }
-
-
-                                val storagePath = "SQLdb/holiday"
-                                downloadFile(storagePath, "delete", "holiday.db", progressCallback = { progress ->
-                                    // Update your progress UI, e.g., a ProgressBar or TextView
-                                    Log.d("DownloadProgress", "Download is $progress% done")
-                                })
-                                bhagwatgitaviewmodel.downloadProgressLiveData.observe(this@HolidayListActivity, {
-
-                                    if (it >=100){
-
-                                        binding.lottieAnimationView .visibility=View.GONE
-                                        readFileContent(month)
-                                    }
-
-                                })
-
-
-                            }
-                        }
-
-
-                        // File exists, proceed with reading its content
-
-
-                    } else {
-
-
-                    }
-
-
-                }
-
-                // File does not exist, handle accordingly
-            } else {
-
-                val storagePath = "SQLdb/holiday"
-                downloadFile(storagePath, "delete", "holiday.db", progressCallback = { progress ->
-                    // Update your progress UI, e.g., a ProgressBar or TextView
-                    Log.d("DownloadProgress", "Download is $progress% done")
-                })
-                bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
-
-                    if (it >=100){
-
-                        binding.lottieAnimationView .visibility=View.GONE
-                        readFileContent(month)
-                    }
-
-                })
-
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val fileUrl = it.getString("test") ?: ""
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "holiday.db"
-                        lifecycleScope.launch {
-                            val holidayupdate = updatesDao.findById(2)
-                            holidayupdate.let {
-                                it.uniqueString = actions
-                                updatesDao.update(it)
-                            }
-
-                        }
-
-                    }
-
-
-                }
-
-            }
-        }
-
-    }*/
 
 
 
     fun getCurrentYear(): Int {
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.YEAR)
+    }
+
+
+    override fun onCreateOptionsMenu(menu: android.view.Menu?): Boolean {
+        return super.onCreateOptionsMenu(menu)
+    }
+
+
+
+    private fun performSearch(query: String) {
+        // Add your search logic here
+        // For example, filter a list and update the UI
     }
 
 

@@ -7,7 +7,8 @@ import com.mithilakshar.mithilapanchang.databinding.HolidayitemBinding
 import com.squareup.picasso.Picasso
 import android.content.Context
 
-class holidayadapter(private val context: Context, private val holidays: List<Map<String, String>>) :  RecyclerView.Adapter<holidayadapter.holidayviewholder>() {
+class holidayadapter(private val context: Context, private var  holidays: List<Map<String, String>>) :  RecyclerView.Adapter<holidayadapter.holidayviewholder>() {
+    private var tempList: MutableList<Map<String, String>> = mutableListOf()
 
     class holidayviewholder(val binding:HolidayitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -44,6 +45,14 @@ class holidayadapter(private val context: Context, private val holidays: List<Ma
         }
 
     }
+
+
+    fun updateHolidays(newHolidays: List<Map<String, String>>) {
+        holidays = newHolidays
+        notifyDataSetChanged() // Notify the adapter that the data has changed
+    }
+
+
 
 
 }

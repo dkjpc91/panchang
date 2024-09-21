@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -27,12 +28,21 @@ import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
+import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.dbDownloader
+import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
+import com.mithilakshar.mithilapanchang.Utility.dbHelper
 import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.io.File
 
 import java.util.Calendar
+import java.util.Locale
+
 class HolidayActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityHolidayBinding
@@ -43,6 +53,7 @@ class HolidayActivity : AppCompatActivity() {
     private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
     private  var selectedyear:Int = getCurrentYear()
     private lateinit var interstitialAdManager: InterstitialAdManager
+    private lateinit var dbDownloadersequence: dbDownloadersequence
 
     private lateinit var spinner: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,12 +97,109 @@ class HolidayActivity : AppCompatActivity() {
         fileDownloader = FirebaseFileDownloader(this)
         updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
 
+        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
+
+        val filesWithIds = listOf(
+            Pair("holiday2025",11),
+            Pair("holiday2026",12),
+            Pair("holiday2027",13),
+            Pair("holiday2028",14),
+            Pair("holiday2029",15),
+            Pair("holiday2030",16),
+
+        )
+        lifecycleScope.launch {
+            val updateChecker = UpdateChecker(updatesDao)
+            val isUpdateNeeded = updateChecker.getUpdateStatus()
+            val nonExistentFiles = mutableListOf<Pair<String, Int>>()
+            val jobs = mutableListOf<Job>()
+            for (filePair in filesWithIds) {
+                val job = launch {
+                    // Observe the LiveData returned by checkFileExistence
+                    checkFileExistence("${filePair.first}.db").observeForever { exists ->
+                        if (exists != null && !exists) {
+                            nonExistentFiles.add(filePair)
+                        }
+                    }
+                }
+                jobs.add(job)
+            }
+            jobs.joinAll()
+
+
+            Log.d("nonExistentFiles", " :  nonExistentFiles  $nonExistentFiles")
+            if (isUpdateNeeded!="a" ) {
+
+                Log.d("updatechecker", " :  needed $isUpdateNeeded")
+
+                dbDownloadersequence.observeMultipleFileExistence(
+                    filesWithIds,
+                    this@HolidayActivity,
+                    lifecycleScope,
+                    homeActivity = this@HolidayActivity, // Your activity
+                    progressCallback = { progress, filePair  ->
+
+
+
+                        Log.d("update", "File: $filePair, Progress: $progress%")
+
+
+                    },{
+
+                       // observeFileExistence("holiday",2)
+                        binding.spinner.visibility=View.VISIBLE
+                        binding.monthview.visibility=View.VISIBLE
+                        binding.lottieAnimationView.visibility=View.GONE
+                        Log.d("update", " total update completed")
+
+
+                    }
+                )
+
+
+            } else {
+
+                dbDownloadersequence.observeMultipleFileExistence(
+                    nonExistentFiles,
+                    this@HolidayActivity,
+                    lifecycleScope,
+                    homeActivity = this@HolidayActivity, // Your activity
+                    progressCallback = { progress, filePair  ->
+
+
+
+                        Log.d("update", "File: $filePair, Progress: $progress%")
+
+
+                    },{
+
+                        // observeFileExistence("holiday",2)
+                        binding.spinner.visibility=View.VISIBLE
+                        binding.monthview.visibility=View.VISIBLE
+                        binding.lottieAnimationView.visibility=View.GONE
+                        Log.d("update", " total non update  completed")
+
+
+                    }
+                )
+
+
+            }
+        }
+
+
+
+
+
+
+
+
         val factory = BhagwatGitaViewModel.factory(fileDownloader)
         bhagwatgitaviewmodel =
             ViewModelProvider(this, factory).get(BhagwatGitaViewModel::class.java)
 
 
-        observeFileExistence("holiday",2)
+
 
 
         fileDownloader = FirebaseFileDownloader(this)
@@ -103,6 +211,11 @@ class HolidayActivity : AppCompatActivity() {
         val items = listOf(
             CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2024"),
             CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2025"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2026"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2027"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2028"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2029"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2030"),
             )
 
 
@@ -128,9 +241,26 @@ class HolidayActivity : AppCompatActivity() {
                         // Perform action for Item 2
                         selectedyear=text.toInt()
                         // Update other UI elements or perform other actions
-                    } else {
-                        // Default action
-
+                    }else if (text == "2026") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    }else if (text == "2027") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    }else if (text == "2028") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    }else if (text == "2029") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
+                    }else if (text == "2030") {
+                        // Perform action for Item 2
+                        selectedyear=text.toInt()
+                        // Update other UI elements or perform other actions
                     }
                 }
             }
@@ -142,17 +272,7 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-        dbDownloader.observeFileExistence("holiday2025",this,lifecycleScope,11,this,progressCallback = { progress ->
-            runOnUiThread {
-                // Update UI with the progress
-                if (progress==100){
 
-                binding.spinner.visibility=View.VISIBLE
-                binding.monthview.visibility=View.VISIBLE
-
-                }
-            }
-        })
 
         binding.jan .setOnClickListener {
             val intent = Intent(this, HolidayListActivity::class.java)
@@ -314,140 +434,11 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-    private fun downloadFile(storagePath: String, action: String, localFileName: String,progressCallback: (Int) -> Unit) {
-        if (::fileDownloader.isInitialized) {
-            fileDownloader.retrieveURL(storagePath, action, localFileName, { downloadedFile ->
-                if (downloadedFile != null) {
-                    // File downloaded successfully, do something with the file if needed
-                    Log.d(ContentValues.TAG, "File downloaded successfully: $downloadedFile")
-
-                    // Notify UI or perform tasks with downloaded file
-                    handleDownloadedFile(downloadedFile)
-                } else {
-                    // Handle the case where download failed
-                    Log.d(ContentValues.TAG, "Download failed for file: $localFileName")
-                }
-            },progressCallback)
-        } else {
-            Log.e(ContentValues.TAG, "fileDownloader is not initialized.")
-        }
-    }
-    private fun handleDownloadedFile(downloadedFile: File) {
-
-        //readFileContent()
-
-    }
 
 
 
-    private fun observeFileExistence(month:String,id:Int) {
-        fileExistenceLiveData = checkFileExistence("$month.db")
-        val db = FirebaseFirestore.getInstance()
-        val collectionRef = db.collection("SQLdb")
-        val documentRef = collectionRef.document("$month")
-        fileExistenceLiveData.observe(this) { fileExists ->
-            if (fileExists) {
 
 
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "$month.db"
-                        lifecycleScope.launch {
-                            val updates = updatesDao.getfileupdate(fileName)
-                            if (updates.get(0).uniqueString == actions) {
-                                //readFileContent()
-                                binding.lottieAnimationView .visibility=View.GONE
-                                binding.loadingstatus.visibility=View.GONE
-
-
-                            } else {
-                                val holidayupdate = updatesDao.findById(id)
-                                holidayupdate.let {
-                                    it.uniqueString = actions
-                                    updatesDao.update(it)
-                                }
-
-
-                                val storagePath = "SQLdb/$month"
-                                downloadFile(storagePath, "delete", "$month.db",progressCallback = { progress ->
-                                    // Update your progress UI, e.g., a ProgressBar or TextView
-                                    Log.d("DownloadProgress", "Download is $progress% done")
-                                })
-                                bhagwatgitaviewmodel.downloadProgressLiveData.observe(this@HolidayActivity, {
-
-                                    if (it >=100){
-
-                                        binding.lottieAnimationView .visibility=View.GONE
-                                        binding.loadingstatus.visibility=View.GONE
-
-
-                                    }
-
-                                })
-
-
-                            }
-                        }
-
-
-                        // File exists, proceed with reading its content
-
-
-                    } else {
-
-
-                    }
-
-
-                }
-
-                // File does not exist, handle accordingly
-            } else {
-
-                val storagePath = "SQLdb/$month"
-                downloadFile(storagePath, "delete", "$month.db",progressCallback = { progress ->
-                    // Update your progress UI, e.g., a ProgressBar or TextView
-                    Log.d("DownloadProgress", "Download is $progress% done")
-                })
-                bhagwatgitaviewmodel.downloadProgressLiveData.observe(this, {
-
-                    if (it >=100){
-
-                        binding.lottieAnimationView .visibility=View.GONE
-                        binding.loadingstatus.text="लोडिंग पूर्ण भेल"
-
-                    }
-
-                })
-
-                documentRef.get().addOnSuccessListener {
-                    if (it != null) {
-                        val fileUrl = it.getString("test") ?: ""
-                        val actions = it.getString("action") ?: "delete"
-                        val fileName = "$month.db"
-                        lifecycleScope.launch {
-
-                            val holiday = Updates(id = id, fileName = "$month.db", uniqueString = "holiday")
-                            updatesDao.insert(holiday)
-
-                            val holidayupdate = updatesDao.findById(id)
-                            holidayupdate.let {
-                                it.uniqueString = actions
-                                updatesDao.update(it)
-                            }
-
-                        }
-
-                    }
-
-
-                }
-
-            }
-        }
-
-    }
 
     fun checkFileExistence(fileName: String): LiveData<Boolean> {
         val fileExistsLiveData = MutableLiveData<Boolean>()
@@ -461,5 +452,8 @@ class HolidayActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.YEAR)
     }
+
+
+
 
 }

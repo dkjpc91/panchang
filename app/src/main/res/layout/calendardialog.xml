@@ -8,6 +8,15 @@
     android:background="@color/blue"
     android:layout_height="wrap_content">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:layout_gravity="right"
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/speaker"
+        android:contentDescription="@string/app_name_h" />
+
    <androidx.cardview.widget.CardView
 
        android:layout_margin="5dp"
@@ -134,5 +143,7 @@
 
 
    </androidx.cardview.widget.CardView>
+
+
 
 </androidx.cardview.widget.CardView>

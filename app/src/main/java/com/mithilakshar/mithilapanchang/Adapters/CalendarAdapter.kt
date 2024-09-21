@@ -81,9 +81,12 @@ class CalendarAdapter (private val data: List<Map<String, String>>,private val c
                             + hindidate + " " + hindiMonth + " " + hindiyear
                 )
                 calendarDialog.setcalendardialogtext1(model.get("tithi"))
+                calendarDialog.setcalendardialogtext2( "तारीख "+ hindidate + " " + hindiMonth + " " + hindiyear+ ","+
+                        "तिथि "+ model.get("tithi")+ ","+model.get("nakshatra")+ "नक्षत्र  "+","+model.get("monthhindi")+ "मास  "+","+ model.get("paksha")+ " ")
                 calendarDialog.setcalendardialogtext3(model.get("nakshatra"))
                 calendarDialog.setcalendardialogtext5(model.get("holiday")+"\n"+model.get("holidaydesc"))
                 calendarDialog.setcalendardialogtext4(model.get("monthhindi") + " " + model.get("paksha"))
+
                 calendarDialog.show()
             }
 

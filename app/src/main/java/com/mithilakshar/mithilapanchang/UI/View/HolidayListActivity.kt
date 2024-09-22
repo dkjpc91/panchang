@@ -120,6 +120,12 @@ class HolidayListActivity<Menu> : AppCompatActivity() {
 
         searchView=binding.searchview
 
+
+        searchView.setOnSearchClickListener {
+            // SearchView is expanded, set the custom background
+            searchView.setBackgroundResource(R.drawable.search_view_bg)
+        }
+
         if (selectedyear>getCurrentYear()){
             val a="holiday$selectedyear.db"
             val b="holiday$selectedyear"

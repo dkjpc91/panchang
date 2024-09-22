@@ -30,15 +30,18 @@
         app:adUnitId="@string/bannerunitholidaylist"/>
 
     <androidx.appcompat.widget.SearchView
-        android:visibility="gone"
-        android:layout_margin="5dp"
-        android:padding="5dp"
+        android:visibility="visible"
+
+        android:layout_margin="10dp"
+        android:padding="10dp"
         android:id="@+id/searchview"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:iconifiedByDefault="false"
-        android:queryHint="search"
- />
+        android:layoutDirection="rtl"
+        android:clickable="true"
+        android:focusable="true"
+        app:searchIcon="@drawable/mglass"
+        />
 
 
 

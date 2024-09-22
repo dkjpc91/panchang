@@ -202,11 +202,6 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-        fileDownloader = FirebaseFileDownloader(this)
-
-        updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-
-        val dbDownloader= dbDownloader(updatesDao,fileDownloader)
 
         val items = listOf(
             CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2024"),

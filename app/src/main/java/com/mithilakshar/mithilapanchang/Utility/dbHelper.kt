@@ -533,7 +533,7 @@ class dbHelper(context: Context, dbName: String) {
     }
 
     @SuppressLint("Range")
-    fun getRowsByMonth(month: String): List<Map<String, String>> {
+    fun getRowsByMonth(month: String,table: String): List<Map<String, String>> {
         val rows = mutableListOf<Map<String, String>>()
         db?.let { database ->
             if (!database.isOpen) {
@@ -541,7 +541,7 @@ class dbHelper(context: Context, dbName: String) {
                 return emptyList()
             }
 
-            val query = "SELECT * FROM calander WHERE month = ?"
+            val query = "SELECT * FROM $table WHERE month = ?"
             val selectionArgs = arrayOf(month)
 
             database.rawQuery(query, selectionArgs)?.use { cursor ->

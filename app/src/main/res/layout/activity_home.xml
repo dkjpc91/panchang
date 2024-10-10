@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:ads="http://schemas.android.com/apk/res/android"
+
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,6 +36,7 @@
 
             <ImageView
                 android:id="@+id/homeBanner"
+                android:visibility="gone"
                 android:layout_marginTop="94dp"
                 android:layout_marginBottom="60dp"
                 android:clipToOutline="true"
@@ -114,7 +115,11 @@
     </FrameLayout>
 
 
+
+
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/homeview"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -682,7 +687,25 @@
 
 </androidx.core.widget.NestedScrollView>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:visibility="visible"
+        android:id="@+id/homeviewloading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/solar"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true" />
 
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:visibility="visible"
+        android:layout_gravity="bottom"
+        android:id="@+id/homeviewloading1"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:lottie_rawRes="@raw/loading"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"

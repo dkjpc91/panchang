@@ -58,6 +58,8 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 
 import androidx.viewpager2.widget.ViewPager2
@@ -87,6 +89,8 @@ import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 
 import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -138,382 +142,362 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
+
+        fun performNetworkTasks() {
+
+            adView = binding.adView
+            adviewMR = binding.adviewMR
+
+
+            val adRequest = AdRequest.Builder().build()
+
+
+            // Set an AdListener to make the AdView visible when the ad is loaded
+            adView.adListener = object : AdListener() {
+                override fun onAdLoaded() {
+                    // Make the AdView visible when the ad is loaded
+                    adView.visibility = View.VISIBLE
+                }
+
+                override fun onAdFailedToLoad(p0: LoadAdError) {
+                    // Optionally, you can log or handle the error here
+                }
+            }
+
+            adviewMR.adListener = object : AdListener() {
+                override fun onAdLoaded() {
+                    // Make the AdView visible when the ad is loaded
+                    adviewMR.visibility = View.VISIBLE
+                }
+
+                override fun onAdFailedToLoad(p0: LoadAdError) {
+                    // Optionally, you can log or handle the error here
+                }
+            }
+
+
+
+
+
+            adviewMR.loadAd(adRequest)
+            adView.loadAd(adRequest)
+
+
+
+
+            val maxHeightInDp = 700
+            val maxHeightInPx = (maxHeightInDp * resources.displayMetrics.density).toInt()
+
+            val imageView = binding.homeBanner
+
+            val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    val contentHeight = imageView.height
+                    val params = imageView.layoutParams as ViewGroup.LayoutParams
+
+                    // If the content height is greater than maxHeight, use maxHeight
+                    params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
+                    imageView.layoutParams = params
+
+                    // Remove the listener to prevent it from being called again
+                    imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
+            }
+
+// Add the global layout listener
+            imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+
+
+            val cDate: LocalDate = LocalDate.now()
+            val currentMonthString: String = cDate.month.name // Gets the current month in uppercase (e.g., "JANUARY")
+            val currentDay: Int = cDate.dayOfMonth
+
+            val currentDayName: String = cDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).uppercase()
+
+
+            fileDownloader = FirebaseFileDownloader(this)
+            updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
+            dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
+
+            val filesWithIds = listOf(
+                Pair("holiday", 2),
+                Pair("holiday2025",11),
+                Pair("holiday2026",12),
+                Pair("holiday2027",13),
+                Pair("holiday2028",14),
+                Pair("holiday2029",15),
+                Pair("holiday2030",16),
+
+                Pair("imageauto", 5),
+
+                Pair("cal", 77),
+                Pair("calander", 3),
+                Pair("calander2025",21)
+            )
+
+
+            lifecycleScope.launch {
+                val updateChecker = UpdateChecker(updatesDao)
+                val isUpdateNeeded = updateChecker.getUpdateStatus()
+
+                val nonExistentFiles = mutableListOf<Pair<String, Int>>()
+                val jobs = mutableListOf<Job>()
+                for (filePair in filesWithIds) {
+                    val job = launch {
+                        checkFileExistence("${filePair.first}.db").observeForever { exists ->
+                            if (exists != null && !exists) {
+                                nonExistentFiles.add(filePair)
+                                Log.d("FileCheck", "File does not exist: ${filePair.first}.db, ID: ${filePair.second}")
+                            } else {
+                                Log.d("FileCheck", "File exists: ${filePair.first}.db, ID: ${filePair.second}")
+                            }
+                        }
+                    }
+                    jobs.add(job)
+                }
+                jobs.joinAll()
+
+                Log.d("FileCheck", "isUpdateNeeded: $isUpdateNeeded")
+                Log.d("FileCheck", "Starting file existence checks")
+
+
+                if (isUpdateNeeded!="a") {
+
+                    Log.d("updatechecker", " :  needed $isUpdateNeeded")
+
+                    dbDownloadersequence.observeMultipleFileExistence(
+                        filesWithIds,
+                        this@HomeActivity,
+                        lifecycleScope,
+                        homeActivity = this@HomeActivity, // Your activity
+                        progressCallback = { progress, filePair  ->
+
+
+
+                            Log.d("Progress", "File: $filePair, Progress: $progress%")
+
+
+                        },{
+
+
+
+
+
+                            dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
+                            recreateWithDelay(2000)
+
+                            setupViewPagerAndDatabase(
+                                context =this@HomeActivity,
+                                currentMonthString = currentMonthString,
+                                currentDay = currentDay,
+                                delayMillis = delayMillis,
+                                dbHelperHoliday
+                            )
+
+                            loadTodaysDetails(this@HomeActivity)
+
+
+
+                        }
+                    )
+
+
+                } else {
+
+                    dbDownloadersequence.observeMultipleFileExistence(
+                        nonExistentFiles,
+                        this@HomeActivity,
+                        lifecycleScope,
+                        homeActivity = this@HomeActivity,
+                        progressCallback = { progress, filePair ->
+                            Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
+                        },
+                        {
+
+                            binding.homeviewloading.visibility=View.GONE
+                            binding.homeviewloading1.visibility=View.GONE
+                            binding.homeview.visibility=View.VISIBLE
+                            binding.homeBanner.visibility=View.VISIBLE
+
+                            dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
+                            dbHelpercalander = dbHelper(this@HomeActivity, "calander.db")
+                            dbHelperimage = dbHelper(this@HomeActivity, "imageauto.db")
+
+                            val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
+                            speak = rowsFormonthdate?.get("speak") ?: ""
+                            textToSpeech = TextToSpeech(this@HomeActivity, TextToSpeech.OnInitListener { status ->
+                                if (status == TextToSpeech.SUCCESS) {
+                                    textToSpeech?.language = Locale.forLanguageTag("hi")
+                                    Log.d("speak", "TTS success")
+                                    delayedTask(1000,speak.toString())
+                                } else {
+                                    Log.d("speak", "TTS failed")
+                                }
+                            })
+
+                            handleHolidayData(
+                                dbHelpercalander =dbHelpercalander,
+                                dbHelperimage =dbHelperimage,
+                                currentMonthString = currentMonthString,
+                                currentDay = currentDay,
+                                currentDayName = currentDayName
+                            )
+
+                            setupViewPagerAndDatabase(
+                                context =this@HomeActivity,
+                                currentMonthString = currentMonthString,
+                                currentDay = currentDay,
+                                delayMillis = delayMillis,
+                                dbHelperHoliday
+                            )
+
+                            loadTodaysDetails(this@HomeActivity)
+
+                        }
+                    )
+
+
+
+
+
+
+
+
+
+                    homeBroadcast = viewModel.gethomeBroadcast()
+                    Log.d("homeBroadcast", "$homeBroadcast")
+
+                    if (homeBroadcast.isNullOrEmpty()) {
+                        binding.floatingActionButton.visibility = View.GONE
+                    } else {
+                        binding.floatingActionButton.visibility = View.VISIBLE
+                    }
+
+
+
+
+
+
+                }
+            }
+
+
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA) // Set usage type (e.g., music, alarm)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC) // Set content type
+                .build()
+
+            mediaPlayer.setAudioAttributes(audioAttributes)
+
+            //date
+
+            val currentDate = LocalDate.now()
+
+            val hindiMonth = translateToHindi(currentDate.month.toString())
+            val hindiDay = translateToHindiday(currentDate.dayOfWeek.toString())
+            val hindidate = translateToHindidate(currentDate.dayOfMonth.toString())
+
+
+            //text speak broadcast
+            binding.floatingActionButton.setOnClickListener {
+                isFabClicked = !isFabClicked
+                if (isFabClicked) {
+
+
+                    switchFabColor(binding.floatingActionButton)
+
+                    delayedBroadcast(1000,binding.floatingActionButton)
+
+
+                } else {
+
+                    stopAudio()
+                    switchFabColor(binding.floatingActionButton)
+
+                }
+
+            }
+
+
+            binding.apply {
+
+                textViewDate.text = hindidate
+                textViewDay.text = hindiDay
+                textViewMonth.text = hindiMonth
+
+            }
+
+            binding.alarm.setOnClickListener {
+                val i = Intent(this, AlarmActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
+            binding.test.setOnClickListener {
+                val i = Intent(this, TestActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
+            binding.calendar.setOnClickListener {
+                val i = Intent(this, CalendarActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
+            binding.holiday.setOnClickListener {
+                val i = Intent(this, HolidayActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
+            binding.shareicon.setOnClickListener {
+                ViewShareUtil.shareViewAsImageDirectly(binding.homeBanner,this)
+
+            }
+
+            binding.share.setOnClickListener {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    // Put the text to share in the intent
+
+                    val shareText = "पंचांग ऐप डाउनलोड करने के लिए नीचे दिए गए लिंक पर क्लिक करें .\n https://play.google.com/store/apps/details?id=com.mithilakshar.mithilapanchang  \n\n\n @mithilakshar13"
+
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                    // Set the MIME type
+                    type = "text/plain"
+                }
+                // Start the activity with the intent
+                startActivity(Intent.createChooser(intent, "शेयर: "))
+            }
+
+        }
+
+        fun onNetworkAvailable() {
+            // Perform your tasks when network is available
+            // Example: Fetch data from the API or sync with the server
+            performNetworkTasks()
+        }
+
+
+
         networkManager.observe(this, {
             if (!it) {
                 if (!networkdialog.isShowing) {
                     networkdialog.show()
                 }
 
+
             } else {
                 if (networkdialog.isShowing) {
                     networkdialog.dismiss()
                 }
-
+                onNetworkAvailable()
             }
         })
-
-
-
-        adView = binding.adView
-        adviewMR = binding.adviewMR
-
-
-        val adRequest = AdRequest.Builder().build()
-
-
-
-        // Set an AdListener to make the AdView visible when the ad is loaded
-        adView.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-                // Make the AdView visible when the ad is loaded
-                adView.visibility = View.VISIBLE
-            }
-
-            override fun onAdFailedToLoad(p0: LoadAdError) {
-                // Optionally, you can log or handle the error here
-            }
-        }
-
-        adviewMR.adListener = object : AdListener() {
-            override fun onAdLoaded() {
-                // Make the AdView visible when the ad is loaded
-                adviewMR.visibility = View.VISIBLE
-            }
-
-            override fun onAdFailedToLoad(p0: LoadAdError) {
-                // Optionally, you can log or handle the error here
-            }
-        }
-
-
-
-
-
-        adviewMR.loadAd(adRequest)
-        adView.loadAd(adRequest)
-
-
-
-
-        val maxHeightInDp = 700
-        val maxHeightInPx = (maxHeightInDp * resources.displayMetrics.density).toInt()
-
-        val imageView = binding.homeBanner
-
-        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val contentHeight = imageView.height
-                val params = imageView.layoutParams as ViewGroup.LayoutParams
-
-                // If the content height is greater than maxHeight, use maxHeight
-                params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                imageView.layoutParams = params
-
-                // Remove the listener to prevent it from being called again
-                imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        }
-
-// Add the global layout listener
-        imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    val cDate: LocalDate = LocalDate.now()
-        val currentMonthString: String = cDate.month.name // Gets the current month in uppercase (e.g., "JANUARY")
-        val currentDay: Int = cDate.dayOfMonth
-
-        val currentDayName: String = cDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).uppercase()
-
-
-        fileDownloader = FirebaseFileDownloader(this)
-        updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
-
-        val filesWithIds = listOf(
-            Pair("holiday", 2),
-            Pair("holiday2025",11),
-            Pair("holiday2026",12),
-            Pair("holiday2027",13),
-            Pair("holiday2028",14),
-            Pair("holiday2029",15),
-            Pair("holiday2030",16),
-
-            Pair("imageauto", 5),
-
-            Pair("cal", 77),
-            Pair("calander", 3),
-            Pair("calander2025",21)
-        )
-
-
-        lifecycleScope.launch {
-            val updateChecker = UpdateChecker(updatesDao)
-            val isUpdateNeeded = updateChecker.getUpdateStatus()
-            if (isUpdateNeeded!="a") {
-
-                Log.d("updatechecker", " :  needed $isUpdateNeeded")
-
-                dbDownloadersequence.observeMultipleFileExistence(
-                    filesWithIds,
-                    this@HomeActivity,
-                    lifecycleScope,
-                    homeActivity = this@HomeActivity, // Your activity
-                    progressCallback = { progress, filePair  ->
-
-
-
-                        Log.d("Progress", "File: $filePair, Progress: $progress%")
-
-
-                    },{
-
-
-
-                        dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
-                       recreateWithDelay(2000)
-
-                        setupViewPagerAndDatabase(
-                            context =this@HomeActivity,
-                            currentMonthString = currentMonthString,
-                            currentDay = currentDay,
-                            delayMillis = delayMillis,
-                            dbHelperHoliday
-                        )
-
-                        loadTodaysDetails(this@HomeActivity)
-
-
-
-                    }
-                )
-
-
-            } else {
-
-                dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
-                dbHelpercalander = dbHelper(this@HomeActivity, "calander.db")
-                dbHelperimage = dbHelper(this@HomeActivity, "imageauto.db")
-                homeBroadcast = viewModel.gethomeBroadcast()
-                Log.d("homeBroadcast", "$homeBroadcast")
-
-                if (homeBroadcast.isNullOrEmpty()) {
-                    binding.floatingActionButton.visibility = View.GONE
-                } else {
-                    binding.floatingActionButton.visibility = View.VISIBLE
-                }
-                val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
-                speak = rowsFormonthdate?.get("speak") ?: ""
-                textToSpeech = TextToSpeech(this@HomeActivity, TextToSpeech.OnInitListener { status ->
-                    if (status == TextToSpeech.SUCCESS) {
-                        textToSpeech?.language = Locale.forLanguageTag("hi")
-                        Log.d("speak", "TTS success")
-                        delayedTask(1000,speak.toString())
-                    } else {
-                        Log.d("speak", "TTS failed")
-                    }
-                })
-
-
-
-                handleHolidayData(
-                    dbHelpercalander =dbHelpercalander,
-                    dbHelperimage =dbHelperimage,
-                    currentMonthString = currentMonthString,
-                    currentDay = currentDay,
-                    currentDayName = currentDayName
-                )
-
-                setupViewPagerAndDatabase(
-                    context =this@HomeActivity,
-                    currentMonthString = currentMonthString,
-                    currentDay = currentDay,
-                    delayMillis = delayMillis,
-                    dbHelperHoliday
-                )
-                loadTodaysDetails(this@HomeActivity)
-                Log.d("updatechecker", " : not needed $isUpdateNeeded")
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA) // Set usage type (e.g., music, alarm)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC) // Set content type
-            .build()
-
-        mediaPlayer.setAudioAttributes(audioAttributes)
-
-
-
-
-
-
-
-        //date
-
-        val currentDate = LocalDate.now()
-
-        val hindiMonth = translateToHindi(currentDate.month.toString())
-        val hindiDay = translateToHindiday(currentDate.dayOfWeek.toString())
-        val hindidate = translateToHindidate(currentDate.dayOfMonth.toString())
-
-
-
-
-
-
-
-        //text speak broadcast
-        binding.floatingActionButton.setOnClickListener {
-            isFabClicked = !isFabClicked
-            if (isFabClicked) {
-
-
-                switchFabColor(binding.floatingActionButton)
-
-                delayedBroadcast(1000,binding.floatingActionButton)
-
-
-            } else {
-
-                stopAudio()
-                switchFabColor(binding.floatingActionButton)
-
-            }
-
-        }
-
-
-        binding.apply {
-
-            textViewDate.text = hindidate
-            textViewDay.text = hindiDay
-            textViewMonth.text = hindiMonth
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        binding.alarm.setOnClickListener {
-            val i = Intent(this, AlarmActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
-
-        binding.test.setOnClickListener {
-            val i = Intent(this, TestActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
-
-        binding.calendar.setOnClickListener {
-            val i = Intent(this, CalendarActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
-
-        binding.holiday.setOnClickListener {
-            val i = Intent(this, HolidayActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
-
-
-
-
-
-
-        binding.shareicon.setOnClickListener {
-            ViewShareUtil.shareViewAsImageDirectly(binding.homeBanner,this)
-
-        }
-
-
-
-        binding.share.setOnClickListener {
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                // Put the text to share in the intent
-
-                val shareText = "पंचांग ऐप डाउनलोड करने के लिए नीचे दिए गए लिंक पर क्लिक करें .\n https://play.google.com/store/apps/details?id=com.mithilakshar.mithilapanchang  \n\n\n @mithilakshar13"
-
-                putExtra(Intent.EXTRA_TEXT, shareText)
-                // Set the MIME type
-                type = "text/plain"
-            }
-            // Start the activity with the intent
-            startActivity(Intent.createChooser(intent, "शेयर: "))
-        }
 
 
 
@@ -1195,6 +1179,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     fun getCurrentDay(): Int {
         val calendar = java.util.Calendar.getInstance()
         return calendar.get(java.util.Calendar.DAY_OF_MONTH)
+    }
+
+    fun checkFileExistence(fileName: String): LiveData<Boolean> {
+        val fileExistsLiveData = MutableLiveData<Boolean>()
+        val dbFolderPath = this.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
+        val dbFile = File(dbFolderPath, fileName)
+        fileExistsLiveData.value = dbFile.exists()
+        return fileExistsLiveData
     }
 
 }

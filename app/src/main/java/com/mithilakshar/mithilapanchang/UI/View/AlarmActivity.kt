@@ -27,14 +27,14 @@ import com.mithilakshar.mithilapanchang.ViewModel.RingtoneViewmodel
 import com.mithilakshar.mithilapanchang.databinding.ActivityAlarmBinding
 
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 
-import com.mithilakshar.mithilapanchang.ViewModel.HomeViewModel
 
-import kotlinx.coroutines.launch
+
+
+
+
 import java.util.*
-import kotlin.random.Random
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -42,7 +42,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.content.Intent
 import android.net.Uri
@@ -110,19 +109,9 @@ class AlarmActivity : AppCompatActivity() {
 
         alarmHelper = AlarmHelper(this)
 
-        val viewModel: HomeViewModel by lazy {
-            ViewModelProvider(this).get(HomeViewModel::class.java)
-        }
 
-        lifecycleScope.launch {
 
-            notificationurl = viewModel.getappbarImagelist("appbar")
-            if (notificationurl.size != 0) {
-                val random = Random.nextInt(notificationurl.size)
 
-            }
-
-        }
 
 
         ringtoneAdapter=RingtoneAdapter(mutableListOf()){

@@ -1,18 +1,14 @@
 package com.mithilakshar.mithilapanchang.UI.View
 
 
-import android.content.ContentValues
-import androidx.lifecycle.Observer
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
+
 import android.view.View
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdListener
@@ -22,33 +18,26 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 
 
-import com.google.firebase.firestore.FirebaseFirestore
+
 import com.mithilakshar.mithilapanchang.Adapters.holidayadapter
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
 import com.mithilakshar.mithilapanchang.R
-import com.mithilakshar.mithilapanchang.Room.Updates
-import com.mithilakshar.mithilapanchang.Room.UpdatesDao
-import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
-import com.mithilakshar.mithilapanchang.Utility.DownloadManager
-import com.mithilakshar.mithilapanchang.Utility.FileDownloaderProgress
-import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
-import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
+
 import com.mithilakshar.mithilapanchang.Utility.dbHelper
-import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
+
 
 import com.mithilakshar.mithilapanchang.databinding.ActivityHolidaylistBinding
-import kotlinx.coroutines.launch
-import java.io.File
+
 import java.util.Calendar
 
 
-class HolidayListActivity<Menu> : AppCompatActivity() {
+class HolidayListActivity : AppCompatActivity() {
 
 
     private lateinit var adView5: AdView
     lateinit var binding:ActivityHolidaylistBinding
-    private lateinit var updatesDao: UpdatesDao
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: holidayadapter
     private var holidays: MutableList<Map<String, String>> = mutableListOf()
@@ -121,12 +110,8 @@ class HolidayListActivity<Menu> : AppCompatActivity() {
         searchView=binding.searchview
 
 
-        searchView.setOnSearchClickListener {
-            // SearchView is expanded, set the custom background
-            searchView.setBackgroundResource(R.drawable.search_view_bg)
-        }
 
-        if (selectedyear>getCurrentYear()){
+        if (selectedyear>2024){
             val a="holiday$selectedyear.db"
             val b="holiday$selectedyear"
             dbHelperHolidaylistfilter=dbHelper(this@HolidayListActivity,a)
@@ -214,10 +199,6 @@ class HolidayListActivity<Menu> : AppCompatActivity() {
 
 
 
-    private fun performSearch(query: String) {
-        // Add your search logic here
-        // For example, filter a list and update the UI
-    }
 
 
 }

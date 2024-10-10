@@ -14,8 +14,8 @@ android {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
         targetSdk = 34
-        versionCode = 24
-        versionName = "24.0"
+        versionCode = 26
+        versionName = "26.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -92,7 +92,7 @@ dependencies {
     implementation(libs.review.ktx)
 
 
-    implementation(libs.billing)
+
 
 
     implementation (libs.android.lottie)
@@ -102,7 +102,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.firebase.auth)
+
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.messaging)

@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/gitatextbackground"
+        android:background="@drawable/dialog"
         android:padding="10dp">
 
         <!-- Image View -->

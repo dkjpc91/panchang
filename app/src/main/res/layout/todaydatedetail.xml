@@ -8,14 +8,6 @@
     android:background="@color/blue"
     android:layout_height="wrap_content">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:layout_gravity="right"
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/speaker"
-        android:contentDescription="@string/app_name_h" />
 
    <androidx.cardview.widget.CardView
 
@@ -33,6 +25,7 @@
                android:layout_marginTop="2dp">
 
                <TextView
+                   android:layout_gravity="center"
                    android:id="@+id/calendardialogtext"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
@@ -56,7 +49,7 @@
 
                    <TextView
                        android:textSize="25sp"
-                       android:id="@+id/calendardialogtext1"
+                       android:id="@+id/todaytithi"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -83,7 +76,7 @@
 
                    <TextView
                        android:textSize="25sp"
-                       android:id="@+id/calendardialogtext3"
+                       android:id="@+id/todaynakshatra"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -107,7 +100,7 @@
 
                    <TextView
                        android:textSize="25sp"
-                       android:id="@+id/calendardialogtext4"
+                       android:id="@+id/todaymonth"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"
@@ -116,7 +109,7 @@
                </LinearLayout>
 
                <LinearLayout
-                   android:id="@+id/calendardialogtext5l"
+                   android:id="@+id/todayholidayl"
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
                    android:orientation="horizontal"
@@ -132,7 +125,7 @@
 
                    <TextView
                        android:textSize="22sp"
-                       android:id="@+id/calendardialogtext5"
+                       android:id="@+id/todayholiday"
                        android:layout_width="0dp"
                        android:layout_height="wrap_content"
                        android:layout_weight="1"

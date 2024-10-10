@@ -19,7 +19,7 @@
 
         <!-- Sanskrit Quote TextView -->
         <TextView
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="13dp"
             android:id="@+id/holidayname"
             android:padding="10dp"
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:layout_centerHorizontal="true"
             android:ellipsize="none"
             android:gravity="center"
-            android:text="अहिंसा परमो धर्मः धर्म हिंसा तथैव च ।"
+            android:text=""
             android:textColor="@color/red"
             android:textSize="32sp"
             android:textStyle="bold" />

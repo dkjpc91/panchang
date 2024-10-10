@@ -6,7 +6,7 @@ import android.content.Intent
 import java.time.format.TextStyle
 import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.os.Build
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -15,7 +15,6 @@ import android.speech.tts.TextToSpeech
 import android.view.View
 
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +28,7 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
-import com.google.firebase.firestore.FirebaseFirestore
+
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
@@ -37,7 +36,7 @@ import com.mithilakshar.mithilapanchang.Notification.NetworkManager
 
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.dbHelper
-import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
+
 import com.mithilakshar.mithilapanchang.ViewModel.HomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,19 +45,21 @@ import java.util.Locale
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 
-import android.content.ContentValues.TAG
+
 import android.content.Context
 
-import android.net.Uri
+
+
 
 
 import android.util.Log
+
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.LinearLayout
+import android.widget.TextView
 
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.ads.AdListener
@@ -69,14 +70,14 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 
 
-import com.google.firebase.auth.FirebaseAuth
+
 
 
 import com.mithilakshar.mithilapanchang.Adapters.SliderAdapter
 import com.mithilakshar.mithilapanchang.R
 
 
-import com.mithilakshar.mithilapanchang.Room.Updates
+
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 
@@ -84,17 +85,13 @@ import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 
-import com.mithilakshar.mithilapanchang.Utility.dbDownloader
 import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
 import java.io.File
+import java.util.concurrent.Executors
 
 
-@RequiresApi(Build.VERSION_CODES.DONUT)
 class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
-
-
-
 
     lateinit var binding: ActivityHomeBinding
     private lateinit var appUpdateManager: AppUpdateManager
@@ -105,49 +102,25 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var dbHelperimage: dbHelper
     private lateinit var dbHelperHoliday: dbHelper
 
-
-    private lateinit var auth: FirebaseAuth
-
-    private  var holidaybannerurl :String =""
-
     val mediaPlayer = MediaPlayer()
     var currentPlaybackPosition: Int = 0
-
     val handler = Handler(Looper.getMainLooper())
-
     private var isFabClicked = false
-
     private var textToSpeech: TextToSpeech? = null
     var speak: String? = ""
     var homeBroadcast: String = ""
-
 
     val viewModel: HomeViewModel by lazy {
         ViewModelProvider(this).get(HomeViewModel::class.java)
     }
 
     private lateinit var fileDownloader: FirebaseFileDownloader
-
-    companion object {
-        private const val REQUEST_WRITE_STORAGE = 1
-    }
-
-
-
-
-
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
-
-
     private var delayMillis: Long = 4000
-
     private lateinit var dbDownloadersequence: dbDownloadersequence
 
 
-
-
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -157,8 +130,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         if (updateType == AppUpdateType.FLEXIBLE) {
             appUpdateManager.registerListener(installStateUpdatedListener)
         }
-
-
 
 
         checkForAppUpdate()
@@ -190,6 +161,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val adRequest = AdRequest.Builder().build()
 
 
+
         // Set an AdListener to make the AdView visible when the ad is loaded
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
@@ -213,17 +185,12 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
         }
 
-        val randomValue = (1..100).random()
-
-        if (randomValue <= 70) {
-            // Load adviewMR 70% of the time
-            adviewMR.loadAd(adRequest)
-        } else {
-            // Load adView 30% of the time
-            adView.loadAd(adRequest)
-        }
 
 
+
+
+        adviewMR.loadAd(adRequest)
+        adView.loadAd(adRequest)
 
 
 
@@ -271,18 +238,27 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val currentDayName: String = cDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).uppercase()
 
-        fileDownloader = FirebaseFileDownloader(this)
 
+        fileDownloader = FirebaseFileDownloader(this)
         updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-        val dbDownloader= dbDownloader(updatesDao,fileDownloader)
         dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
 
         val filesWithIds = listOf(
             Pair("holiday", 2),
-            Pair("calander", 3),
             Pair("holiday2025",11),
-            Pair("imageauto", 5)
+            Pair("holiday2026",12),
+            Pair("holiday2027",13),
+            Pair("holiday2028",14),
+            Pair("holiday2029",15),
+            Pair("holiday2030",16),
+
+            Pair("imageauto", 5),
+
+            Pair("cal", 77),
+            Pair("calander", 3),
+            Pair("calander2025",21)
         )
+
 
         lifecycleScope.launch {
             val updateChecker = UpdateChecker(updatesDao)
@@ -308,15 +284,17 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
                         dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
+                       recreateWithDelay(2000)
 
-
-                       /* setupViewPagerAndDatabase(
+                        setupViewPagerAndDatabase(
                             context =this@HomeActivity,
                             currentMonthString = currentMonthString,
                             currentDay = currentDay,
                             delayMillis = delayMillis,
                             dbHelperHoliday
-                        )*/
+                        )
+
+                        loadTodaysDetails(this@HomeActivity)
 
 
 
@@ -359,14 +337,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     currentDayName = currentDayName
                 )
 
-               /* setupViewPagerAndDatabase(
+                setupViewPagerAndDatabase(
                     context =this@HomeActivity,
                     currentMonthString = currentMonthString,
                     currentDay = currentDay,
                     delayMillis = delayMillis,
                     dbHelperHoliday
                 )
-*/
+                loadTodaysDetails(this@HomeActivity)
                 Log.d("updatechecker", " : not needed $isUpdateNeeded")
             }
         }
@@ -377,25 +355,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        auth = FirebaseAuth.getInstance()
-        auth.signInAnonymously()
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "signInAnonymously:success")
-                    val user = auth.currentUser
-                    //updateUI(user)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "signInAnonymously:failure", task.exception)
-                    Toast.makeText(
-                        baseContext,
-                        "",
-                        Toast.LENGTH_SHORT,
-                    ).show()
 
-                }
-            }
+
 
 
 
@@ -455,19 +416,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-        //text speak auto data.
-
-        /*     firestoreRepo.getspeaktext(currentDate.dayOfMonth.toString().padStart(2, '0'),
-                 currentDate.month.toString().lowercase(Locale.getDefault())
-                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }) {
-
-                 if (it != null) {
-                     //speak = it
-
-                 }
-
-             }*/
-
 
 
 
@@ -490,10 +438,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
 
         }
-
-
-
-
 
 
         binding.apply {
@@ -524,6 +468,13 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             stopAudio()
         }
 
+        binding.test.setOnClickListener {
+            val i = Intent(this, TestActivity::class.java)
+
+            startActivity(i)
+            stopAudio()
+        }
+
         binding.calendar.setOnClickListener {
             val i = Intent(this, CalendarActivity::class.java)
 
@@ -541,13 +492,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-
-        binding.purchase.setOnClickListener {
-            val i = Intent(this, BillingActivity::class.java)
-
-            startActivity(i)
-            stopAudio()
-        }
 
 
         binding.shareicon.setOnClickListener {
@@ -578,8 +522,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-
-
     private fun switchFabColor(fab: FloatingActionButton) {
         if (isFabClicked) {
             // Set the original color if it's switched
@@ -605,7 +547,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     private fun checkForAppUpdate() {
-
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             val isUpdateAvailable = appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
             val isUpdateAllowed = when (updateType) {
@@ -630,25 +571,36 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Function to delete the directory and its contents
         fun deleteDirectory(directory: File) {
-            if (directory.isDirectory) {
-                val files = directory.listFiles()
-                files?.forEach {
+            if (directory.exists()) {
+                directory.listFiles()?.forEach {
                     if (it.isDirectory) {
                         deleteDirectory(it)
                     } else {
-                        it.delete()
+                        if (!it.delete()) {
+                            Log.e("DeleteFile", "Failed to delete file: ${it.absolutePath}")
+                        }
                     }
                 }
+                if (!directory.delete()) {
+                    Log.e("DeleteDir", "Failed to delete directory: ${directory.absolutePath}")
+                }
             }
-            directory.delete()
         }
 
-        // Perform directory deletion
-        deleteDirectory(downloadDirectory)
-
-        // Proceed with the update
-        onComplete()
+        // Perform directory deletion asynchronously
+        val executor = Executors.newSingleThreadExecutor()
+        executor.execute {
+            try {
+                deleteDirectory(downloadDirectory)
+            } catch (e: Exception) {
+                Log.e("DeleteDir", "Error during directory deletion", e)
+            } finally {
+                // Proceed with the update
+                onComplete()
+            }
+        }
     }
+
 
 
     override fun onResume() {
@@ -686,28 +638,34 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
     override fun onDestroy() {
-
-
+        // Check if adviewMR is initialized
         if (::adviewMR.isInitialized) {
             adviewMR.destroy()
         }
+
+        // Check if adView is initialized
         if (::adView.isInitialized) {
             adView.destroy()
         }
 
+        // Call super first
         super.onDestroy()
+
+        // Unregister the update listener if needed
         if (updateType == AppUpdateType.FLEXIBLE) {
             appUpdateManager.unregisterListener(installStateUpdatedListener)
         }
 
-        textToSpeech!!.stop()
-        textToSpeech!!.shutdown()
+        // Safely handle textToSpeech
+        textToSpeech?.let {
+            it.stop()
+            it.shutdown()
+        }
+
+        // Call stopAudio safely
         stopAudio()
-
-
-
-
     }
+
 
     override fun onPause() {
         if (::adView.isInitialized) {
@@ -897,14 +855,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath =
-            this.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
-    }
+
 
 
 
@@ -962,9 +913,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val handler = Handler(Looper.getMainLooper())
         val sliderAdapter = SliderAdapter(holidayMonthList)
         val viewPager: ViewPager2 = findViewById(R.id.viewPager) // Replace with actual ViewPager2 ID
-
+        binding.viewPager.visibility=View.VISIBLE
         viewPager.adapter = sliderAdapter
-        binding.frame.visibility=View.VISIBLE
+
 
         // Runnable for ViewPager auto-scrolling
         val runnable = object : Runnable {
@@ -1155,9 +1106,96 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    private fun recreateWithDelay(delayMillis: Long) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            val intent = intent // Get the current activity's intent
+            finish() // Optional: finish the current activity
+            startActivity(intent) // Restart the same activity
+        }, delayMillis)
+    }
+
+    private fun loadTodaysDetails(context:Context) {
+        lifecycleScope.launch {
+            val dbname: String
+            val table: String
+          val   year  = getCurrentYear()
+            // Determine the database name and table name based on the year
+            if (year > 2024) {
+                dbname = "calander$year.db"
+                table = "calander$year"
+            } else {
+                dbname = "calander.db"
+                table = "calander"
+            }
+
+            val todaytithi: TextView = binding.todaytithi
+            val todaynakshatra: TextView = binding.todaynakshatra
+            val todaymonth: TextView = binding.todaymonth
+            val todayholiday: TextView = binding.todayholiday
+            val todayholidayl: LinearLayout = binding.todayholidayl
+            val fragmentindex = arrayOf(
+                "JANUARY",
+                "FEBRUARY",
+                "MARCH",
+                "APRIL",
+                "MAY",
+                "JUNE",
+                "JULY",
+                "AUGUST",
+                "SEPTEMBER",
+                "OCTOBER",
+                "NOVEMBER",
+                "DECEMBER"
+            )
+
+            // Initialize the database helper
+            val dbHelper = dbHelper(context, dbname)
+
+            val month = fragmentindex[getCurrentMonth()-1]
+            val date = getCurrentDay().toString()
+            Log.d("todaysdatedetails", " :todays data $month  $date")
+            // Fetch rows for the specified month
+       val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date)
+            Log.d("todaysdatedetails", " :todays data $todaysdatedetails")
+
+        runOnUiThread {
+            todaytithi.text= todaysdatedetails?.get("tithi")
+            todaynakshatra.text =todaysdatedetails?.get("nakshatra")
+            todaymonth.text=todaysdatedetails?.get("monthhindi")
+
+            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("tithi")}")
+            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("nakshatra")}")
+            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("monthhindi")}")
+
+            if (todaysdatedetails?.get("holiday").isNullOrBlank()) {
+                todayholiday?.visibility = View.GONE // or View.GONE
+                todayholidayl?.visibility = View.GONE // or View.GONE
+            } else {
+                todayholidayl?.visibility = View.VISIBLE
+                todayholiday?.text = todaysdatedetails?.get("holiday")
+            }
+
+        }
 
 
+        }
+    }
 
+
+    fun getCurrentYear(): Int {
+        val calendar = java.util.Calendar.getInstance()
+        return calendar.get(java.util.Calendar.YEAR)
+    }
+    fun getCurrentMonth(): Int {
+        val calendar = java.util.Calendar.getInstance()
+        // Calendar.MONTH is zero-based, so we add 1
+        return calendar.get(java.util.Calendar.MONTH) + 1
+    }
+
+    fun getCurrentDay(): Int {
+        val calendar = java.util.Calendar.getInstance()
+        return calendar.get(java.util.Calendar.DAY_OF_MONTH)
+    }
 
 }
 

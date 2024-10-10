@@ -8,26 +8,20 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
-
-
-<!--
-    //prod
+    <!--    //prod
     <string name="caprod">"ca-app-pub-4403504868154729~4560897504"</string>
-    <string name="bannerunithome1">ca-app-pub-4403504868154729/1634780449</string>
-    <string name="bannerunithome">"ca-app-pub-4403504868154729/6173362073"</string>
-    <string name="bannerunitholiday">"ca-app-pub-4403504868154729/7842447214"</string>
-    <string name="bannerunitholidaylist">"ca-app-pub-4403504868154729/7373846801"</string>
-    <string name="bannerunitcalander">"ca-app-pub-4403504868154729/6038410955"</string>
-    <string name="interstitialholiday">"ca-app-pub-4403504868154729/6998968948"</string>-->
+    <string name="bannerunithome1">ca-app-pub-4403504868154729/6839891118</string>
+    <string name="bannerunitholiday">"ca-app-pub-4403504868154729/7829539151"</string>
+    <string name="bannerunitholidaylist">"ca-app-pub-4403504868154729/6516457480"</string>
+    <string name="bannerunitcalander">"ca-app-pub-4403504868154729/5526809442"</string>
+    <string name="interstitialholiday">"ca-app-pub-4403504868154729/1858754102"</string>-->
 
 
-        //test
+    //test
     <string name="caprod">"ca-app-pub-3940256099942544~3347511713"</string>
     <string name="bannerunithome1">ca-app-pub-3940256099942544/6300978111</string>
-    <string name="bannerunithome">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="bannerunitholiday">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="bannerunitholidaylist">"ca-app-pub-3940256099942544/6300978111"</string>
-    <string name="bannerunitGitachapter">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="bannerunitcalander">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="interstitialholiday">"ca-app-pub-3940256099942544/1033173712"</string>
 

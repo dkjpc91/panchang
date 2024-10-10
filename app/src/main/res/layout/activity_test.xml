@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".UI.View.HolidayListActivity">
-
-
+    tools:context=".UI.View.TestActivity">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -59,7 +58,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="हिन्दू त्योहार"
+            android:text="calander"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#FF6F6F"
@@ -74,13 +73,11 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/holidayrecycler"
+        android:id="@+id/calrecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="16dp" />
-
-
 
 
 </LinearLayout>

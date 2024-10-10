@@ -1,56 +1,55 @@
 package com.mithilakshar.mithilapanchang.UI.View
 
-import android.content.ContentValues
+
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.speech.tts.TextToSpeech
+
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
+
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.google.firebase.firestore.FirebaseFirestore
+
 import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
 import com.mithilakshar.mithilapanchang.databinding.ActivityHolidayBinding
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
 import com.mithilakshar.mithilapanchang.R
-import com.mithilakshar.mithilapanchang.Room.Updates
+
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
-import com.mithilakshar.mithilapanchang.Utility.dbDownloader
+
 import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
-import com.mithilakshar.mithilapanchang.Utility.dbHelper
-import com.mithilakshar.mithilapanchang.ViewModel.BhagwatGitaViewModel
-import kotlinx.coroutines.Deferred
+
+
+
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
+
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.io.File
 
 import java.util.Calendar
-import java.util.Locale
+
 
 class HolidayActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityHolidayBinding
-    private lateinit var fileExistenceLiveData: LiveData<Boolean>
     private lateinit var adView3: AdView
     private lateinit var updatesDao: UpdatesDao
     private lateinit var fileDownloader: FirebaseFileDownloader
-    private lateinit var bhagwatgitaviewmodel: BhagwatGitaViewModel
+
     private  var selectedyear:Int = getCurrentYear()
     private lateinit var interstitialAdManager: InterstitialAdManager
     private lateinit var dbDownloadersequence: dbDownloadersequence
@@ -113,12 +112,17 @@ class HolidayActivity : AppCompatActivity() {
             val isUpdateNeeded = updateChecker.getUpdateStatus()
             val nonExistentFiles = mutableListOf<Pair<String, Int>>()
             val jobs = mutableListOf<Job>()
+            Log.d("FileCheck", "isUpdateNeeded: $isUpdateNeeded")
+            Log.d("FileCheck", "Starting file existence checks")
+
             for (filePair in filesWithIds) {
                 val job = launch {
-                    // Observe the LiveData returned by checkFileExistence
                     checkFileExistence("${filePair.first}.db").observeForever { exists ->
                         if (exists != null && !exists) {
                             nonExistentFiles.add(filePair)
+                            Log.d("FileCheck", "File does not exist: ${filePair.first}.db, ID: ${filePair.second}")
+                        } else {
+                            Log.d("FileCheck", "File exists: ${filePair.first}.db, ID: ${filePair.second}")
                         }
                     }
                 }
@@ -126,64 +130,42 @@ class HolidayActivity : AppCompatActivity() {
             }
             jobs.joinAll()
 
+            Log.d("FileCheck", "Non-existent files: $nonExistentFiles")
 
-            Log.d("nonExistentFiles", " :  nonExistentFiles  $nonExistentFiles")
-            if (isUpdateNeeded!="a" ) {
-
-                Log.d("updatechecker", " :  needed $isUpdateNeeded")
+            if (isUpdateNeeded != "a") {
+                Log.d("FileCheck", "Update needed: $isUpdateNeeded")
 
                 dbDownloadersequence.observeMultipleFileExistence(
                     filesWithIds,
                     this@HolidayActivity,
                     lifecycleScope,
-                    homeActivity = this@HolidayActivity, // Your activity
-                    progressCallback = { progress, filePair  ->
-
-
-
-                        Log.d("update", "File: $filePair, Progress: $progress%")
-
-
-                    },{
-
-                       // observeFileExistence("holiday",2)
-                        binding.spinner.visibility=View.VISIBLE
-                        binding.monthview.visibility=View.VISIBLE
-                        binding.lottieAnimationView.visibility=View.GONE
-                        Log.d("update", " total update completed")
-
-
+                    homeActivity = this@HolidayActivity,
+                    progressCallback = { progress, filePair ->
+                        Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
+                    },
+                    {
+                        binding.spinner.visibility = View.VISIBLE
+                        binding.monthview.visibility = View.VISIBLE
+                        binding.lottieAnimationView.visibility = View.GONE
+                        Log.d("FileCheck", "Total update completed")
                     }
                 )
-
-
             } else {
-
                 dbDownloadersequence.observeMultipleFileExistence(
                     nonExistentFiles,
                     this@HolidayActivity,
                     lifecycleScope,
-                    homeActivity = this@HolidayActivity, // Your activity
-                    progressCallback = { progress, filePair  ->
-
-
-
-                        Log.d("update", "File: $filePair, Progress: $progress%")
-
-
-                    },{
-
-                        // observeFileExistence("holiday",2)
-                        binding.spinner.visibility=View.VISIBLE
-                        binding.monthview.visibility=View.VISIBLE
-                        binding.lottieAnimationView.visibility=View.GONE
-                        Log.d("update", " total non update  completed")
-
-
+                    homeActivity = this@HolidayActivity,
+                    progressCallback = { progress, filePair ->
+                        Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
+                    },
+                    {
+                        binding.spinner.visibility = View.VISIBLE
+                        binding.monthview.visibility = View.VISIBLE
+                        binding.lottieAnimationView.visibility = View.GONE
+                        Log.d("FileCheck", "Total non-update completed")
                     }
                 )
-
-
             }
         }
 
@@ -194,9 +176,7 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-        val factory = BhagwatGitaViewModel.factory(fileDownloader)
-        bhagwatgitaviewmodel =
-            ViewModelProvider(this, factory).get(BhagwatGitaViewModel::class.java)
+
 
 
 

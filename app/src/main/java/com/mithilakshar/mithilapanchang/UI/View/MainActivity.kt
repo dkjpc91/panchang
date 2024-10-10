@@ -10,9 +10,7 @@ import android.os.Looper
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import android.animation.ObjectAnimator
-
 import com.mithilakshar.mithilapanchang.R
-import com.mithilakshar.mithilapanchang.Utility.AppOpenAdManager
 
 import com.mithilakshar.mithilapanchang.databinding.ActivityMainBinding
 
@@ -51,13 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun showAdOrProceed() {
-        AppOpenAdManager.showAdIfAvailable(this) {
-            // Proceed to the main activity after the ad is dismissed
 
-            startMainActivity()
-        }
-    }
 
     private fun startMainActivity() {
         val intent = Intent(this, HomeActivity::class.java)

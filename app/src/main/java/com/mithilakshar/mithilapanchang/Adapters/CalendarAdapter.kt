@@ -1,6 +1,5 @@
 package com.mithilakshar.mithilapanchang.Adapters
 
-import android.content.ContentValues
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
@@ -19,12 +18,16 @@ import java.util.Calendar
 import java.util.Locale
 
 
-class CalendarAdapter (private val data: List<Map<String, String>>,private val context: Context) : RecyclerView.Adapter<CalendarAdapter.calendarviewholder>() {
+class CalendarAdapter(
+    private val data: List<Map<String, String>>,
+    private val context: Context,
+    private val     year: Int
+) : RecyclerView.Adapter<CalendarAdapter.calendarviewholder>() {
 
     class calendarviewholder(val binding: CalendardayitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun bind(model: Map<String, String>, context: Context) {
+        fun bind(model: Map<String, String>, context: Context, year: Int) {
             binding.apply {
 
                 val currentDateStr = getCurrentDateString()
@@ -74,7 +77,8 @@ class CalendarAdapter (private val data: List<Map<String, String>>,private val c
                 val hindiMonth = translateToHindi(model.get("month").toString())
 
                 val hindidate = translateToHindidate(model.get("date").toString())
-                val hindiyear = translateToHindidate(currentDate.year.toString())
+
+                val hindiyear = translateToHindidate(year.toString())
 
                 calendarDialog.setcalendardialogtext(
                     "\nपंचांग विवरण :-\n \n"
@@ -132,7 +136,7 @@ class CalendarAdapter (private val data: List<Map<String, String>>,private val c
             val currentdata=data.get(position)
 
             if (currentdata != null) {
-                holder.bind(currentdata,context)
+                holder.bind(currentdata,context,year)
             }
 
         }

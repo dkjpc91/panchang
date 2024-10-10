@@ -38,7 +38,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.time.LocalDate
 import java.util.Calendar
-import java.util.Locale
 
 /**
  * A simple [Fragment] subclass.
@@ -161,79 +160,71 @@ class mayfragment : Fragment() {
             )
 
         lifecycleScope.launch {
+            Log.d("FileUpdateProcess", "Coroutine started")
+
             val updateChecker = UpdateChecker(updatesDao)
+            Log.d("FileUpdateProcess", "Created UpdateChecker instance")
+
             val isUpdateNeeded = updateChecker.getUpdateStatus()
+            Log.d("FileUpdateProcess", "Is update needed? $isUpdateNeeded")
+
             val nonExistentFiles = mutableListOf<Pair<String, Int>>()
             val jobs = mutableListOf<Job>()
+
             for (filePair in filesWithIds) {
+                Log.d("FileUpdateProcess", "Checking existence for file: ${filePair.first}.db")
                 val job = launch {
                     // Observe the LiveData returned by checkFileExistence
                     checkFileExistence("${filePair.first}.db").observeForever { exists ->
                         if (exists != null && !exists) {
+                            Log.d("FileUpdateProcess", "File does not exist: ${filePair.first}.db")
                             nonExistentFiles.add(filePair)
+                        } else {
+                            Log.d("FileUpdateProcess", "File exists: ${filePair.first}.db")
                         }
                     }
                 }
                 jobs.add(job)
             }
+
             jobs.joinAll()
+            Log.d("FileUpdateProcess", "Non-existent files: $nonExistentFiles")
 
-
-            Log.d("nonExistentFiles", " :  nonExistentFiles  $nonExistentFiles")
-            if (isUpdateNeeded!="a" ) {
-
-                Log.d("updatechecker", " :  needed $isUpdateNeeded")
+            if (isUpdateNeeded != "a") {
+                Log.d("FileUpdateProcess", "Update needed: $isUpdateNeeded")
 
                 dbDownloadersequence.observeMultipleFileExistence(
                     filesWithIds,
                     requireActivity(),
                     lifecycleScope,
                     homeActivity = requireActivity(), // Your activity
-                    progressCallback = { progress, filePair  ->
-
-
-
-                        Log.d("update", "File: $filePair, Progress: $progress%")
-
-
-                    },{
-
-                        // observeFileExistence("holiday",2)
-                        binding.spinner.visibility=View.VISIBLE
-
-                        Log.d("update", " total update completed")
-
-
+                    progressCallback = { progress, filePair ->
+                        Log.d("FileUpdateProcess", "File: $filePair, Progress: $progress%")
+                    },
+                    {
+                        binding.spinner.visibility = View.VISIBLE
+                        Log.d("FileUpdateProcess", "Total update completed")
                     }
                 )
-
-
             } else {
+                Log.d("FileUpdateProcess", "No update needed, proceeding with non-existent files")
 
                 dbDownloadersequence.observeMultipleFileExistence(
                     nonExistentFiles,
                     requireActivity(),
                     lifecycleScope,
                     requireActivity(), // Your activity
-                    progressCallback = { progress, filePair  ->
-
-
-
-                        Log.d("update", "File: $filePair, Progress: $progress%")
-
-
-                    },{
-
-                        // observeFileExistence("holiday",2)
-                        binding.spinner.visibility=View.VISIBLE
-                        Log.d("update", " total non update  completed")
-
-
+                    progressCallback = { progress, filePair ->
+                        Log.d("FileUpdateProcess", "File: $filePair, Progress: $progress%")
+                    },
+                    {
+                        binding.spinner.visibility = View.VISIBLE
+                        Log.d("FileUpdateProcess", "Total non-update completed")
                     }
                 )
-
-
             }
+
+            Log.d("FileUpdateProcess", "Coroutine completed")
         }
 
 
@@ -326,7 +317,7 @@ class mayfragment : Fragment() {
                 table="$table$year"
                 dbHelper = dbHelper(requireContext(), dbname)
                 val rowsForAugust = dbHelper.getRowsByMonth(month, table)
-                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext())
+                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext(),year)
                 val layoutManager: RecyclerView.LayoutManager =
                     GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
 
@@ -342,7 +333,7 @@ class mayfragment : Fragment() {
                 table="calander"
                 dbHelper = dbHelper(requireContext(), dbname)
                 val rowsForAugust = dbHelper.getRowsByMonth(month, table)
-                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext())
+                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext(),year)
                 val layoutManager: RecyclerView.LayoutManager =
                     GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
 

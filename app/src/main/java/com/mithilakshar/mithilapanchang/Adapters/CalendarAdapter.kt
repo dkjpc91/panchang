@@ -19,15 +19,15 @@ import java.util.Locale
 
 
 class CalendarAdapter(
-    private val data: List<Map<String, String>>,
+    private val data: List<Map<String, Any?>>,
     private val context: Context,
-    private val     year: Int
+    private val year: Int
 ) : RecyclerView.Adapter<CalendarAdapter.calendarviewholder>() {
 
     class calendarviewholder(val binding: CalendardayitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         @RequiresApi(Build.VERSION_CODES.O)
-        fun bind(model: Map<String, String>, context: Context, year: Int) {
+        fun bind(model: Map<String, Any?>, context: Context, year: Int) {
             binding.apply {
 
                 val currentDateStr = getCurrentDateString()
@@ -38,8 +38,8 @@ class CalendarAdapter(
 
 
                 calendardateText.text = translateToHindidate(model.get("date").toString())
-                calendardayText.text = model.get("tithi")
-                calendardescText.text = model.get("monthhindi")
+                calendardayText.text = model.get("tithi").toString()
+                calendardescText.text = model.get("monthhindi").toString()
 
                 when {
                     // Check if holiday is not blank
@@ -84,12 +84,11 @@ class CalendarAdapter(
                     "\nपंचांग विवरण :-\n \n"
                             + hindidate + " " + hindiMonth + " " + hindiyear
                 )
-                calendarDialog.setcalendardialogtext1(model.get("tithi"))
+                calendarDialog.setcalendardialogtext1(model.get("tithi").toString())
                 calendarDialog.setcalendardialogtext2( "तारीख "+ hindidate + " " + hindiMonth + " " + hindiyear+ ","+
                         "तिथि "+ model.get("tithi")+ ","+model.get("nakshatra")+ "नक्षत्र  "+","+model.get("monthhindi")+ "मास  "+","+ model.get("paksha")+ " ")
-                calendarDialog.setcalendardialogtext3(model.get("nakshatra"))
-                calendarDialog.setcalendardialogtext5(model.get("holiday")+"\n"+model.get("holidaydesc"))
-                calendarDialog.setcalendardialogtext4(model.get("monthhindi") + " " + model.get("paksha"))
+                calendarDialog.setcalendardialogtext3(model.get("nakshatra").toString())
+
 
                 calendarDialog.show()
             }

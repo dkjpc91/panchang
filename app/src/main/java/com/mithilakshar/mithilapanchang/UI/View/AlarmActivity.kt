@@ -279,7 +279,13 @@ class AlarmActivity : AppCompatActivity() {
         }
         Toast.makeText(this, "अलार्म ${title} सेट $selectedRingtone", Toast.LENGTH_LONG)
             .show()
-        alarmHelper.setAlarm (calendar,title,messageText,selectedRingtone,notificationurl[0])
+        if (notificationurl.isNotEmpty()) {
+            alarmHelper.setAlarm(calendar, title, messageText, selectedRingtone, notificationurl[0])
+        } else {
+            // Handle empty notificationurl case: set a default URL or show an error
+            alarmHelper.setAlarm(calendar, title, messageText, selectedRingtone,"https://i.pinimg.com/564x/b7/de/a6/b7dea6a1800c6f9407083da4a93ba055.jpg")
+            // Optionally, set a default value or do not proceed
+        }
 
 
     }

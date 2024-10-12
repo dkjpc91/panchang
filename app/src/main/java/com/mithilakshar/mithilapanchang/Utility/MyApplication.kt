@@ -1,5 +1,6 @@
 package com.mithilakshar.mithilapanchang.Utility
 
+import com.mithilakshar.mithilapanchang.BuildConfig
 
 import android.app.Application
 import com.google.android.gms.ads.MobileAds
@@ -22,7 +23,7 @@ class MyApplication: Application() {
 
 
 
-   private lateinit var analytics: FirebaseAnalytics
+    private lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
 
 
@@ -51,7 +52,15 @@ class MyApplication: Application() {
 
         AppOpenAdManager.loadAd(this)
         registerActivityLifecycleCallbacks(AppOpenAdManager)
-      analytics = Firebase.analytics
+
+        if (BuildConfig.FIREBASE_ANALYTICS_ENABLED) {
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+            // Now you can log events and use Firebase Analytics as needed
+        } else {
+            // Optionally log a message or take alternative action
+            // Firebase Analytics is disabled in debug mode
+        }
+
 
     }
 

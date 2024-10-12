@@ -111,9 +111,9 @@ class HolidayListActivity : AppCompatActivity() {
 
 
 
-        if (selectedyear>2024){
-            val a="holiday$selectedyear.db"
-            val b="holiday$selectedyear"
+        if (selectedyear>2023){
+            val a="holi$selectedyear.db"
+            val b="holi$selectedyear"
             dbHelperHolidaylistfilter=dbHelper(this@HolidayListActivity,a)
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
                 override fun onQueryTextSubmit(query: String?): Boolean {
@@ -152,12 +152,12 @@ class HolidayListActivity : AppCompatActivity() {
 
     private fun readFileContent(month:String,year:Int) {
 
-        if (year>getCurrentYear()){
-            val a="holiday$year.db"
+
+            val a="holi$year.db"
 
             val dbHelper = dbHelper(applicationContext, a)
-           val av = dbHelper.getHolidaysByMonthanddb(month,"holiday$year")
-            val filterexist=dbHelper.doesColumnExist("holiday$year","filter")
+           val av = dbHelper.getHolidaysByMonthanddb(month,"holi$year")
+            val filterexist=dbHelper.doesColumnExist("holi$year","filter")
             if (filterexist){
                 binding.searchview.visibility=View.VISIBLE
 
@@ -167,14 +167,8 @@ class HolidayListActivity : AppCompatActivity() {
             holidays.addAll(av)
             adapter.notifyDataSetChanged()
 
-        }
-        else{
-            val dbHelper = dbHelper(applicationContext, "holiday.db")
-            val av = dbHelper.getHolidaysByMonth(month)
-            holidays.addAll(av)
-            adapter.notifyDataSetChanged()
 
-        }
+
 
 
     }

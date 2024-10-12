@@ -1,5 +1,6 @@
 package com.mithilakshar.mithilapanchang.Utility
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -88,7 +89,33 @@ class CalendarHelper(context: Context, dbName: String) {
      * Retrieves the column names for a specified table.
      */
 
+    @SuppressLint("Range")
+    fun getRowByMonthAndDate(month: String, date: String,table: String): Map<String, String>? {
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading rows by month: $month and date: $date")
+                return null
+            }
 
+            val query = "SELECT * FROM $table WHERE month = ? AND date = ?"
+            val selectionArgs = arrayOf(month, date)
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                val columnNames = cursor.columnNames
+
+                if (cursor.moveToFirst()) {
+                    val rowData = mutableMapOf<String, String>()
+                    for (columnName in columnNames) {
+                        val value = cursor.getString(cursor.getColumnIndex(columnName)) ?: ""
+                        rowData[columnName] = value
+                    }
+                    return rowData
+                }
+            }
+        } ?: Log.e(TAG, "Database is null!")
+
+        return null
+    }
 
 
 

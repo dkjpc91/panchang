@@ -1,7 +1,6 @@
 package com.mithilakshar.mithilapanchang.UI.View
 
 
-
 import android.content.Intent
 import java.time.format.TextStyle
 import android.media.AudioAttributes
@@ -28,15 +27,9 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isFlexibleUpdateAllowed
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
-
 import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
-
 import com.mithilakshar.mithilapanchang.Notification.NetworkManager
-
-
-import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.dbHelper
-
 import com.mithilakshar.mithilapanchang.ViewModel.HomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,53 +37,34 @@ import java.time.LocalDate
 import java.util.Locale
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
-
-
 import android.content.Context
-
-
-
-
-
 import android.util.Log
-
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-
-
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.lottie.LottieAnimationView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
-
-
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-
-
-
-
-
 import com.mithilakshar.mithilapanchang.Adapters.SliderAdapter
 import com.mithilakshar.mithilapanchang.R
-
-
-
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
-
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
+import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
+import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
 import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
-
-import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
+import com.mithilakshar.mithilapanchang.Utility.dbSupabaseDownloadeSequence
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -118,11 +92,13 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         ViewModelProvider(this).get(HomeViewModel::class.java)
     }
 
-    private lateinit var fileDownloader: FirebaseFileDownloader
+
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
     private var delayMillis: Long = 4000
-    private lateinit var dbDownloadersequence: dbDownloadersequence
+
+    private lateinit var dbSupabaseDownloadeSequence: dbSupabaseDownloadeSequence
+    private lateinit var supabasedownloader: SupabaseFileDownloader
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,7 +114,18 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         checkForAppUpdate()
 
-
+        val lottieView: LottieAnimationView =  binding.homeviewloading
+        val animationList = listOf(
+            R.raw.a1,
+            R.raw.a2,
+            R.raw.a3  ,
+            R.raw.a4  ,
+            R.raw.om  ,
+            R.raw.solar  ,
+        )
+        val randomAnimation = animationList.random()
+        lottieView.setAnimation(randomAnimation) // Reference to new animation in raw folder
+        lottieView.playAnimation()
 
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
@@ -147,11 +134,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             adView = binding.adView
             adviewMR = binding.adviewMR
-
-
             val adRequest = AdRequest.Builder().build()
-
-
             // Set an AdListener to make the AdView visible when the ad is loaded
             adView.adListener = object : AdListener() {
                 override fun onAdLoaded() {
@@ -169,21 +152,12 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     // Make the AdView visible when the ad is loaded
                     adviewMR.visibility = View.VISIBLE
                 }
-
                 override fun onAdFailedToLoad(p0: LoadAdError) {
                     // Optionally, you can log or handle the error here
                 }
             }
-
-
-
-
-
             adviewMR.loadAd(adRequest)
             adView.loadAd(adRequest)
-
-
-
 
             val maxHeightInDp = 700
             val maxHeightInPx = (maxHeightInDp * resources.displayMetrics.density).toInt()
@@ -208,176 +182,149 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
 
 
+
             val cDate: LocalDate = LocalDate.now()
             val currentMonthString: String = cDate.month.name // Gets the current month in uppercase (e.g., "JANUARY")
             val currentDay: Int = cDate.dayOfMonth
-
             val currentDayName: String = cDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH).uppercase()
 
 
-            fileDownloader = FirebaseFileDownloader(this)
+            supabasedownloader = SupabaseFileDownloader(this)
             updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-            dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
+            dbSupabaseDownloadeSequence = dbSupabaseDownloadeSequence(updatesDao, supabasedownloader)
 
             val filesWithIds = listOf(
-                Pair("holiday", 2),
-                Pair("holiday2025",11),
-                Pair("holiday2026",12),
-                Pair("holiday2027",13),
-                Pair("holiday2028",14),
-                Pair("holiday2029",15),
-                Pair("holiday2030",16),
+                Pair("iauto",85),
+                Pair("cal2024", 78),
+                Pair("holi2024", 79),
+                Pair("holi2025", 80),
+                Pair("cal2025", 89),
 
-                Pair("imageauto", 5),
-
-                Pair("cal", 77),
-                Pair("calander", 3),
-                Pair("calander2025",21)
             )
-
 
             lifecycleScope.launch {
                 val updateChecker = UpdateChecker(updatesDao)
                 val isUpdateNeeded = updateChecker.getUpdateStatus()
 
-                val nonExistentFiles = mutableListOf<Pair<String, Int>>()
-                val jobs = mutableListOf<Job>()
-                for (filePair in filesWithIds) {
-                    val job = launch {
-                        checkFileExistence("${filePair.first}.db").observeForever { exists ->
-                            if (exists != null && !exists) {
-                                nonExistentFiles.add(filePair)
-                                Log.d("FileCheck", "File does not exist: ${filePair.first}.db, ID: ${filePair.second}")
-                            } else {
-                                Log.d("FileCheck", "File exists: ${filePair.first}.db, ID: ${filePair.second}")
+                Log.d("supabase", "isUpdateNeeded: $isUpdateNeeded")
+                withContext(Dispatchers.Main) {
+                    if (isUpdateNeeded != "a") {
+
+                        Log.d("updatechecker", " :  needed $isUpdateNeeded")
+
+                        dbSupabaseDownloadeSequence.observeMultipleFileExistence(
+                            filesWithIds,
+                            this@HomeActivity,
+                            lifecycleScope,
+                            homeActivity = this@HomeActivity, // Your activity
+                            progressCallback = { progress, filePair ->
+
+
+                                Log.d("Progress", "File: $filePair, Progress: $progress%")
+
+
+                            }, {
+
+                                val year=getCurrentYear()
+                                dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
+                                recreateWithDelay(2000)
+
+                                setupViewPagerAndDatabase(
+                                    context = this@HomeActivity,
+                                    currentMonthString = currentMonthString,
+                                    currentDay = currentDay,
+                                    delayMillis = delayMillis,
+                                    dbHelperHoliday
+                                )
+
+                                loadTodaysDetails(this@HomeActivity)
+
+
                             }
-                        }
-                    }
-                    jobs.add(job)
-                }
-                jobs.joinAll()
-
-                Log.d("FileCheck", "isUpdateNeeded: $isUpdateNeeded")
-                Log.d("FileCheck", "Starting file existence checks")
+                        )
 
 
-                if (isUpdateNeeded!="a") {
-
-                    Log.d("updatechecker", " :  needed $isUpdateNeeded")
-
-                    dbDownloadersequence.observeMultipleFileExistence(
-                        filesWithIds,
-                        this@HomeActivity,
-                        lifecycleScope,
-                        homeActivity = this@HomeActivity, // Your activity
-                        progressCallback = { progress, filePair  ->
-
-
-
-                            Log.d("Progress", "File: $filePair, Progress: $progress%")
-
-
-                        },{
-
-
-
-
-
-                            dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
-                            recreateWithDelay(2000)
-
-                            setupViewPagerAndDatabase(
-                                context =this@HomeActivity,
-                                currentMonthString = currentMonthString,
-                                currentDay = currentDay,
-                                delayMillis = delayMillis,
-                                dbHelperHoliday
-                            )
-
-                            loadTodaysDetails(this@HomeActivity)
-
-
-
-                        }
-                    )
-
-
-                } else {
-
-                    dbDownloadersequence.observeMultipleFileExistence(
-                        nonExistentFiles,
-                        this@HomeActivity,
-                        lifecycleScope,
-                        homeActivity = this@HomeActivity,
-                        progressCallback = { progress, filePair ->
-                            Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
-                        },
-                        {
-
-                            binding.homeviewloading.visibility=View.GONE
-                            binding.homeviewloading1.visibility=View.GONE
-                            binding.homeview.visibility=View.VISIBLE
-                            binding.homeBanner.visibility=View.VISIBLE
-
-                            dbHelperHoliday = dbHelper(this@HomeActivity, "holiday.db")
-                            dbHelpercalander = dbHelper(this@HomeActivity, "calander.db")
-                            dbHelperimage = dbHelper(this@HomeActivity, "imageauto.db")
-
-                            val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
-                            speak = rowsFormonthdate?.get("speak") ?: ""
-                            textToSpeech = TextToSpeech(this@HomeActivity, TextToSpeech.OnInitListener { status ->
-                                if (status == TextToSpeech.SUCCESS) {
-                                    textToSpeech?.language = Locale.forLanguageTag("hi")
-                                    Log.d("speak", "TTS success")
-                                    delayedTask(1000,speak.toString())
-                                } else {
-                                    Log.d("speak", "TTS failed")
-                                }
-                            })
-
-                            handleHolidayData(
-                                dbHelpercalander =dbHelpercalander,
-                                dbHelperimage =dbHelperimage,
-                                currentMonthString = currentMonthString,
-                                currentDay = currentDay,
-                                currentDayName = currentDayName
-                            )
-
-                            setupViewPagerAndDatabase(
-                                context =this@HomeActivity,
-                                currentMonthString = currentMonthString,
-                                currentDay = currentDay,
-                                delayMillis = delayMillis,
-                                dbHelperHoliday
-                            )
-
-                            loadTodaysDetails(this@HomeActivity)
-
-                        }
-                    )
-
-
-
-
-
-
-
-
-
-                    homeBroadcast = viewModel.gethomeBroadcast()
-                    Log.d("homeBroadcast", "$homeBroadcast")
-
-                    if (homeBroadcast.isNullOrEmpty()) {
-                        binding.floatingActionButton.visibility = View.GONE
                     } else {
-                        binding.floatingActionButton.visibility = View.VISIBLE
+                        val nonExistentFiles= checkFilesExistence(filesWithIds)
+                        dbSupabaseDownloadeSequence.observeMultipleFileExistence(
+                            nonExistentFiles,
+                            this@HomeActivity,
+                            lifecycleScope,
+                            homeActivity = this@HomeActivity,
+                            progressCallback = { progress, filePair ->
+                                Log.d(
+                                    "FileCheck",
+                                    "File: ${filePair.first()}.db, Progress: $progress%"
+                                )
+                            },
+                            {
+
+                                binding.homeviewloading.visibility = View.GONE
+                                binding.homeviewloading1.visibility = View.GONE
+                                binding.homeview.visibility = View.VISIBLE
+                                binding.homeBanner.visibility = View.VISIBLE
+                                val year=getCurrentYear()
+
+                                dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
+                                dbHelpercalander = dbHelper(this@HomeActivity, "cal$year.db")
+                                dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
+
+                                val toaydata= dbHelpercalander.getRowByMonthAndDate("DECEMBER","13","cal$year")
+                                Log.d("toaydata", "$toaydata")
+                                val rowsFormonthdate = " testing"
+                                speak = toaydata.toString()
+                                textToSpeech = TextToSpeech(
+                                    this@HomeActivity,
+                                    TextToSpeech.OnInitListener { status ->
+                                        if (status == TextToSpeech.SUCCESS) {
+                                            textToSpeech?.language = Locale.forLanguageTag("hi")
+                                            Log.d("speak", "TTS success")
+                                            delayedTask(1000, speak.toString())
+                                        } else {
+                                            Log.d("speak", "TTS failed")
+                                        }
+                                    })
+
+                                handleHolidayData(
+                                    dbHelpercalander = dbHelpercalander,
+                                    dbHelperimage = dbHelperimage,
+                                    currentMonthString = currentMonthString,
+                                    currentDay = currentDay,
+                                    currentDayName = currentDayName
+                                )
+
+                                setupViewPagerAndDatabase(
+                                    context = this@HomeActivity,
+                                    currentMonthString = currentMonthString,
+                                    currentDay = currentDay,
+                                    delayMillis = delayMillis,
+                                    dbHelperHoliday
+                                )
+
+                                loadTodaysDetails(this@HomeActivity)
+
+                            }
+                        )
+
+
+
+
+
+
+
+
+
+                        homeBroadcast = viewModel.gethomeBroadcast()
+                        Log.d("homeBroadcast", "$homeBroadcast")
+
+                        if (homeBroadcast.isNullOrEmpty()) {
+                            binding.floatingActionButton.visibility = View.GONE
+                        } else {
+                            binding.floatingActionButton.visibility = View.VISIBLE
+                        }
+
+
                     }
-
-
-
-
-
-
                 }
             }
 
@@ -393,9 +340,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             val currentDate = LocalDate.now()
 
-            val hindiMonth = translateToHindi(currentDate.month.toString())
-            val hindiDay = translateToHindiday(currentDate.dayOfWeek.toString())
-            val hindidate = translateToHindidate(currentDate.dayOfMonth.toString())
+            val hindiMonth = TranslationUtils.translateToHindi(currentDate.month.toString())
+            val hindiDay =TranslationUtils. translateToHindiday(currentDate.dayOfWeek.toString())
+            val hindidate =TranslationUtils. translateToHindidate(currentDate.dayOfMonth.toString())
 
 
             //text speak broadcast
@@ -441,12 +388,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 stopAudio()
             }
 
-            binding.calendar.setOnClickListener {
-                val i = Intent(this, CalendarActivity::class.java)
+            binding.cal.setOnClickListener {
+                val i = Intent(this, CalActivity::class.java)
 
                 startActivity(i)
                 stopAudio()
             }
+
+            binding.caldetail.setOnClickListener {
+                val i = Intent(this, CalDetailActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
 
             binding.holiday.setOnClickListener {
                 val i = Intent(this, HolidayActivity::class.java)
@@ -681,77 +636,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 
-    private fun translateToHindi(currentMonth: String): String? {
-        // Manually create a mapping for English to Hindi month names
-        val monthTranslation: MutableMap<String, String> = HashMap()
-        monthTranslation["JANUARY"] = "जनवरी"
-        monthTranslation["FEBRUARY"] = "फ़रवरी"
-        monthTranslation["MARCH"] = "मार्च"
-        monthTranslation["APRIL"] = "अप्रैल"
-        monthTranslation["MAY"] = "मई"
-        monthTranslation["JUNE"] = "जून"
-        monthTranslation["JULY"] = "जुलाई"
-        monthTranslation["AUGUST"] = "अगस्त"
-        monthTranslation["SEPTEMBER"] = "सितंबर"
-        monthTranslation["OCTOBER"] = "अक्टूबर"
-        monthTranslation["NOVEMBER"] = "नवंबर"
-        monthTranslation["DECEMBER"] = "दिसंबर"
-        // Return the translated month name
-        return monthTranslation[currentMonth]
-    }
-
-
-    private fun translateToHindiday(currentDay: String): String? {
-        // Manually create a mapping for English to Hindi month names
-        val monthTranslation: MutableMap<String, String> = HashMap()
-        monthTranslation["MONDAY"] = "सोमवार"
-        monthTranslation["TUESDAY"] = "मंगलवार"
-        monthTranslation["WEDNESDAY"] = "बुधवार"
-        monthTranslation["THURSDAY"] = "गुरुवार"
-        monthTranslation["FRIDAY"] = "शुक्रवार"
-        monthTranslation["SATURDAY"] = "शनिवार"
-        monthTranslation["SUNDAY"] = "रविवार"
-        // Return the translated month name
-        return monthTranslation[currentDay]
-    }
-
-    private fun translateToHindidate(date: String): String? {
-        // Manually create a mapping for English to Hindi month names
-        val nmap: MutableMap<String, String> = HashMap()
-        nmap["1"] = "१"
-        nmap["2"] = "२"
-        nmap["3"] = "३"
-        nmap["4"] = "४"
-        nmap["5"] = "५"
-        nmap["6"] = "६"
-        nmap["7"] = "७"
-        nmap["8"] = "८"
-        nmap["9"] = "९"
-        nmap["10"] = "१०"
-        nmap["11"] = "११"
-        nmap["12"] = "१२"
-        nmap["13"] = "१३"
-        nmap["14"] = "१४"
-        nmap["15"] = "१५"
-        nmap["16"] = "१६"
-        nmap["17"] = "१७"
-        nmap["18"] = "१८"
-        nmap["19"] = "१९"
-        nmap["20"] = "२०"
-        nmap["21"] = "२१"
-        nmap["22"] = "२२"
-        nmap["23"] = "२३"
-        nmap["24"] = "२४"
-        nmap["25"] = "२५"
-        nmap["26"] = "२६"
-        nmap["27"] = "२७"
-        nmap["28"] = "२८"
-        nmap["29"] = "२९"
-        nmap["30"] = "३०"
-        nmap["31"] = "३१"
-        // Return the translated month name
-        return nmap[date]
-    }
 
     override fun onInit(p0: Int) {
         if (p0 == TextToSpeech.SUCCESS) {
@@ -858,9 +742,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         dbHelperHoliday:dbHelper
     ) {
 
-
+        val year=getCurrentYear()
         // Check if column exists
-        val doesColumnExist = dbHelperHoliday.doesColumnExist("holiday", "datenumber")
+        val doesColumnExist = dbHelperHoliday.doesColumnExist("holi$year", "datenumber")
         Log.d("doesColumnExist", "$doesColumnExist")
 
         // Prepare holidayMonthList
@@ -875,23 +759,41 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         // Fetch holidays based on column existence
         if (doesColumnExist) {
+            Log.d("HolidayLog", "Checking if the column exists: $doesColumnExist")
+
+            // Fetching holidays by month and date
+            Log.d("HolidayLog", "Fetching holidays for date - Month: ${currentMonthString.lowercase(Locale.getDefault())}, Day: $currentDay, Year: $year")
+
             holidayMonthList.addAll(
                 dbHelperHoliday.getHolidaysByMonthdate(
                     currentMonthString.lowercase(Locale.getDefault()),
-                    currentDay.toString()
+                    currentDay.toString(), "holi$year"
                 )
             )
-            Log.d("doesColumnExist", "dateExists $doesColumnExist")
+
+            Log.d("HolidayLog", "Holidays fetched and added to holidayMonthList.")
+            Log.d("HolidayLog", "dateExists: $doesColumnExist")
+            Log.d("HolidayLog", "Current holidayMonthList: $holidayMonthList")
         } else {
+            Log.d("HolidayLog", "Column does not exist, proceeding to fetch holidays by month.")
+
+            // Fetching holidays by month only
+            Log.d("HolidayLog", "Fetching holidays for month: ${currentMonthString.lowercase(Locale.getDefault())}, Year: $year")
+
             holidayMonthList.addAll(
                 dbHelperHoliday.getHolidaysByMonth(
-                    currentMonthString.lowercase(Locale.getDefault())
+                    currentMonthString.lowercase(Locale.getDefault()), "holi$year"
                 )
             )
-            Log.d("doesColumnExist", "notExist $doesColumnExist")
+
+            Log.d("HolidayLog", "Holidays fetched and added to holidayMonthList.")
+            Log.d("HolidayLog", "notExist: $doesColumnExist")
         }
 
-        Log.d("holidayMonthList", "$holidayMonthList")
+// Log the final holiday list after processing
+        Log.d("HolidayLog", "Final holidayMonthList after processing: $holidayMonthList")
+
+
 
         // Set up ViewPager and adapter
         val handler = Handler(Looper.getMainLooper())
@@ -942,7 +844,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     fun getRowByMonthAndDate(dbHelpercalander: dbHelper, currentMonthString: String, currentDay: String): Map<String, String>? {
-        return dbHelpercalander.getRowByMonthAndDate(currentMonthString, currentDay)
+        return dbHelpercalander.getRowByMonthAndDate(currentMonthString, currentDay, "cal${getCurrentYear()}")
     }
 
     fun handleHolidayWithImage(holidayurl: List<Map<String, String>>, holidaytoday: String?, holidaydesc: String?) {
@@ -1104,11 +1006,11 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val table: String
           val   year  = getCurrentYear()
             // Determine the database name and table name based on the year
-            if (year > 2024) {
-                dbname = "calander$year.db"
-                table = "calander$year"
+            if (year > 2023) {
+                dbname = "cal$year.db"
+
             } else {
-                dbname = "calander.db"
+                dbname = "cal$year.db"
                 table = "calander"
             }
 
@@ -1139,7 +1041,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val date = getCurrentDay().toString()
             Log.d("todaysdatedetails", " :todays data $month  $date")
             // Fetch rows for the specified month
-       val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date)
+       val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date,"cal${getCurrentYear()}")
             Log.d("todaysdatedetails", " :todays data $todaysdatedetails")
 
         runOnUiThread {
@@ -1181,12 +1083,41 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         return calendar.get(java.util.Calendar.DAY_OF_MONTH)
     }
 
-    fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath = this.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
+    suspend fun checkFilesExistence(filesWithIds: List<Pair<String, Int>>): List<Pair<String, Int>> {
+        val nonExistentFiles = mutableListOf<Pair<String, Int>>() // List to hold non-existent files
+        val dbFolderPath = this.getExternalFilesDir(null)?.absolutePath + File.separator + "test" // Directory path
+        val dbFolder = File(dbFolderPath)
+
+        if (!dbFolder.exists()) {
+            dbFolder.mkdirs() // Create the directory if it doesn't exist
+        }
+
+        // Create a coroutine scope for concurrent checks
+        coroutineScope {
+            val jobs = filesWithIds.map { filePair ->
+                launch(Dispatchers.IO) {
+                    try {
+                        val dbFile = File(dbFolder, "${filePair.first}.db") // Construct the file path
+                        // Check if the file exists
+                        if (!dbFile.exists()) {
+                            synchronized(nonExistentFiles) { // Ensure thread safety while modifying the list
+                                nonExistentFiles.add(filePair) // Add to the list of non-existent files
+                            }
+                            Log.d("supabase", "File does not exist: ${filePair.first}.db, ID: ${filePair.second}")
+                        } else {
+                            Log.d("supabase", "File exists: ${filePair.first}.db, ID: ${filePair.second}")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("supabase", "Error checking file existence: ${filePair.first}.db, ID: ${filePair.second}", e)
+                    }
+                }
+            }
+            // Await all jobs to finish
+            jobs.joinAll()
+        }
+
+        Log.d("supabase", "Non-existent files: $nonExistentFiles")
+        return nonExistentFiles // Return the list of non-existent files
     }
 
 }

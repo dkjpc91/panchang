@@ -10,7 +10,6 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -24,12 +23,10 @@ import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
+import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
 import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
-import com.mithilakshar.mithilapanchang.Utility.dbHelper
-
-import com.mithilakshar.mithilapanchang.ViewModel.HomeViewModel
 
 import com.mithilakshar.mithilapanchang.databinding.FragmentMayfragmentBinding
 import kotlinx.coroutines.Job
@@ -41,27 +38,24 @@ import java.util.Calendar
 
 /**
  * A simple [Fragment] subclass.
- * Use the [mayfragment.newInstance] factory method to
+ * Use the [calfragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class mayfragment : Fragment() {
+class calfragment : Fragment() {
     // TODO: Rename and change types of parameters
 
     lateinit var binding: FragmentMayfragmentBinding
     private lateinit var spinner: Spinner
-    private lateinit var dbHelper: dbHelper
+    private lateinit var calendarHelper: CalendarHelper
     private val selectedYear = MutableLiveData<Int>()
 
-    private lateinit var updatesDao: UpdatesDao
-    private lateinit var fileDownloader: FirebaseFileDownloader
-    private lateinit var dbDownloadersequence: dbDownloadersequence
+
 
     fun getCurrentYear(): Int {
         val calendar = Calendar.getInstance()
         return calendar.get(Calendar.YEAR)
     }
 
-    val viewmodelhome : HomeViewModel by viewModels()
 
     var fragmentindexnumber=0
     val fragmentindex = arrayOf(
@@ -151,81 +145,8 @@ class mayfragment : Fragment() {
         }
 
 
-        fileDownloader = FirebaseFileDownloader(requireContext())
-        updatesDao = UpdatesDatabase.getDatabase(requireContext()).UpdatesDao()
-        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
-        val filesWithIds = listOf(
-            Pair("calander2025",21),
 
-            )
 
-        lifecycleScope.launch {
-            Log.d("FileUpdateProcess", "Coroutine started")
-
-            val updateChecker = UpdateChecker(updatesDao)
-            Log.d("FileUpdateProcess", "Created UpdateChecker instance")
-
-            val isUpdateNeeded = updateChecker.getUpdateStatus()
-            Log.d("FileUpdateProcess", "Is update needed? $isUpdateNeeded")
-
-            val nonExistentFiles = mutableListOf<Pair<String, Int>>()
-            val jobs = mutableListOf<Job>()
-
-            for (filePair in filesWithIds) {
-                Log.d("FileUpdateProcess", "Checking existence for file: ${filePair.first}.db")
-                val job = launch {
-                    // Observe the LiveData returned by checkFileExistence
-                    checkFileExistence("${filePair.first}.db").observeForever { exists ->
-                        if (exists != null && !exists) {
-                            Log.d("FileUpdateProcess", "File does not exist: ${filePair.first}.db")
-                            nonExistentFiles.add(filePair)
-                        } else {
-                            Log.d("FileUpdateProcess", "File exists: ${filePair.first}.db")
-                        }
-                    }
-                }
-                jobs.add(job)
-            }
-
-            jobs.joinAll()
-            Log.d("FileUpdateProcess", "Non-existent files: $nonExistentFiles")
-
-            if (isUpdateNeeded != "a") {
-                Log.d("FileUpdateProcess", "Update needed: $isUpdateNeeded")
-
-                dbDownloadersequence.observeMultipleFileExistence(
-                    filesWithIds,
-                    requireActivity(),
-                    lifecycleScope,
-                    homeActivity = requireActivity(), // Your activity
-                    progressCallback = { progress, filePair ->
-                        Log.d("FileUpdateProcess", "File: $filePair, Progress: $progress%")
-                    },
-                    {
-                        binding.spinner.visibility = View.VISIBLE
-                        Log.d("FileUpdateProcess", "Total update completed")
-                    }
-                )
-            } else {
-                Log.d("FileUpdateProcess", "No update needed, proceeding with non-existent files")
-
-                dbDownloadersequence.observeMultipleFileExistence(
-                    nonExistentFiles,
-                    requireActivity(),
-                    lifecycleScope,
-                    requireActivity(), // Your activity
-                    progressCallback = { progress, filePair ->
-                        Log.d("FileUpdateProcess", "File: $filePair, Progress: $progress%")
-                    },
-                    {
-                        binding.spinner.visibility = View.VISIBLE
-                        Log.d("FileUpdateProcess", "Total non-update completed")
-                    }
-                )
-            }
-
-            Log.d("FileUpdateProcess", "Coroutine completed")
-        }
 
 
         val currentDate = LocalDate.now()
@@ -245,79 +166,55 @@ class mayfragment : Fragment() {
 
 
         binding.backmonth.setOnClickListener {
-            if(fragmentindexnumber==0){
-
-                fragmentindexnumber=(fragmentindex.size-1)
-                selectedYear.observe(viewLifecycleOwner, {
-                    binding.monthName.text=translateToHindi(fragmentindex[fragmentindexnumber]) +" "+it
-                    loadfragmentdata(fragmentindex[fragmentindexnumber],it)
-                })
-
-
-
-
-
-            }
-            else {
-                selectedYear.observe(viewLifecycleOwner, {
-                    binding.monthName.text=translateToHindi(fragmentindex[--fragmentindexnumber])+" "+it
-                    loadfragmentdata(fragmentindex[fragmentindexnumber],it)
-                })
-
-
-
+            if (fragmentindexnumber == 0) {
+                fragmentindexnumber = fragmentindex.size - 1
+            } else {
+                fragmentindexnumber--
             }
 
+            selectedYear.observe(viewLifecycleOwner, { year ->
+                binding.monthName.text = translateToHindi(fragmentindex[fragmentindexnumber]) + " " + year
+                loadfragmentdata(fragmentindex[fragmentindexnumber], year)
+            })
         }
+
 
         binding.forwardmonth.setOnClickListener {
-
-            if(fragmentindexnumber==(fragmentindex.size-1)){
-
-                fragmentindexnumber=0
-
-                selectedYear.observe(viewLifecycleOwner, {
-                    binding.monthName.text=translateToHindi(fragmentindex[fragmentindexnumber])+" "+it
-                    loadfragmentdata(fragmentindex[fragmentindexnumber],it)
-                })
-
-
-
-            }
-            else{
-                selectedYear.observe(viewLifecycleOwner, {
-                    binding.monthName.text=translateToHindi(fragmentindex[++fragmentindexnumber])+" "+it
-                    loadfragmentdata(fragmentindex[fragmentindexnumber],it)
-                })
-
-
+            if (fragmentindexnumber == fragmentindex.size - 1) {
+                fragmentindexnumber = 0
+            } else {
+                fragmentindexnumber++
             }
 
+            selectedYear.observe(viewLifecycleOwner, { year ->
+                binding.monthName.text = translateToHindi(fragmentindex[fragmentindexnumber]) + " " + year
+                loadfragmentdata(fragmentindex[fragmentindexnumber], year)
+            })
         }
 
 
 
+
     }
 
-    fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath = requireContext().getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
-    }
+
 
     private fun loadfragmentdata(month:String,year: Int) {
 
         lifecycleScope.launch {
-            var dbname="calander.db"
-            var table="calander"
-            if (year>2024){
-                dbname="calander$year.db"
+            var dbname="cal.db"
+            var table="cal"
+            if (year>2023){
+                dbname="cal$year.db"
                 table="$table$year"
-                dbHelper = dbHelper(requireContext(), dbname)
-                val rowsForAugust = dbHelper.getRowsByMonth(month, table)
-                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext(),year)
+                calendarHelper = CalendarHelper(requireContext(), dbname)
+
+                val rows = calendarHelper.getAllTableDataForMonth(table,month)
+                val mergedRows = mergeRowsByDate(rows)
+                val adjustedrows=adjustListForDayfinal(mergedRows)
+                logMergedRows(mergedRows)
+
+                val calendarAdapter=CalendarAdapter(adjustedrows,requireContext(),year)
                 val layoutManager: RecyclerView.LayoutManager =
                     GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
 
@@ -329,20 +226,6 @@ class mayfragment : Fragment() {
                 binding.calendarRecycler.adapter=calendarAdapter
 
             }else{
-                dbname="calander.db"
-                table="calander"
-                dbHelper = dbHelper(requireContext(), dbname)
-                val rowsForAugust = dbHelper.getRowsByMonth(month, table)
-                val calendarAdapter=CalendarAdapter(rowsForAugust,requireContext(),year)
-                val layoutManager: RecyclerView.LayoutManager =
-                    GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
-
-                var screenWidth = resources.displayMetrics.widthPixels
-                screenWidth = screenWidth - 293
-                val itemWidth = screenWidth / 5 // Number of columns is 5
-                calendarAdapter.setItemWidth(itemWidth)
-                binding.calendarRecycler.layoutManager=layoutManager
-                binding.calendarRecycler.adapter=calendarAdapter
 
             }
 
@@ -361,6 +244,75 @@ class mayfragment : Fragment() {
 
 
     }
+
+    fun adjustListForDayfinal(data: List<Map<String, Any?>>): List<Map<String, Any?>> {
+        // Check if the list is not empty
+        if (data.isNotEmpty()) {
+            // Get the first element's "day"
+            val firstDay = data[0]["day"] as? String
+
+            // Determine how many blank elements to add
+            val blanksToAdd = when (firstDay?.lowercase()) {
+                "mon" -> 0
+                "tue" -> 1
+                "wed" -> 2
+                "thu" -> 3
+                "fri" -> 4
+                "sat" -> 5
+                "sun" -> 6
+                else -> 0 // If the day is unknown or not found, add no blanks
+            }
+
+            // Create the blank maps to insert (all fields are null)
+            val blankEntry = mapOf<String, Any?>(
+                "sno" to null, "month" to null, "date" to null, "day" to null,
+                "sunrise" to null, "sunrisemin" to null, "noon" to null,
+                "noon min" to null, "sunset" to null, "sunsetmin" to null,
+                "tithi" to null, "tithiendh" to null, "tithiendm" to null,
+                "nakshatra" to null, "nakshatraendh" to null, "nakshatraendm" to null,
+                "yog" to null, "yogendh" to null, "yogendm" to null,
+                "monthname" to null, "rashi" to null, "paksha" to null
+            )
+
+            // Create a list with the blank entries
+            val blankEntries = List(blanksToAdd) { blankEntry }
+
+            // Add blank entries followed by the original data
+            var result = (blankEntries + data).toMutableList()
+
+            // Check if the resulting list has more than 35 elements
+            if (result.size > 35) {
+                // Elements beyond the 35th position (starting from index 35)
+                val excessElements = result.subList(35, result.size)
+
+                // For each excess element, adjust its "sno" and overwrite the initial elements
+                excessElements.forEachIndexed { index, map ->
+                    if (index < 35) {
+                        // Adjust "sno" of excess element to 36, 37, 38, ...
+                        val adjustedMap = map.toMutableMap()
+                        adjustedMap["sno"] = 36 + index
+
+                        // Overwrite the element at the corresponding index
+                        result[index] = adjustedMap
+                    }
+                }
+
+                // Trim the list to 35 elements after overwriting
+                result = result.take(35).toMutableList()
+            }
+
+            // Return the final adjusted list
+            return result
+        }
+
+        // If the list is empty, just return the original list
+        return data
+    }
+
+
+
+
+
 
     private fun translateToHindi(currentMonth: String?): String? {
         // Manually create a mapping for English to Hindi month names
@@ -380,6 +332,46 @@ class mayfragment : Fragment() {
         // Return the translated month name
         return monthTranslation[currentMonth]
     }
+    fun mergeRowsByDate(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
+        val mergedMap = mutableMapOf<Any?, MutableMap<String, Any?>>()
 
+        for (row in rows) {
+            val dateKey = row["date"] // Use "date" as the unique key for merging
+            if (!mergedMap.containsKey(dateKey)) {
+                mergedMap[dateKey] = mutableMapOf()
+            }
+            val existingRow = mergedMap[dateKey]!!
 
+            for ((k, v) in row) {
+                if (existingRow.containsKey(k)) {
+                    // If the value is different, merge them into a list
+                    if (existingRow[k] != v) {
+                        existingRow[k] = if (existingRow[k] is List<*>) {
+                            (existingRow[k] as List<Any?>) + v
+                        } else {
+                            listOf(existingRow[k], v)
+                        }
+                    }
+                } else {
+                    existingRow[k] = v
+                }
+            }
+        }
+
+        return mergedMap.values.map { it.toMap() }
+    }
+    fun logMergedRows(mergedRows: List<Map<String, Any?>>) {
+        mergedRows.forEachIndexed { index, row ->
+            val logMessage = StringBuilder("Row ${index + 1}: ")
+            row.entries.forEach { entry ->
+                logMessage.append("${entry.key}=${entry.value}, ")
+            }
+            // Remove the last comma and space
+            if (logMessage.isNotEmpty()) {
+                logMessage.setLength(logMessage.length - 2)
+            }
+            // Use Log.d to log the message
+            Log.d("MergedRow", logMessage.toString())
+        }
+    }
 }

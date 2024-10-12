@@ -4,6 +4,8 @@ package com.mithilakshar.mithilapanchang.UI.View
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 
 import android.util.Log
 import android.view.View
@@ -13,6 +15,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 import androidx.lifecycle.lifecycleScope
+import com.airbnb.lottie.LottieAnimationView
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -47,12 +50,13 @@ class HolidayActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityHolidayBinding
     private lateinit var adView3: AdView
-    private lateinit var updatesDao: UpdatesDao
-    private lateinit var fileDownloader: FirebaseFileDownloader
+    val handler = Handler(Looper.getMainLooper())
+    val totalDuration = 3000L
+    val interval = 1000L
 
     private  var selectedyear:Int = getCurrentYear()
     private lateinit var interstitialAdManager: InterstitialAdManager
-    private lateinit var dbDownloadersequence: dbDownloadersequence
+
 
     private lateinit var spinner: Spinner
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,86 +96,43 @@ class HolidayActivity : AppCompatActivity() {
         interstitialAdManager = InterstitialAdManager(this)
         interstitialAdManager.loadAd {  }
 
-
-        fileDownloader = FirebaseFileDownloader(this)
-        updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
-
-        dbDownloadersequence = dbDownloadersequence(updatesDao, fileDownloader)
-
-        val filesWithIds = listOf(
-            Pair("holiday2025",11),
-            Pair("holiday2026",12),
-            Pair("holiday2027",13),
-            Pair("holiday2028",14),
-            Pair("holiday2029",15),
-            Pair("holiday2030",16),
-
+        val lottieView: LottieAnimationView =  binding.lottieAnimationView
+        val animationList = listOf(
+            R.raw.a1,
+            R.raw.a2,
+            R.raw.a3  ,
+            R.raw.a4  ,
+            R.raw.om  ,
+            R.raw.solar  ,
         )
-        lifecycleScope.launch {
-            val updateChecker = UpdateChecker(updatesDao)
-            val isUpdateNeeded = updateChecker.getUpdateStatus()
-            val nonExistentFiles = mutableListOf<Pair<String, Int>>()
-            val jobs = mutableListOf<Job>()
-            Log.d("FileCheck", "isUpdateNeeded: $isUpdateNeeded")
-            Log.d("FileCheck", "Starting file existence checks")
+        val randomAnimation = animationList.random()
+        lottieView.setAnimation(randomAnimation) // Reference to new animation in raw folder
+        lottieView.playAnimation()
 
-            for (filePair in filesWithIds) {
-                val job = launch {
-                    checkFileExistence("${filePair.first}.db").observeForever { exists ->
-                        if (exists != null && !exists) {
-                            nonExistentFiles.add(filePair)
-                            Log.d("FileCheck", "File does not exist: ${filePair.first}.db, ID: ${filePair.second}")
-                        } else {
-                            Log.d("FileCheck", "File exists: ${filePair.first}.db, ID: ${filePair.second}")
-                        }
-                    }
+
+        val startTime = System.currentTimeMillis()
+
+        val runnable = object : Runnable {
+            override fun run() {
+                val elapsedTime = System.currentTimeMillis() - startTime
+
+                if (elapsedTime < totalDuration) {
+                    // Your task (e.g., update UI, show a Toast, or log something)
+
+
+                    // Re-post the Runnable to run again after the interval
+                    handler.postDelayed(this, interval)
+                } else {
+                    // Task completed after 10 seconds
+                    binding.lottieAnimationView.visibility=View.GONE
+                    binding.monthview .visibility=View.VISIBLE
+                    binding.spinner .visibility=View.VISIBLE
                 }
-                jobs.add(job)
-            }
-            jobs.joinAll()
-
-            Log.d("FileCheck", "Non-existent files: $nonExistentFiles")
-
-            if (isUpdateNeeded != "a") {
-                Log.d("FileCheck", "Update needed: $isUpdateNeeded")
-
-                dbDownloadersequence.observeMultipleFileExistence(
-                    filesWithIds,
-                    this@HolidayActivity,
-                    lifecycleScope,
-                    homeActivity = this@HolidayActivity,
-                    progressCallback = { progress, filePair ->
-                        Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
-                    },
-                    {
-                        binding.spinner.visibility = View.VISIBLE
-                        binding.monthview.visibility = View.VISIBLE
-                        binding.lottieAnimationView.visibility = View.GONE
-                        Log.d("FileCheck", "Total update completed")
-                    }
-                )
-            } else {
-                dbDownloadersequence.observeMultipleFileExistence(
-                    nonExistentFiles,
-                    this@HolidayActivity,
-                    lifecycleScope,
-                    homeActivity = this@HolidayActivity,
-                    progressCallback = { progress, filePair ->
-                        Log.d("FileCheck", "File: ${filePair.first()}.db, Progress: $progress%")
-                    },
-                    {
-                        binding.spinner.visibility = View.VISIBLE
-                        binding.monthview.visibility = View.VISIBLE
-                        binding.lottieAnimationView.visibility = View.GONE
-                        Log.d("FileCheck", "Total non-update completed")
-                    }
-                )
             }
         }
 
 
-
-
+        handler.post(runnable)
 
 
 
@@ -415,13 +376,7 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-    fun checkFileExistence(fileName: String): LiveData<Boolean> {
-        val fileExistsLiveData = MutableLiveData<Boolean>()
-        val dbFolderPath = this.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
-        val dbFile = File(dbFolderPath, fileName)
-        fileExistsLiveData.value = dbFile.exists()
-        return fileExistsLiveData
-    }
+
 
     fun getCurrentYear(): Int {
         val calendar = Calendar.getInstance()

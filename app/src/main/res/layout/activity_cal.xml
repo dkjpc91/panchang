@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:orientation="vertical"
-android:background="#E8F1F0"
-android:layout_height="match_parent"
-tools:context=".UI.View.CalendarActivity">
-
-<ImageView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:layout_marginTop="-90dp"
-    android:src="@drawable/header"/>
-<ImageView
-    android:layout_width="match_parent"
-    android:layout_height="130dp"
-    android:layout_marginTop="-130dp"
-    android:padding="27dp"
-    android:src="@drawable/splashtxt"/>
+    android:layout_height="match_parent"
+    tools:context=".UI.View.CalActivity">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="-90dp"
+        android:src="@drawable/header"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_marginTop="-130dp"
+        android:padding="27dp"
+        android:src="@drawable/splashtxt"/>
 
 
     <androidx.cardview.widget.CardView
@@ -65,17 +64,17 @@ tools:context=".UI.View.CalendarActivity">
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimationView"
         android:layout_gravity="center"
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="200dp"
         app:lottie_loop="true"
         app:lottie_autoPlay="true"
         android:layout_centerInParent="true"
-        app:lottie_rawRes="@raw/download"/>
+        app:lottie_rawRes="@raw/solar"/>
     <TextView
         android:id="@+id/loadingstatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="लोडिंग प्रगति पर कृपया प्रतीक्षा करू"
+        android:text="लोडिंग प्रगति पर "
         android:textSize="36sp"
         android:layout_marginTop="2dp"
         android:layout_marginBottom="2dp"
@@ -84,13 +83,10 @@ tools:context=".UI.View.CalendarActivity">
 
 
 
-<FrameLayout
+    <FrameLayout
 
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragmentContainer"
-    android:layout_margin="5dp"/>
-
-
-
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragmentContainer"
+        android:layout_margin="5dp"/>
 </LinearLayout>

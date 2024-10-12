@@ -83,9 +83,16 @@ play-services-ads-lite = { group = "com.google.android.gms", name = "play-servic
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 firebase-inappmessaging-display = { group = "com.google.firebase", name = "firebase-inappmessaging-display", version.ref = "firebaseInappmessagingDisplay" }
 
+
+
+
+
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 androidx_navigation_safeargs = { id = "androidx.navigation.safeargs.kotlin", version = "2.7.0" }
+
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.View.TestActivity">
+    tools:context=".UI.View.CalDetailActivity">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -41,54 +41,56 @@
         android:focusable="true"
         app:searchIcon="@drawable/mglass"
         />
-
-
-
-
-
-
     <LinearLayout
+        android:layout_margin="3dp"
+        android:background="@drawable/border"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:padding="16dp">
-
+        android:layout_height="60dp">
+        <ImageView
+            android:id="@+id/backmonth"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/back"
+            android:layout_height="55dp"/>
         <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Test"
-            android:textSize="24sp"
+            android:id="@+id/monthName"
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:textSize="28sp"
+            android:gravity="center"
+            android:textColor="@color/blue"
             android:textStyle="bold"
-            android:textColor="#FF6F6F"
-            android:layout_gravity="center"
-            android:padding="8dp" />
-        <View
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:background="@drawable/left_border" />
-
-        <Button
-            android:layout_marginTop="100dp"
-            android:id="@+id/download"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
-
-        <ImageButton
-            android:layout_gravity="center"
-            android:layout_marginTop="200dp"
-            android:id="@+id/delete"
-            android:background="@android:color/transparent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/baseline_close_24" />
+            android:layout_height="55dp" />
+        <Spinner
+            android:layout_marginTop="1dp"
+            android:visibility="visible"
+            android:id="@+id/spinner"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="55dp" />
+        <ImageView
+            android:id="@+id/forwardmonth"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/forward"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="55dp"
+            android:layout_marginRight="5dp"/>
     </LinearLayout>
 
 
 
+
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/calrecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

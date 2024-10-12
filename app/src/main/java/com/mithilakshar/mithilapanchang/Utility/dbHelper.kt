@@ -140,6 +140,7 @@ class dbHelper(context: Context, dbName: String) {
     }
 
 
+    @SuppressLint("Range")
     fun doesColumnExist(tableName: String, columnName: String): Boolean {
         val query = "PRAGMA table_info($tableName)"
         db?.let { database ->
@@ -250,7 +251,7 @@ class dbHelper(context: Context, dbName: String) {
 
 
     @SuppressLint("Range")
-    fun getHolidaysByMonth(monthName: String): List<Map<String, String>> {
+    fun getHolidaysByMonth(monthName: String,dbtableName: String): List<Map<String, String>> {
         val holidays = mutableListOf<Map<String, String>>()
         db?.let { database ->
             if (!database.isOpen) {
@@ -258,7 +259,7 @@ class dbHelper(context: Context, dbName: String) {
                 return emptyList()
             }
 
-            val query = "SELECT * FROM holiday WHERE month = ?"
+            val query = "SELECT * FROM $dbtableName WHERE month = ?"
             val selectionArgs = arrayOf(monthName)
 
             database.rawQuery(query, selectionArgs)?.use { cursor ->
@@ -291,41 +292,56 @@ class dbHelper(context: Context, dbName: String) {
 
 
     @SuppressLint("Range")
-    fun getHolidaysByMonthdate(monthName: String, startDate: String): List<Map<String, String>> {
+    fun getHolidaysByMonthdate(monthName: String, startDate: String, dbtableName: String): List<Map<String, String>> {
         val holidays = mutableListOf<Map<String, String>>()
+
+        // Validate parameters
+        if (monthName.isEmpty() || startDate.isEmpty()) {
+            Log.w(TAG, "Invalid parameters: monthName or startDate is empty")
+            return holidays
+        }
+
+        // Ensure startDate is formatted correctly
+        val startDay = startDate.toIntOrNull() // Convert to an integer for comparison
+        if (startDay == null) {
+            Log.w(TAG, "Invalid startDate: $startDate is not a valid number")
+            return holidays
+        }
+
         db?.let { database ->
             if (!database.isOpen) {
                 Log.w(TAG, "Database not open for reading holidays for month: $monthName")
-                return emptyList()
+                return holidays
             }
 
-            // SQL query to select holidays for the given month and date greater than or equal to startDate
-            val query = "SELECT * FROM holiday WHERE month = ? AND datenumber >= ?"
-            val selectionArgs = arrayOf(monthName, startDate)
+            // SQL query to select holidays for the given month and datenumber greater than startDate
+            val query = "SELECT * FROM $dbtableName WHERE month = ? AND CAST(datenumber AS INTEGER) > ?"
+            val selectionArgs = arrayOf(monthName, startDay.toString()) // Convert back to string for SQL query
 
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                while (cursor.moveToNext()) {
-                    val rowData = mutableMapOf<String, String>()
-                    val month = cursor.getString(cursor.getColumnIndex("month"))
-                    val value1 = cursor.getString(cursor.getColumnIndex("date"))
-                    val value2 = cursor.getString(cursor.getColumnIndex("name"))
-                    val value3 = cursor.getString(cursor.getColumnIndex("desc"))
-                    rowData["month"] = month
-                    rowData["date"] = value1
-                    rowData["name"] = value2
-                    rowData["desc"] = value3
-                    holidays.add(rowData)
+            try {
+                database.rawQuery(query, selectionArgs)?.use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val rowData = mutableMapOf<String, String>()
+                        rowData["month"] = cursor.getString(cursor.getColumnIndex("month"))
+                        rowData["date"] = cursor.getString(cursor.getColumnIndex("date")) // Assuming this is also relevant
+                        rowData["name"] = cursor.getString(cursor.getColumnIndex("name"))
+                        rowData["desc"] = cursor.getString(cursor.getColumnIndex("desc"))
+                        holidays.add(rowData)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error querying holidays: ${e.message}", e)
             }
         }
 
+        // Handle empty result set
         if (holidays.isEmpty()) {
-            // Example: Return a default value indicating no holidays found
-            val defaultHoliday = mutableMapOf<String, String>()
-            defaultHoliday["month"] = monthName
-            defaultHoliday["date"] = ""
-            defaultHoliday["name"] = "मअपडेट प्रक्रिया में।"
-            holidays.add(defaultHoliday)
+            val defaultHoliday = mutableMapOf<String, String>().apply {
+                put("month", monthName)
+                put("date", "")
+                put("name", "मअपडेट प्रक्रिया में।") // Indicates "In the update process."
+            }
+            holidays.add(defaultHoliday) // Optional: add a default entry if needed
         }
 
         return holidays
@@ -335,92 +351,8 @@ class dbHelper(context: Context, dbName: String) {
 
 
 
-    data class Chapter(val uid: String, val chapterName: String,val chapternumber:String, val description: String)
 
 
-    @SuppressLint("Range")
-    fun getChapterNames(): List<Chapter> {
-        val chapters = mutableListOf<Chapter>()
-        db?.let { database ->
-            try {
-                if (!database.isOpen) {
-                    Log.w(TAG, "Database not open for reading chapter names")
-                    return emptyList()
-                }
-
-                val query = "SELECT DISTINCT uid, chaptername, Chapternumber, chapterdescription FROM Gita"
-                database.rawQuery(query, null)?.use { cursor ->
-                    while (cursor.moveToNext()) {
-                        val uidIndex = cursor.getColumnIndexOrThrow("uid")
-                        val chapterNameIndex = cursor.getColumnIndexOrThrow("chaptername")
-                        val chapterNumberIndex = cursor.getColumnIndexOrThrow("Chapternumber")
-                        val descriptionIndex = cursor.getColumnIndexOrThrow("chapterdescription")
-
-                        val uid = if (!cursor.isNull(uidIndex)) {
-                            cursor.getString(uidIndex)
-                        } else {
-                            "Unknown UID"
-                        }
-
-                        val chapterName = if (!cursor.isNull(chapterNameIndex)) {
-                            cursor.getString(chapterNameIndex)
-                        } else {
-                            "Unknown Chapter Name"
-                        }
-
-                        val chapterNumber = if (!cursor.isNull(chapterNumberIndex)) {
-                            cursor.getInt(chapterNumberIndex)
-                        } else {
-                            0 // Default value if Chapternumber is null
-                        }
-
-                        val description = if (!cursor.isNull(descriptionIndex)) {
-                            cursor.getString(descriptionIndex)
-                        } else {
-                            "No Description Available"
-                        }
-
-                        chapters.add(Chapter(uid, chapterName, chapterNumber.toString(), description))
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error fetching chapter names", e)
-                e.printStackTrace()
-            }
-        } ?: Log.e(TAG, "Database is null!")
-
-        return chapters
-    }
-
-
-
-    @SuppressLint("Range")
-    fun getRowsByChapterName(chapterName: String): List<Map<String, Any?>> {
-        val rows = mutableListOf<Map<String, Any?>>()
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open for reading rows by chapter name")
-                return emptyList()
-            }
-
-            val query = "SELECT * FROM Gita WHERE chaptername = ?"
-            val selectionArgs = arrayOf(chapterName)
-
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                val columnNames = getColumnNames("Gita")  // Assuming getColumnNames fetches column names dynamically
-
-                while (cursor.moveToNext()) {
-                    val rowData = mutableMapOf<String, Any?>()
-                    for (columnName in columnNames) {
-                        val value = cursor.getString(cursor.getColumnIndex(columnName))
-                        rowData[columnName] = value
-                    }
-                    rows.add(rowData)
-                }
-            }
-        }
-        return rows
-    }
 
     //get row by getRowsByColumnKeywordIfExists
 
@@ -493,44 +425,6 @@ class dbHelper(context: Context, dbName: String) {
 
 
 
-    @SuppressLint("Range")
-    fun getRowById(uid: Int): Map<String, Any?>? {
-        var rowData: MutableMap<String, Any?>? = null
-        db?.let { database ->
-            try {
-                if (!database.isOpen) {
-                    Log.w(TAG, "Database not open for reading row by id")
-                    return null
-                }
-
-                val query = "SELECT * FROM Gita WHERE id = ?"
-                val selectionArgs = arrayOf(uid.toString())
-
-                database.rawQuery(query, selectionArgs)?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        rowData = mutableMapOf()
-                        val columnNames = cursor.columnNames
-
-                        for (columnName in columnNames) {
-                            val value = when (cursor.getType(cursor.getColumnIndex(columnName))) {
-                                Cursor.FIELD_TYPE_NULL -> null
-                                Cursor.FIELD_TYPE_INTEGER -> cursor.getLong(cursor.getColumnIndex(columnName))
-                                Cursor.FIELD_TYPE_FLOAT -> cursor.getDouble(cursor.getColumnIndex(columnName))
-                                Cursor.FIELD_TYPE_STRING -> cursor.getString(cursor.getColumnIndex(columnName))
-                                Cursor.FIELD_TYPE_BLOB -> cursor.getBlob(cursor.getColumnIndex(columnName))
-                                else -> null
-                            }
-                            rowData!!.put(columnName, value)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error fetching row by id", e)
-            }
-        } ?: Log.e(TAG, "Database is null!")
-
-        return rowData
-    }
 
     @SuppressLint("Range")
     fun getRowsByMonth(month: String,table: String): List<Map<String, String>> {
@@ -562,14 +456,14 @@ class dbHelper(context: Context, dbName: String) {
     }
 
     @SuppressLint("Range")
-    fun getRowByMonthAndDate(month: String, date: String): Map<String, String>? {
+    fun getRowByMonthAndDate(month: String, date: String,table: String): Map<String, String>? {
         db?.let { database ->
             if (!database.isOpen) {
                 Log.w(TAG, "Database not open for reading rows by month: $month and date: $date")
                 return null
             }
 
-            val query = "SELECT * FROM calander WHERE month = ? AND date = ?"
+            val query = "SELECT * FROM $table WHERE month = ? AND date = ?"
             val selectionArgs = arrayOf(month, date)
 
             database.rawQuery(query, selectionArgs)?.use { cursor ->
@@ -599,7 +493,7 @@ class dbHelper(context: Context, dbName: String) {
                 return emptyList()
             }
 
-            val query = "SELECT * FROM imageauto WHERE day = ?"
+            val query = "SELECT * FROM iauto WHERE day = ?"
             val selectionArgs = arrayOf(dayName)
 
             database.rawQuery(query, selectionArgs)?.use { cursor ->
@@ -619,34 +513,7 @@ class dbHelper(context: Context, dbName: String) {
         return rows
     }
 
-    @SuppressLint("Range")
-    fun getimageByGodName(godName: String): List<Map<String, String>> {
-        val rows = mutableListOf<Map<String, String>>()
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open for reading rows by god name: $godName")
-                return emptyList()
-            }
 
-            val query = "SELECT * FROM imageauto WHERE godname = ?"
-            val selectionArgs = arrayOf(godName)
-
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                val columnNames = cursor.columnNames
-
-                while (cursor.moveToNext()) {
-                    val rowData = mutableMapOf<String, String>()
-                    for (columnName in columnNames) {
-                        val value = cursor.getString(cursor.getColumnIndex(columnName)) ?: ""
-                        rowData[columnName] = value
-                    }
-                    rows.add(rowData)
-                }
-            }
-        } ?: Log.e(TAG, "Database is null!")
-
-        return rows
-    }
 
     @SuppressLint("Range")
     fun getimageByholidayname(holidayname: String): List<Map<String, String>> {
@@ -657,7 +524,7 @@ class dbHelper(context: Context, dbName: String) {
                 return emptyList()
             }
 
-            val query = "SELECT * FROM imageauto WHERE holiday = ?"
+            val query = "SELECT * FROM iauto WHERE holiday = ?"
             val selectionArgs = arrayOf(holidayname)
 
             database.rawQuery(query, selectionArgs)?.use { cursor ->

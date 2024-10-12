@@ -1,14 +1,26 @@
+
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
     kotlin("kapt")
     alias(libs.plugins.androidx.navigation.safeargs)
+
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.mithilakshar.mithilapanchang"
     compileSdk = 34
+
+    // Load properties from local.properties
+    val localProperties = Properties().apply {
+        // Load properties from local.properties file
+        load(project.rootProject.file("local.properties").inputStream())
+    }
+
 
     defaultConfig {
         applicationId = "com.mithilakshar.mithilapanchang"
@@ -27,8 +39,19 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Correcting the type to "String"
+            buildConfigField("boolean", "FIREBASE_ANALYTICS_ENABLED", "true")
+            buildConfigField("String", "sUrl",  localProperties.getProperty("sUrl"))
+            buildConfigField("String", "sK",  localProperties.getProperty("sK")) 
+        }
+        debug {
+            isMinifyEnabled = false // Set to true if you want to enable code shrinking for debug
+            buildConfigField("boolean", "FIREBASE_ANALYTICS_ENABLED", "false")
+            buildConfigField("String", "sUrl",  localProperties.getProperty("sUrl"))
+            buildConfigField("String", "sK",  localProperties.getProperty("sK"))
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -36,11 +59,18 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    buildFeatures{viewBinding=true}
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
+    }
 }
+
 
 dependencies {
 
+    implementation("io.ktor:ktor-client-cio:2.3.4")
+
+    implementation("io.github.jan-tennert.supabase:storage-kt:1.3.2")
 
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)

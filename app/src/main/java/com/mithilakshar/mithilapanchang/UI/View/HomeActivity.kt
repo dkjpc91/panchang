@@ -57,6 +57,7 @@ import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
+import com.mithilakshar.mithilapanchang.Utility.TranslationUtils.speakFunction
 import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 import com.mithilakshar.mithilapanchang.Utility.dbSupabaseDownloadeSequence
@@ -200,7 +201,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 Pair("holi2025", 80),
                 Pair("cal2025", 89),
 
-            )
+                )
 
             lifecycleScope.launch {
                 val updateChecker = UpdateChecker(updatesDao)
@@ -270,9 +271,28 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
 
                                 val toaydata= dbHelpercalander.getRowByMonthAndDate("DECEMBER","13","cal$year")
+
+                                val sentence = speakFunction(
+                                    month = toaydata!!.get("month")!!.toString(),
+                                    date = toaydata.get("date")!!.toString(),
+                                    day = toaydata.get("day")!!.toString(),
+                                    year = "cal$year",  // Assuming this is dynamic and should be provided as a String
+                                    tithi = toaydata.get("tithi")!!.toString(),
+                                    tithiEndH = toaydata.get("tithiendh")!!.toString(),
+                                    tithiEndM = toaydata.get("tithiendm")!!.toString(),
+                                    nakshatra = toaydata.get("nakshatra")!!.toString(),
+                                    nakshatraEndH = toaydata.get("nakshatraendh")!!.toString(),
+                                    monthName = toaydata.get("monthname")!!.toString(),
+                                    rashi = toaydata.get("rashi")!!.toString(),
+                                    paksha = toaydata.get("paksha")!!.toString()
+                                )
+
+
+
                                 Log.d("toaydata", "$toaydata")
-                                val rowsFormonthdate = " testing"
-                                speak = toaydata.toString()
+                                Log.d("toaydata", "$sentence")
+
+                                speak = sentence
                                 textToSpeech = TextToSpeech(
                                     this@HomeActivity,
                                     TextToSpeech.OnInitListener { status ->
@@ -1004,7 +1024,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         lifecycleScope.launch {
             val dbname: String
             val table: String
-          val   year  = getCurrentYear()
+            val   year  = getCurrentYear()
             // Determine the database name and table name based on the year
             if (year > 2023) {
                 dbname = "cal$year.db"
@@ -1017,8 +1037,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val todaytithi: TextView = binding.todaytithi
             val todaynakshatra: TextView = binding.todaynakshatra
             val todaymonth: TextView = binding.todaymonth
-            val todayholiday: TextView = binding.todayholiday
-            val todayholidayl: LinearLayout = binding.todayholidayl
+            val todaysunrise: TextView = binding.todaysunrise
+            val todaysunset: TextView = binding.todaysunset
+            val tithiendtime: TextView = binding.tithiendtime
+            val nakshatraendtime: TextView = binding.nakshatraendtime
+            val todayrashi: TextView = binding.todayrashi
+            val todaypaksha: TextView = binding.todaypaksha
+            val todayyog: TextView = binding.todayyog
+
             val fragmentindex = arrayOf(
                 "JANUARY",
                 "FEBRUARY",
@@ -1038,30 +1064,33 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val dbHelper = dbHelper(context, dbname)
 
             val month = fragmentindex[getCurrentMonth()-1]
+            val monthtest = "DECEMBER"
             val date = getCurrentDay().toString()
             Log.d("todaysdatedetails", " :todays data $month  $date")
             // Fetch rows for the specified month
-       val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date,"cal${getCurrentYear()}")
+            val todaysdatedetails = dbHelper.getRowByMonthAndDate(monthtest,date,"cal${getCurrentYear()}")
             Log.d("todaysdatedetails", " :todays data $todaysdatedetails")
 
-        runOnUiThread {
-            todaytithi.text= todaysdatedetails?.get("tithi")
-            todaynakshatra.text =todaysdatedetails?.get("nakshatra")
-            todaymonth.text=todaysdatedetails?.get("monthhindi")
+            runOnUiThread {
+                todaytithi.text = todaysdatedetails?.get("tithi")
+                todaynakshatra.text = todaysdatedetails?.get("nakshatra")
+                todaymonth.text = todaysdatedetails?.get("monthname")
 
-            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("tithi")}")
-            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("nakshatra")}")
-            Log.d("todaysdatedetails", " :todays data ${todaysdatedetails?.get("monthhindi")}")
+                // Setting sunrise and sunset times
+                todaysunrise.text = "${todaysdatedetails?.get("sunrise")}:${todaysdatedetails?.get("sunrisemin")}"
+                todaysunset.text = "${todaysdatedetails?.get("sunset")}:${todaysdatedetails?.get("sunsetmin")}"
 
-            if (todaysdatedetails?.get("holiday").isNullOrBlank()) {
-                todayholiday?.visibility = View.GONE // or View.GONE
-                todayholidayl?.visibility = View.GONE // or View.GONE
-            } else {
-                todayholidayl?.visibility = View.VISIBLE
-                todayholiday?.text = todaysdatedetails?.get("holiday")
+                // Setting Tithi and Nakshatra end times
+                tithiendtime.text = "${todaysdatedetails?.get("tithiendh")}:${todaysdatedetails?.get("tithiendm")}"
+                nakshatraendtime.text = "${todaysdatedetails?.get("nakshatraendh")}:${todaysdatedetails?.get("nakshatraendm")}"
+
+                // Setting additional details
+                todayrashi.text = todaysdatedetails?.get("rashi")
+                todaypaksha.text = todaysdatedetails?.get("paksha")
+                todayyog.text = todaysdatedetails?.get("yog")
+
+
             }
-
-        }
 
 
         }
@@ -1121,4 +1150,3 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
 }
-

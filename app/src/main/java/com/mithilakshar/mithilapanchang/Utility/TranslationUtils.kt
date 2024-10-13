@@ -1,6 +1,8 @@
 package com.mithilakshar.mithilapanchang.Utility
 
 import java.util.Locale
+import kotlin.math.floor
+import kotlin.random.Random
 
 object TranslationUtils {
 
@@ -207,5 +209,59 @@ object TranslationUtils {
         // Return the translated day name or null if not found
         return dayTranslation[dayAbbreviation.uppercase(Locale.getDefault())]
     }
+
+
+
+
+    fun formatTime(hours: Int, minutes: Double): String {
+        // Wrap hours around to 24-hour format
+        val validHours = hours % 24
+
+        // Calculate the actual minutes and fractional seconds
+        val minutePart = floor(minutes).toInt()
+        val secondsPart = ((minutes - floor(minutes)) * 60).toInt()
+
+        // Adjust hours for AM/PM format
+        val period = if (validHours >= 12) "PM" else "AM"
+        val adjustedHours = if (validHours == 0) 12 else if (validHours > 12) validHours - 12 else validHours
+
+        // Format the time in hh:mm:ss AM/PM
+        return String.format("%02d:%02d:%02d %s", adjustedHours, minutePart, secondsPart, period)
+    }
+
+
+
+
+    fun speakFunction(
+        month: String,
+        date: String,
+        day: String,
+        year: String,
+        tithi: String,
+        tithiEndH: String,
+        tithiEndM: String,
+        nakshatra: String,
+        nakshatraEndH: String,
+        monthName: String,
+        rashi: String,
+        paksha: String
+    ): String {
+        val sentences = listOf(
+            "आइ $day दिन अछि, $monthName ($month) महिनाक $date तारीख, $year साल। ${tithi}म तिथि $tithiEndH घण्टा आ $tithiEndM मिनट धरि चलत।",
+            "$monthName ($month) $date, ${year}क $day दिन, $paksha पक्षक ${tithi}म तिथि अछि। ई तिथि $tithiEndH:$tithiEndM बजे धरि रहत।",
+            "आइ $day, $date $monthName ($month) $year छैक। ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा तक चलत, आ $rashi राशि मे अछि।",
+            "$year सालक $month ($monthName) महिनाक $date तारीख, $day दिन छैक। ${tithi}म तिथि आ ${nakshatra}म नक्षत्र अछि।",
+            "$day दिन, $date $monthName ($month) $year, $paksha पक्षक ${tithi}म तिथि। $rashi राशि मे ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि रहत।",
+            "आइ ${year}क $monthName ($month) $date छैक, $day दिन। ${tithi}म तिथि $tithiEndH:$tithiEndM धरि, आ ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि चलत।",
+            "$date $monthName ($month) $year, $day दिनक तिथि $tithi अछि, जे $tithiEndH घण्टा $tithiEndM मिनट तक रहत। $rashi राशि मे ${nakshatra}म नक्षत्र अछि।",
+            "$year सालक $month ($monthName) महिनाक $date तारीख, $day दिन छैक। $paksha पक्षक ${tithi}म तिथि आ ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि रहत।",
+            "आइ $day $date $monthName ($month) $year छैक। ${tithi}म तिथि $tithiEndH:$tithiEndM बजे तक, $rashi राशि मे ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि चलत।",
+            "$monthName ($month) $date, ${year}क $day दिन। $paksha पक्षक ${tithi}म तिथि, ${nakshatra}म नक्षत्र, $rashi राशि मे। तिथि $tithiEndH घण्टा $tithiEndM मिनट धरि रहत।"
+        )
+
+        return sentences[Random.nextInt(sentences.size)]
+    }
+
+
 
 }

@@ -25,6 +25,25 @@ object TranslationUtils {
         return monthTranslation[currentMonth]
     }
 
+    fun translateTomonthnumber(currentMonth: String): String? {
+        // Manually create a mapping for English to Hindi month names
+        val monthTranslation: MutableMap<String, String> = HashMap()
+        monthTranslation["1"] = "JANUARY"
+        monthTranslation["2"] = "FEBRUARY"
+        monthTranslation["3"] = "MARCH"
+        monthTranslation["4"] = "APRIL"
+        monthTranslation["5"] = "MAY"
+        monthTranslation["6"] = "JUNE"
+        monthTranslation["7"] = "JULY"
+        monthTranslation["8"] = "AUGUST"
+        monthTranslation["9"] = "SEPTEMBER"
+        monthTranslation["10"] = "OCTOBER"
+        monthTranslation["11"] = "NOVEMBER"
+        monthTranslation["12"] = "DECEMBER"
+        // Return the translated month name
+        return monthTranslation[currentMonth]
+    }
+
 
      fun translateToHindiday(currentDay: String): String? {
         // Manually create a mapping for English to Hindi month names
@@ -102,11 +121,14 @@ object TranslationUtils {
         val pakshaTranslation: MutableMap<String, String> = HashMap()
         pakshaTranslation["K"] = "कृष्ण पक्ष"  // K translates to Krishna Paksha
         pakshaTranslation["S"] = "शुक्ल पक्ष"   // S translates to Shukla Paksha
+        pakshaTranslation["k"] = "कृष्ण पक्ष"  // K translates to Krishna Paksha
+        pakshaTranslation["s"] = "शुक्ल पक्ष"   // S translates to Shukla Paksha
         // Return the translated Paksha name or null if not found
         return pakshaTranslation[input.uppercase(Locale.getDefault())]
     }
 
-    fun translateNumberToNakshatra(number: Int): String? {
+    fun translateNumberToNakshatra(number: String): String? {
+        val   number=number.toInt()
         val nakshatraTranslation: MutableMap<Int, String> = HashMap()
         nakshatraTranslation[1] = "अश्विनी"        // 1 -> Asvini
         nakshatraTranslation[2] = "भरणी"          // 2 -> Bharani
@@ -173,7 +195,8 @@ object TranslationUtils {
         return yogaTranslation[number]
     }
 
-    fun translateNumberToTithi(number: Int): String? {
+    fun translateNumberToTithi(number: String): String? {
+      val   number=number.toInt()
         val tithiTranslation: MutableMap<Int, String> = HashMap()
         tithiTranslation[1] = "प्रतिपदा"       // 1 -> Pratipada
         tithiTranslation[2] = "द्वितीया"         // 2 -> Dwitiya
@@ -187,7 +210,7 @@ object TranslationUtils {
         tithiTranslation[10] = "दशमी"          // 10 -> Dashami
         tithiTranslation[11] = "एकादशी"        // 11 -> Ekadashi
         tithiTranslation[12] = "द्वादशी"        // 12 -> Dwadashi
-        tithiTranslation[13] = "तृतीया"         // 13 -> Tritiya (Repeat)
+        tithiTranslation[13] = "त्रयोदशी "         // 13 -> Tritiya (Repeat)
         tithiTranslation[14] = "चतुर्दशी"       // 14 -> Chaturdashi
         tithiTranslation[15] = "पूर्णिमा"       // 15 -> Purnima
         tithiTranslation[16] = "अमावस्या"      // 16 -> Amavasya
@@ -222,11 +245,11 @@ object TranslationUtils {
         val secondsPart = ((minutes - floor(minutes)) * 60).toInt()
 
         // Adjust hours for AM/PM format
-        val period = if (validHours >= 12) "PM" else "AM"
+        val period = if (validHours >= 12) "अपराहअन" else "पूर्वाहअन"
         val adjustedHours = if (validHours == 0) 12 else if (validHours > 12) validHours - 12 else validHours
 
-        // Format the time in hh:mm:ss AM/PM
-        return String.format("%02d:%02d:%02d %s", adjustedHours, minutePart, secondsPart, period)
+        // Format the time as "<hours> baje ke <minutes> minute aur <seconds> sec <AM/PM>"
+        return String.format("  %s,  %2d बाइज   क  %02d  मिनट  आर  %02d सेकंड  अई  ", period, adjustedHours, minutePart, secondsPart )
     }
 
 
@@ -247,16 +270,11 @@ object TranslationUtils {
         paksha: String
     ): String {
         val sentences = listOf(
-            "आइ $day दिन अछि, $monthName ($month) महिनाक $date तारीख, $year साल। ${tithi}म तिथि $tithiEndH घण्टा आ $tithiEndM मिनट धरि चलत।",
-            "$monthName ($month) $date, ${year}क $day दिन, $paksha पक्षक ${tithi}म तिथि अछि। ई तिथि $tithiEndH:$tithiEndM बजे धरि रहत।",
-            "आइ $day, $date $monthName ($month) $year छैक। ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा तक चलत, आ $rashi राशि मे अछि।",
-            "$year सालक $month ($monthName) महिनाक $date तारीख, $day दिन छैक। ${tithi}म तिथि आ ${nakshatra}म नक्षत्र अछि।",
-            "$day दिन, $date $monthName ($month) $year, $paksha पक्षक ${tithi}म तिथि। $rashi राशि मे ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि रहत।",
-            "आइ ${year}क $monthName ($month) $date छैक, $day दिन। ${tithi}म तिथि $tithiEndH:$tithiEndM धरि, आ ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि चलत।",
-            "$date $monthName ($month) $year, $day दिनक तिथि $tithi अछि, जे $tithiEndH घण्टा $tithiEndM मिनट तक रहत। $rashi राशि मे ${nakshatra}म नक्षत्र अछि।",
-            "$year सालक $month ($monthName) महिनाक $date तारीख, $day दिन छैक। $paksha पक्षक ${tithi}म तिथि आ ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि रहत।",
-            "आइ $day $date $monthName ($month) $year छैक। ${tithi}म तिथि $tithiEndH:$tithiEndM बजे तक, $rashi राशि मे ${nakshatra}म नक्षत्र $nakshatraEndH घण्टा धरि चलत।",
-            "$monthName ($month) $date, ${year}क $day दिन। $paksha पक्षक ${tithi}म तिथि, ${nakshatra}म नक्षत्र, $rashi राशि मे। तिथि $tithiEndH घण्टा $tithiEndM मिनट धरि रहत।"
+            "आई, दिनांक ${date}. ${month} ${year}. दिन  ${translateAbbreviatedDayToHindi(day)}, तिथि  ${translateNumberToTithi(tithi)}, तिथि समाप्ति समय , ${formatTime(tithiEndH.toInt(),tithiEndM.toDouble())} , ${monthName} मास. ${translateToPaksha(paksha)}. ${translateNumberToNakshatra(nakshatra)} नक्षत्र , $rashi  राशि अइछ। मिथिला पंचांग उपयोग करबाक लेल धन्यवाद।",
+ /*           "आई, ${day} दिन ${date} तारीख, ${month} ${year} अइछ। ${tithi} तिथि, ${nakshatra} नक्षत्र आ ${paksha} पक्ष अछि। अहाँक दिन शुभ हूयै!",
+            "आई, ${day} दिन ${date} तारीख, ${month} ${year} अइछ। ${tithi} तिथि आ ${nakshatra} नक्षत्र अछि।   कृपया ,  ई ऐप शेयर करू।",
+            "${monthName} महिनाक ${date} तारीख , ${day} दिन , ${nakshatra} नक्षत्र आ ${paksha} पक्ष अइछ,  अहाँक दिन मंगलमय हो!",*/
+
         )
 
         return sentences[Random.nextInt(sentences.size)]

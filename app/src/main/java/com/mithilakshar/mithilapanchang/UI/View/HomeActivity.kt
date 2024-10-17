@@ -270,13 +270,18 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 dbHelpercalander = dbHelper(this@HomeActivity, "cal$year.db")
                                 dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
 
-                                val toaydata= dbHelpercalander.getRowByMonthAndDate("DECEMBER","13","cal$year")
+                                val month=getCurrentMonth()
+                                val dATE=getCurrentDay()
+                                Log.d("month", "month: ${TranslationUtils.translateTomonthnumber(
+                                    month.toString())}")
+                                Log.d("month", "dATE: $dATE")
+                                val toaydata= dbHelpercalander.getRowByMonthAndDate(TranslationUtils.translateTomonthnumber(month.toString()).toString(),dATE.toString(),"cal$year")
 
                                 val sentence = speakFunction(
                                     month = toaydata!!.get("month")!!.toString(),
                                     date = toaydata.get("date")!!.toString(),
                                     day = toaydata.get("day")!!.toString(),
-                                    year = "cal$year",  // Assuming this is dynamic and should be provided as a String
+                                    year = "$year",  // Assuming this is dynamic and should be provided as a String
                                     tithi = toaydata.get("tithi")!!.toString(),
                                     tithiEndH = toaydata.get("tithiendh")!!.toString(),
                                     tithiEndM = toaydata.get("tithiendm")!!.toString(),
@@ -768,15 +773,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         Log.d("doesColumnExist", "$doesColumnExist")
 
         // Prepare holidayMonthList
-        val holidayMonthList: MutableList<Map<String, String>> = mutableListOf(
-            mapOf(
-                "month" to "पंचांग",
-                "date" to "",
-                "name" to "पंचांग",
-                "desc" to ""
-            )
-        )
-
+        val holidayMonthList: List<Map<String, String>>
         // Fetch holidays based on column existence
         if (doesColumnExist) {
             Log.d("HolidayLog", "Checking if the column exists: $doesColumnExist")
@@ -784,12 +781,11 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Fetching holidays by month and date
             Log.d("HolidayLog", "Fetching holidays for date - Month: ${currentMonthString.lowercase(Locale.getDefault())}, Day: $currentDay, Year: $year")
 
-            holidayMonthList.addAll(
-                dbHelperHoliday.getHolidaysByMonthdate(
+             holidayMonthList= dbHelperHoliday.getHolidaysByMonthdate(
                     currentMonthString.lowercase(Locale.getDefault()),
                     currentDay.toString(), "holi$year"
                 )
-            )
+
 
             Log.d("HolidayLog", "Holidays fetched and added to holidayMonthList.")
             Log.d("HolidayLog", "dateExists: $doesColumnExist")
@@ -800,11 +796,11 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             // Fetching holidays by month only
             Log.d("HolidayLog", "Fetching holidays for month: ${currentMonthString.lowercase(Locale.getDefault())}, Year: $year")
 
-            holidayMonthList.addAll(
+            holidayMonthList =
                 dbHelperHoliday.getHolidaysByMonth(
                     currentMonthString.lowercase(Locale.getDefault()), "holi$year"
                 )
-            )
+
 
             Log.d("HolidayLog", "Holidays fetched and added to holidayMonthList.")
             Log.d("HolidayLog", "notExist: $doesColumnExist")
@@ -1064,11 +1060,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val dbHelper = dbHelper(context, dbname)
 
             val month = fragmentindex[getCurrentMonth()-1]
-            val monthtest = "DECEMBER"
+
+
+
             val date = getCurrentDay().toString()
+
             Log.d("todaysdatedetails", " :todays data $month  $date")
             // Fetch rows for the specified month
-            val todaysdatedetails = dbHelper.getRowByMonthAndDate(monthtest,date,"cal${getCurrentYear()}")
+            val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date,"cal${getCurrentYear()}")
             Log.d("todaysdatedetails", " :todays data $todaysdatedetails")
 
             runOnUiThread {

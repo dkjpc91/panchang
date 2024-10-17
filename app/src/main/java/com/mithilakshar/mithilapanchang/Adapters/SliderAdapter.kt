@@ -1,8 +1,10 @@
 package com.mithilakshar.mithilapanchang.Adapters
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.compose.ui.text.font.Typeface
+
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.mithilakshar.mithilapanchang.R
@@ -10,10 +12,15 @@ import com.mithilakshar.mithilapanchang.databinding.HolidaybanneritemBinding
 
 class SliderAdapter(private val itemList: List<Map<String, String>>) : RecyclerView.Adapter<SliderAdapter.SliderViewHolder>() {
 
-    // Create a new list where each item is duplicated
-  /*  private val modifiedList: List<Map<String, String>> = itemList.flatMap { item ->
-        listOf(item, item) // Each item appears twice
-    }*/
+    private val TAG = "SliderAdapter"
+
+    init {
+        logInputItemList() // Log the input item list when the adapter is initialized
+    }
+
+    private fun logInputItemList() {
+        Log.d(TAG, "Input item list: $itemList") // Log the entire item list
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SliderViewHolder {
         val binding = HolidaybanneritemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -35,7 +42,7 @@ class SliderAdapter(private val itemList: List<Map<String, String>>) : RecyclerV
             val name = item["name"] ?: ""
             val date = item["date"] ?: ""
             val description = item["desc"] ?: ""
-
+            Log.d(TAG, "Binding item: $item")
             binding.holidayname.text = name
             binding.holidaygreeting.text = "$date\n$description"
 

@@ -2,7 +2,6 @@ package com.mithilakshar.mithilapanchang.Utility
 
 import java.util.Locale
 import kotlin.math.floor
-import kotlin.random.Random
 
 object TranslationUtils {
 
@@ -24,6 +23,47 @@ object TranslationUtils {
         // Return the translated month name
         return monthTranslation[currentMonth]
     }
+
+    fun translateToHindiDevanagariHinduMonth(currentMonth: String): String? {
+        // Manually create a mapping for Hindi Hindu month names to Devanagari
+        val monthTranslation: MutableMap<String, String> = HashMap()
+        monthTranslation["Paush"] = "पौष"         // Paush
+        monthTranslation["Magh"] = "माघ"           // Magh
+        monthTranslation["Phalgun"] = "फाल्गुन"    // Phalgun
+        monthTranslation["Chaitra"] = "चैत"        // Chaitra
+        monthTranslation["Vaishakh"] = "वैशाख"     // Vaishakh
+        monthTranslation["Jyeshtha"] = "ज्येष्ठ"   // Jyeshtha
+        monthTranslation["Ashadha"] = "आषाढ़"     // Ashadha
+        monthTranslation["Shravana"] = "श्रावण"     // Shravana
+        monthTranslation["Bhadav"] = "भाद्रपद" // Bhadrapada
+        monthTranslation["Ashwin"] = "आश्विन"      // Ashwin
+        monthTranslation["Kartik"] = "कार्तिक"     // Kartik
+        monthTranslation["Aghan"] = "मार्गशीर्ष" // Margashirsha
+
+        // Return the translated month name
+        return monthTranslation[currentMonth]
+    }
+
+    fun translateToHindiDevanagariRashi(currentRashi: String): String? {
+        // Manually create a mapping for Hindu Rashi names to Devanagari
+        val rashiTranslation: MutableMap<String, String> = HashMap()
+        rashiTranslation["makar"] = "मकर"          // Capricorn
+        rashiTranslation["kumbh"] = "कुंभ"         // Aquarius
+        rashiTranslation["meen"] = "मीन"           // Pisces
+        rashiTranslation["mesha"] = "मेष"          // Aries
+        rashiTranslation["vrish"] = "वृष"          // Taurus
+        rashiTranslation["mithun"] = "मिथुन"       // Gemini
+        rashiTranslation["karka"] = "कर्क"          // Cancer
+        rashiTranslation["singh"] = "सिंह"         // Leo
+        rashiTranslation["kanya"] = "कन्या"        // Virgo
+        rashiTranslation["tula"] = "तुला"          // Libra
+        rashiTranslation["vrischika"] = "वृश्चिक"  // Scorpio
+        rashiTranslation["dhanus"] = "धनु"         // Sagittarius
+
+        // Return the translated Rashi name
+        return rashiTranslation[currentRashi]
+    }
+
 
     fun translateTomonthnumber(currentMonth: String): String? {
         // Manually create a mapping for English to Hindi month names
@@ -127,40 +167,7 @@ object TranslationUtils {
         return pakshaTranslation[input.uppercase(Locale.getDefault())]
     }
 
-    fun translateNumberToNakshatra(number: String): String? {
-        val   number=number.toInt()
-        val nakshatraTranslation: MutableMap<Int, String> = HashMap()
-        nakshatraTranslation[1] = "अश्विनी"        // 1 -> Asvini
-        nakshatraTranslation[2] = "भरणी"          // 2 -> Bharani
-        nakshatraTranslation[3] = "कृत्तिका"        // 3 -> Krittika
-        nakshatraTranslation[4] = "रोहिणी"         // 4 -> Rohini
-        nakshatraTranslation[5] = "मृगशिरा"       // 5 -> Mrigasiras
-        nakshatraTranslation[6] = "आर्द्रा"        // 6 -> Ardra
-        nakshatraTranslation[7] = "पुनर्वसु"       // 7 -> Punarvasu
-        nakshatraTranslation[8] = "पुष्य"          // 8 -> Pushya
-        nakshatraTranslation[9] = "आश्रेषा"        // 9 -> Aslesha
-        nakshatraTranslation[10] = "मघा"          // 10 -> Magha
-        nakshatraTranslation[11] = "पूर्वाफाल्गुनी" // 11 -> Purva Phalguni
-        nakshatraTranslation[12] = "उत्तराफाल्गुनी" // 12 -> Uttara Phalguni
-        nakshatraTranslation[13] = "हस्त"          // 13 -> Hasta
-        nakshatraTranslation[14] = "चित्रा"        // 14 -> Chitra
-        nakshatraTranslation[15] = "स्वाति"        // 15 -> Svati
-        nakshatraTranslation[16] = "विशाखा"        // 16 -> Visakha
-        nakshatraTranslation[17] = "अनुराधा"      // 17 -> Anuradha
-        nakshatraTranslation[18] = "ज्येष्ठा"      // 18 -> Jyestha
-        nakshatraTranslation[19] = "मूल"          // 19 -> Mula
-        nakshatraTranslation[20] = "पूर्वाषाढ़ा"   // 20 -> Purva Shadha
-        nakshatraTranslation[21] = "उत्तराषाढ़ा"   // 21 -> Uttara Shadha
-        nakshatraTranslation[22] = "श्रवण"         // 22 -> Shravana
-        nakshatraTranslation[23] = "धनिष्ठा"      // 23 -> Dhanistha
-        nakshatraTranslation[24] = "शतभिषा"       // 24 -> Shatabhisha
-        nakshatraTranslation[25] = "पूर्वभाद्रपदा" // 25 -> Purva Bhadrapada
-        nakshatraTranslation[26] = "उत्तरभाद्रपदा" // 26 -> Uttara Bhadrapada
-        nakshatraTranslation[27] = "रेवती"         // 27 -> Revati
 
-        // Return the translated Nakshatra name or null if not found
-        return nakshatraTranslation[number]
-    }
     fun translateNumberToYoga(number: Int): String? {
         val yogaTranslation: MutableMap<Int, String> = HashMap()
         yogaTranslation[1] = "विष्कुम्भ"         // 1 -> Viskumbha
@@ -195,29 +202,6 @@ object TranslationUtils {
         return yogaTranslation[number]
     }
 
-    fun translateNumberToTithi(number: String): String? {
-      val   number=number.toInt()
-        val tithiTranslation: MutableMap<Int, String> = HashMap()
-        tithiTranslation[1] = "प्रतिपदा"       // 1 -> Pratipada
-        tithiTranslation[2] = "द्वितीया"         // 2 -> Dwitiya
-        tithiTranslation[3] = "तृतीया"         // 3 -> Tritiya
-        tithiTranslation[4] = "चतुर्थी"        // 4 -> Chaturthi
-        tithiTranslation[5] = "पञ्चमी"         // 5 -> Panchami
-        tithiTranslation[6] = "षष्ठी"          // 6 -> Shashthi
-        tithiTranslation[7] = "सप्तमी"         // 7 -> Saptami
-        tithiTranslation[8] = "अष्टमी"         // 8 -> Ashtami
-        tithiTranslation[9] = "नवमी"           // 9 -> Navami
-        tithiTranslation[10] = "दशमी"          // 10 -> Dashami
-        tithiTranslation[11] = "एकादशी"        // 11 -> Ekadashi
-        tithiTranslation[12] = "द्वादशी"        // 12 -> Dwadashi
-        tithiTranslation[13] = "त्रयोदशी "         // 13 -> Tritiya (Repeat)
-        tithiTranslation[14] = "चतुर्दशी"       // 14 -> Chaturdashi
-        tithiTranslation[15] = "पूर्णिमा"       // 15 -> Purnima
-        tithiTranslation[16] = "अमावस्या"      // 16 -> Amavasya
-
-        // Return the translated Tithi name or null if not found
-        return tithiTranslation[number]
-    }
 
     fun translateAbbreviatedDayToHindi(dayAbbreviation: String): String? {
         val dayTranslation: MutableMap<String, String> = HashMap()
@@ -236,25 +220,6 @@ object TranslationUtils {
 
 
 
-    fun formatTime(hours: Int, minutes: Double): String {
-        // Wrap hours around to 24-hour format
-        val validHours = hours % 24
-
-        // Calculate the actual minutes and fractional seconds
-        val minutePart = floor(minutes).toInt()
-        val secondsPart = ((minutes - floor(minutes)) * 60).toInt()
-
-        // Adjust hours for AM/PM format
-        val period = if (validHours >= 12) "अपराहअन" else "पूर्वाहअन"
-        val adjustedHours = if (validHours == 0) 12 else if (validHours > 12) validHours - 12 else validHours
-
-        // Format the time as "<hours> baje ke <minutes> minute aur <seconds> sec <AM/PM>"
-        return String.format("  %s,  %2d बाइज   क  %02d  मिनट  आर  %02d सेकंड  अई  ", period, adjustedHours, minutePart, secondsPart )
-    }
-
-
-
-
     fun speakFunction(
         month: String,
         date: String,
@@ -265,19 +230,195 @@ object TranslationUtils {
         tithiEndM: String,
         nakshatra: String,
         nakshatraEndH: String,
+        nakshatraEndM: String,
         monthName: String,
         rashi: String,
         paksha: String
     ): String {
-        val sentences = listOf(
-            "आई, दिनांक ${date}. ${month} ${year}. दिन  ${translateAbbreviatedDayToHindi(day)}, तिथि  ${translateNumberToTithi(tithi)}, तिथि समाप्ति समय , ${formatTime(tithiEndH.toInt(),tithiEndM.toDouble())} , ${monthName} मास. ${translateToPaksha(paksha)}. ${translateNumberToNakshatra(nakshatra)} नक्षत्र , $rashi  राशि अइछ। मिथिला पंचांग उपयोग करबाक लेल धन्यवाद।",
- /*           "आई, ${day} दिन ${date} तारीख, ${month} ${year} अइछ। ${tithi} तिथि, ${nakshatra} नक्षत्र आ ${paksha} पक्ष अछि। अहाँक दिन शुभ हूयै!",
-            "आई, ${day} दिन ${date} तारीख, ${month} ${year} अइछ। ${tithi} तिथि आ ${nakshatra} नक्षत्र अछि।   कृपया ,  ई ऐप शेयर करू।",
-            "${monthName} महिनाक ${date} तारीख , ${day} दिन , ${nakshatra} नक्षत्र आ ${paksha} पक्ष अइछ,  अहाँक दिन मंगलमय हो!",*/
+        // Parse tithi and tithi end hours and minutes as lists
+        val tithiList = parseTithiInput(tithi) ?: listOf("अज्ञात तिथि")
+        val tithiEndHList = parseIntListInput(tithiEndH) ?: listOf(0)
+        val tithiEndMList = parseDoubleListInput(tithiEndM) ?: listOf(0.0)
 
+        // Parse nakshatra and nakshatra end hours and minutes as lists
+        val nakshatraList = parseNakshatraInput(nakshatra) ?: listOf("अज्ञात नक्षत्र")
+        val nakshatraEndHList = parseIntListInput(nakshatraEndH) ?: listOf(0)
+        val nakshatraEndMList = parseDoubleListInput(nakshatraEndM) ?: listOf(0.0)
+
+        // Prepare formatted tithi message
+        val tithiMessage = tithiList.mapIndexed { index, tithiName ->
+            val endHour = if (index < tithiEndHList.size) tithiEndHList[index] else 0
+            val endMinute = if (index < tithiEndMList.size) tithiEndMList[index] else 0.0
+            val formattedTime = formatTime(endHour, endMinute)
+            " तिथि,  $tithiName  , तिथि समाप्ति समय: $formattedTime"
+        }.joinToString("; ")
+
+        // Prepare formatted nakshatra message
+        val nakshatraMessage = nakshatraList.mapIndexed { index, nakshatraName ->
+            val endHour = if (index < nakshatraEndHList.size) nakshatraEndHList[index] else 0
+            val endMinute = if (index < nakshatraEndMList.size) nakshatraEndMList[index] else 0.0
+            val formattedTime = formatTime(endHour, endMinute)
+            "$nakshatraName नक्षत्र,  नक्षत्र  समाप्ति समय: $formattedTime"
+        }.joinToString("; ")
+
+        // Prepare final message
+        val sentence = """
+        आई, दिनांक $date. $month $year. दिन ${translateAbbreviatedDayToHindi(day)}. 
+        $tithiMessage; $monthName मास. ${translateToPaksha(paksha)}. 
+        $nakshatraMessage; $rashi राशि अइछ। मिथिला पंचांग उपयोग करबाक लेल धन्यवाद।
+    """.trimIndent()
+
+        return sentence
+    }
+
+    // Format time as "<hours> baje ke <minutes> minute aur <seconds> sec <AM/PM>"
+    fun formatTime(hours: Int, minutes: Double): String {
+        // Wrap hours around to 48-hour format
+        val validHours = hours % 12
+
+        // Calculate the actual minutes
+        val minutePart = floor(minutes).toInt()
+
+        // Adjust period based on the new rules
+        val period = when {
+            validHours < 12 -> "पूर्वाहन" // Purvahan for 0-12
+            validHours < 24 -> "अपराहन" // Aprahan for 12-24
+            validHours < 36 -> "पूर्वाहन" // Purvahan for 24-36
+            validHours < 48 -> "अपराहन" // Aprahan for 36-48
+            else -> "पूर्वाहन" // Purvahan for 48+
+        }
+
+        // Adjust hours for AM/PM format
+        val adjustedHours = when {
+            validHours == 0 -> 12
+            validHours > 12 -> validHours - 12
+            else -> validHours
+        }
+
+        // Format the time as "<period>, <hours> बाइज क <minutes> मिनट अई ,"
+        return String.format("  %s,  %2d बाइज क  %02d मिनट अई , ", period, adjustedHours, minutePart)
+    }
+
+
+    fun formatTimeD(hours: Int, minutes: Double): String {
+        // Wrap hours around to 48-hour format
+        val validHours = hours % 12
+
+        // Calculate the actual minutes and fractional seconds
+        val minutePart = floor(minutes).toInt()
+
+        // Adjust period based on the new rules
+        val period = when {
+            validHours < 12 -> "पूर्वाहन" // Purvahan for 0-12
+            validHours < 24 -> "अपराहन" // Aprahan for 12-24
+            validHours < 36 -> "पूर्वाहन" // Purvahan for 24-36
+            validHours < 48 -> "अपराहन" // Aprahan for 36-48
+            else -> "पूर्वाहन" // Purvahan for 48+
+        }
+
+        // Adjust hours for AM/PM format
+        val adjustedHours = when {
+            validHours == 0 -> 12
+            validHours > 12 -> validHours - 12
+            else -> validHours
+        }
+
+        // Format the time as "<period>, <hours> baje ke <minutes> minute"
+        return String.format("%s, %2d:%02d", period, adjustedHours, minutePart)
+    }
+
+
+
+
+    // Helper function to handle `tithi` as either single or multiple values
+    fun parseTithiInput(tithi: String): List<String>? {
+        val tithiTranslation = mapOf(
+            1 to "प्रतिपदा", 2 to "द्वितीया", 3 to "तृतीया", 4 to "चतुर्थी",
+            5 to "पञ्चमी", 6 to "षष्ठी", 7 to "सप्तमी", 8 to "अष्टमी",
+            9 to "नवमी", 10 to "दशमी", 11 to "एकादशी", 12 to "द्वादशी",
+            13 to "त्रयोदशी", 14 to "चतुर्दशी", 15 to "पूर्णिमा", 16 to "अमावस्या"
         )
 
-        return sentences[Random.nextInt(sentences.size)]
+        return try {
+            if (tithi.startsWith("[") && tithi.endsWith("]")) {
+                tithi.removeSurrounding("[", "]")
+                    .split(", ")
+                    .mapNotNull { it.toIntOrNull()?.let(tithiTranslation::get) }
+            } else {
+                listOfNotNull(tithi.toIntOrNull()?.let(tithiTranslation::get))
+            }
+        } catch (e: NumberFormatException) {
+            null
+        }
+    }
+
+    // Helper function to handle `nakshatra` as either single or multiple values
+    fun parseNakshatraInput(nakshatra: String): List<String>? {
+        val nakshatraTranslation = mapOf(
+            1 to "अश्विनी", 2 to "भरणी", 3 to "कृत्तिका", 4 to "रोहिणी",
+            5 to "मृगशीर्ष", 6 to "आर्द्रा", 7 to "पुनर्वसु", 8 to "पुष्य",
+            9 to "अश्लेषा", 10 to "मघा", 11 to "पूर्वा फाल्गुनी", 12 to "उत्तर फाल्गुनी",
+            13 to "हस्त", 14 to "चित्रा", 15 to "स्वाति", 16 to "विशाखा",
+            17 to "अनुराधा", 18 to "ज्येष्ठा", 19 to "मूल", 20 to "पूर्वाषाढ़ा",
+            21 to "उत्तराषाढ़ा", 22 to "श्रवण", 23 to "धनिष्ठा", 24 to "शतभिषा",
+            25 to "पूर्वा भाद्रपद", 26 to "उत्तर भाद्रपद", 27 to "रेवती"
+        )
+
+        return try {
+            if (nakshatra.startsWith("[") && nakshatra.endsWith("]")) {
+                nakshatra.removeSurrounding("[", "]")
+                    .split(", ")
+                    .mapNotNull { it.toIntOrNull()?.let(nakshatraTranslation::get) }
+            } else {
+                listOfNotNull(nakshatra.toIntOrNull()?.let(nakshatraTranslation::get))
+            }
+        } catch (e: NumberFormatException) {
+            null
+        }
+    }
+
+    // Helper function to parse hours as integers
+    fun parseIntListInput(input: String): List<Int>? {
+        return try {
+            if (input.startsWith("[") && input.endsWith("]")) {
+                input.removeSurrounding("[", "]")
+                    .split(", ")
+                    .mapNotNull { it.toIntOrNull() }
+            } else {
+                listOfNotNull(input.toIntOrNull())
+            }
+        } catch (e: NumberFormatException) {
+            null
+        }
+    }
+
+    // Helper function to parse minutes as doubles
+    fun parseDoubleListInput(input: String): List<Double>? {
+        return try {
+            if (input.startsWith("[") && input.endsWith("]")) {
+                input.removeSurrounding("[", "]")
+                    .split(", ")
+                    .mapNotNull { it.toDoubleOrNull() }
+            } else {
+                listOfNotNull(input.toDoubleOrNull())
+            }
+        } catch (e: NumberFormatException) {
+            null
+        }
+    }
+
+
+
+    fun createTithitimeformat(tithiEndH: String, tithiEndM: String): String {
+        val tithiEndHList = parseIntListInput(tithiEndH) ?: return "Invalid end hours input"
+        val tithiEndMList = parseDoubleListInput(tithiEndM) ?: return "Invalid end minutes input"
+
+        // Generate a message using the parsed hours and minutes
+        return tithiEndHList.mapIndexed { index, endHour ->
+            val endMinute = if (index < tithiEndMList.size) tithiEndMList[index] else 0.0
+            val formattedTime = formatTimeD(endHour, endMinute)
+            "$formattedTime"
+        }.joinToString("; ")
     }
 
 

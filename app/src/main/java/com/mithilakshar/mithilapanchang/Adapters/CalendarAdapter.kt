@@ -80,14 +80,9 @@ class CalendarAdapter(
 
                 val hindiyear = translateToHindidate(year.toString())
 
-                calendarDialog.setcalendardialogtext(
-                    "\nपंचांग विवरण :-\n \n"
-                            + hindidate + " " + hindiMonth + " " + hindiyear
-                )
-                calendarDialog.setcalendardialogtext1(model.get("tithi").toString())
-                calendarDialog.setcalendardialogtext2( "तारीख "+ hindidate + " " + hindiMonth + " " + hindiyear+ ","+
-                        "तिथि "+ model.get("tithi")+ ","+model.get("nakshatra")+ "नक्षत्र  "+","+model.get("monthhindi")+ "मास  "+","+ model.get("paksha")+ " ")
-                calendarDialog.setcalendardialogtext3(model.get("nakshatra").toString())
+
+               // calendarDialog.setcalendardialogtext1(model.get("tithi").toString())
+
 
 
                 calendarDialog.show()

@@ -15,13 +15,18 @@ import com.mithilakshar.mithilapanchang.R
 import java.util.Locale
 
 class calendardialog : Dialog, TextToSpeech.OnInitListener {
-    private var calendartext: TextView? = null
-    private var calendartext1: TextView? = null
-    private var calendartext2: TextView? = null
-    private var calendartext3: TextView? = null
-    private var calendartext4: TextView? = null
-    private var calendartext5: TextView? = null
-    private var calendardialogtext5l: LinearLayout? = null
+    // TextView references
+    private var calendarText: TextView? = null
+    private var todayTithi: TextView? = null
+    private var tithiEndTime: TextView? = null
+    private var todayNakshatra: TextView? = null
+    private var nakshatraEndTime: TextView? = null
+    private var todayMonth: TextView? = null
+    private var todayRashi: TextView? = null
+    private var todayPaksha: TextView? = null
+    private var todaySunrise: TextView? = null
+    private var todaySunset: TextView? = null
+    private var todayYog: TextView? = null
     private var fab: FloatingActionButton? = null
     private var tts: TextToSpeech? = null
     private var speakText: String? = "hello"
@@ -29,13 +34,19 @@ class calendardialog : Dialog, TextToSpeech.OnInitListener {
     constructor(context: Context) : super(context) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.calendardialog)
-        calendartext = findViewById(R.id.calendardialogtext)
-        calendartext1 = findViewById(R.id.calendardialogtext1)
-        calendartext3 = findViewById(R.id.calendardialogtext3)
-        calendartext4 = findViewById(R.id.calendardialogtext4)
-        calendartext5 = findViewById(R.id.calendardialogtext5)
+        // Initialize UI components based on the provided XML layout
+        calendarText = findViewById(R.id.calendardialogtext)
+        todayTithi = findViewById(R.id.todaytithi)
+        tithiEndTime = findViewById(R.id.tithiendtime)
+        todayNakshatra = findViewById(R.id.todaynakshatra)
+        nakshatraEndTime = findViewById(R.id.nakshatraendtime)
+        todayMonth = findViewById(R.id.todaymonth)
+        todayRashi = findViewById(R.id.todayrashi)
+        todayPaksha = findViewById(R.id.todaypaksha)
+        todaySunrise = findViewById(R.id.todaysunrise)
+        todaySunset = findViewById(R.id.todaysunset)
+        todayYog = findViewById(R.id.todayyog)
         fab = findViewById(R.id.fab)
-        calendardialogtext5l = findViewById(R.id.calendardialogtext5l)
 
         tts = TextToSpeech(context, this)
     }
@@ -47,44 +58,55 @@ class calendardialog : Dialog, TextToSpeech.OnInitListener {
         cancelListener: DialogInterface.OnCancelListener?
     ) : super(context, cancelable, cancelListener)
 
-    fun setcalendardialogtext(text: String?) {
-        calendartext?.text = text
-    }
 
-    fun setcalendardialogtext1(text: String?) {
-        calendartext1?.text = text
+    fun setCalendarDialogText(text: String?) {
+        calendarText?.text = text
+    }
+    fun setTodayTithi(text: String?) {
+        todayTithi?.text = text
         Log.d("speak", "$text")
     }
-    fun setcalendardialogtext2(speaktext: String?) {
-        speakText= speaktext
+    fun setTithiEndTime(text: String?) {
+        tithiEndTime?.text = text
+    }  fun setTodayNakshatra(text: String?) {
+        todayNakshatra?.text = text
+    }
+    fun setNakshatraEndTime(text: String?) {
+        nakshatraEndTime?.text = text
+    }
 
-        Log.d("speak", "$speaktext")
+    fun setTodayMonth(text: String?) {
+        todayMonth?.text = text
+    }
+
+    fun setTodayRashi(text: String?) {
+        todayRashi?.text = text
+    }
+
+    fun setTodayPaksha(text: String?) {
+        todayPaksha?.text = text
+    }
+    fun setTodaySunrise(text: String?) {
+        todaySunrise?.text = text
+    }
+
+    fun setTodaySunset(text: String?) {
+        todaySunset?.text = text
+    }
+
+    fun setTodayYog(text: String?) {
+        todayYog?.text = text
+    }
+
+    // Set the text to speak
+    fun setSpeakText(speakText: String?) {
+        this.speakText = speakText
         Log.d("speak", "$speakText")
     }
-    fun setcalendardialogtext3(text: String?) {
-        calendartext3?.text = text
-    }
 
-    fun setcalendardialogtext4(text: String?) {
-        calendartext4?.text = text
-    }
 
-    fun setcalendardialogtext5(text: String?) {
 
-        if (text.isNullOrBlank()) {
-            calendartext5?.visibility = View.GONE // or View.GONE
-            calendardialogtext5l?.visibility = View.GONE // or View.GONE
-        } else {
-            calendartext5?.visibility = View.VISIBLE
-            calendartext5?.text = text
-        }
-        fab?.setOnClickListener {
 
-            speakText?.let { it1 -> speak(it1) }
-            Log.d("speak", "$speakText")
-        }
-
-    }
 
     override fun onInit(p0: Int) {
         if (p0 == TextToSpeech.SUCCESS) {

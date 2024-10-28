@@ -41,7 +41,6 @@ import android.content.Context
 import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
@@ -54,6 +53,7 @@ import com.mithilakshar.mithilapanchang.Adapters.SliderAdapter
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
+import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
@@ -77,7 +77,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val updateType = AppUpdateType.IMMEDIATE
     private lateinit var updatesDao: UpdatesDao
 
-    private lateinit var dbHelpercalander: dbHelper
+    private lateinit var dbHelpercalander: CalendarHelper
     private lateinit var dbHelperimage: dbHelper
     private lateinit var dbHelperHoliday: dbHelper
 
@@ -130,6 +130,51 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
+
+        fun mergeRowsByDate(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
+            val mergedMap = mutableMapOf<Any?, MutableMap<String, Any?>>()
+
+            for (row in rows) {
+                val dateKey = row["date"] // Use "date" as the unique key for merging
+                if (!mergedMap.containsKey(dateKey)) {
+                    mergedMap[dateKey] = mutableMapOf()
+                }
+                val existingRow = mergedMap[dateKey]!!
+
+                for ((k, v) in row) {
+                    if (existingRow.containsKey(k)) {
+                        // If the value is different, merge them into a list
+                        if (existingRow[k] != v) {
+                            existingRow[k] = if (existingRow[k] is List<*>) {
+                                (existingRow[k] as List<Any?>) + v
+                            } else {
+                                listOf(existingRow[k], v)
+                            }
+                        }
+                    } else {
+                        existingRow[k] = v
+                    }
+                }
+            }
+
+            return mergedMap.values.map { it.toMap() }
+        }
+
+
+        fun logMergedRows(mergedRows: List<Map<String, Any?>>) {
+            mergedRows.forEachIndexed { index, row ->
+                val logMessage = StringBuilder("Row ${index + 1}: ")
+                row.entries.forEach { entry ->
+                    logMessage.append("${entry.key}=${entry.value}, ")
+                }
+                // Remove the last comma and space
+                if (logMessage.isNotEmpty()) {
+                    logMessage.setLength(logMessage.length - 2)
+                }
+                // Use Log.d to log the message
+                Log.d("MergedRow", logMessage.toString())
+            }
+        }
 
         fun performNetworkTasks() {
 
@@ -238,8 +283,11 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     dbHelperHoliday
                                 )
 
-                                loadTodaysDetails(this@HomeActivity)
-
+                                val dbname="cal$year.db"
+                                var table="cal"
+                                table="$table$year"
+                                val month=getCurrentMonth()
+                                val dATE=getCurrentDay()
 
                             }
                         )
@@ -267,48 +315,64 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 val year=getCurrentYear()
 
                                 dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
-                                dbHelpercalander = dbHelper(this@HomeActivity, "cal$year.db")
+
                                 dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
 
+                                val dbname="cal$year.db"
+                                var table="cal"
+                                 table="$table$year"
                                 val month=getCurrentMonth()
                                 val dATE=getCurrentDay()
+
+                                dbHelpercalander  = CalendarHelper(this@HomeActivity, dbname)
+                                val rows = dbHelpercalander.getAllTableDataForMonth(table,TranslationUtils.translateTomonthnumber(month.toString()).toString())
+                                val mergedRows = mergeRowsByDate(rows)
+
+
                                 Log.d("month", "month: ${TranslationUtils.translateTomonthnumber(
                                     month.toString())}")
                                 Log.d("month", "dATE: $dATE")
-                                val toaydata= dbHelpercalander.getRowByMonthAndDate(TranslationUtils.translateTomonthnumber(month.toString()).toString(),dATE.toString(),"cal$year")
+                                val filtereddata = mergedRows.filter { it["date"] == dATE.toString() } //today item
+                              logMergedRows(filtereddata)
+                                if (filtereddata.isNotEmpty()) {
+                                    val toaydata = filtereddata[0]
+                                    val sentence = speakFunction(
+                                        month = toaydata!!.get("month").toString(),
+                                        date = toaydata.get("date")!!.toString(),
+                                        day = toaydata.get("day")!!.toString(),
+                                        year = "$year",  // Assuming this is dynamic and should be provided as a String
+                                        tithi = toaydata.get("tithi")!!.toString(),
+                                        tithiEndH = toaydata.get("tithiendh")!!.toString(),
+                                        tithiEndM = toaydata.get("tithiendm")!!.toString(),
+                                        nakshatra = toaydata.get("nakshatra")!!.toString(),
+                                        nakshatraEndH = toaydata.get("nakshatraendh")!!.toString(),
+                                        nakshatraEndM=toaydata.get("nakshatraendm")!!.toString(),
+                                        monthName = toaydata.get("monthname")!!.toString(),
+                                        rashi = toaydata.get("rashi")!!.toString(),
+                                        paksha = toaydata.get("paksha")!!.toString()
+                                    )
 
-                                val sentence = speakFunction(
-                                    month = toaydata!!.get("month")!!.toString(),
-                                    date = toaydata.get("date")!!.toString(),
-                                    day = toaydata.get("day")!!.toString(),
-                                    year = "$year",  // Assuming this is dynamic and should be provided as a String
-                                    tithi = toaydata.get("tithi")!!.toString(),
-                                    tithiEndH = toaydata.get("tithiendh")!!.toString(),
-                                    tithiEndM = toaydata.get("tithiendm")!!.toString(),
-                                    nakshatra = toaydata.get("nakshatra")!!.toString(),
-                                    nakshatraEndH = toaydata.get("nakshatraendh")!!.toString(),
-                                    monthName = toaydata.get("monthname")!!.toString(),
-                                    rashi = toaydata.get("rashi")!!.toString(),
-                                    paksha = toaydata.get("paksha")!!.toString()
-                                )
+                                    loadTodaysDetails(this@HomeActivity, toaydata)
 
+                                    Log.d("toaydata", "$toaydata")
+                                    Log.d("toaydata", "$sentence")
 
+                                    speak = sentence
+                                    textToSpeech = TextToSpeech(
+                                        this@HomeActivity,
+                                        TextToSpeech.OnInitListener { status ->
+                                            if (status == TextToSpeech.SUCCESS) {
+                                                textToSpeech?.language = Locale.forLanguageTag("hi")
+                                                Log.d("speak", "TTS success")
+                                                delayedTask(1000, speak.toString())
+                                            } else {
+                                                Log.d("speak", "TTS failed")
+                                            }
+                                        })
 
-                                Log.d("toaydata", "$toaydata")
-                                Log.d("toaydata", "$sentence")
+                                }
 
-                                speak = sentence
-                                textToSpeech = TextToSpeech(
-                                    this@HomeActivity,
-                                    TextToSpeech.OnInitListener { status ->
-                                        if (status == TextToSpeech.SUCCESS) {
-                                            textToSpeech?.language = Locale.forLanguageTag("hi")
-                                            Log.d("speak", "TTS success")
-                                            delayedTask(1000, speak.toString())
-                                        } else {
-                                            Log.d("speak", "TTS failed")
-                                        }
-                                    })
+                                //val toaydata= dbHelpercalander.getRowByMonthAndDate(TranslationUtils.translateTomonthnumber(month.toString()).toString(),dATE.toString(),"cal$year")
 
                                 handleHolidayData(
                                     dbHelpercalander = dbHelpercalander,
@@ -326,7 +390,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     dbHelperHoliday
                                 )
 
-                                loadTodaysDetails(this@HomeActivity)
+
 
                             }
                         )
@@ -835,7 +899,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-    fun handleHolidayData(dbHelpercalander: dbHelper, dbHelperimage: dbHelper, currentMonthString: String, currentDay: Int, currentDayName: String) {
+    fun handleHolidayData(dbHelpercalander: CalendarHelper, dbHelperimage: dbHelper, currentMonthString: String, currentDay: Int, currentDayName: String) {
         val rowsFormonthdate = getRowByMonthAndDate(dbHelpercalander, currentMonthString, currentDay.toString())
         Log.d("todayimage", "speak $speak")
 
@@ -859,7 +923,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    fun getRowByMonthAndDate(dbHelpercalander: dbHelper, currentMonthString: String, currentDay: String): Map<String, String>? {
+    fun getRowByMonthAndDate(dbHelpercalander: CalendarHelper, currentMonthString: String, currentDay: String): Map<String, String>? {
         return dbHelpercalander.getRowByMonthAndDate(currentMonthString, currentDay, "cal${getCurrentYear()}")
     }
 
@@ -1016,19 +1080,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }, delayMillis)
     }
 
-    private fun loadTodaysDetails(context:Context) {
+    private fun loadTodaysDetails(context: Context, toaydata: Map<String, Any?>) {
         lifecycleScope.launch {
-            val dbname: String
-            val table: String
-            val   year  = getCurrentYear()
-            // Determine the database name and table name based on the year
-            if (year > 2023) {
-                dbname = "cal$year.db"
 
-            } else {
-                dbname = "cal$year.db"
-                table = "calander"
-            }
+            // Determine the database name and table name based on the year
 
             val todaytithi: TextView = binding.todaytithi
             val todaynakshatra: TextView = binding.todaynakshatra
@@ -1041,52 +1096,69 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val todaypaksha: TextView = binding.todaypaksha
             val todayyog: TextView = binding.todayyog
 
-            val fragmentindex = arrayOf(
-                "JANUARY",
-                "FEBRUARY",
-                "MARCH",
-                "APRIL",
-                "MAY",
-                "JUNE",
-                "JULY",
-                "AUGUST",
-                "SEPTEMBER",
-                "OCTOBER",
-                "NOVEMBER",
-                "DECEMBER"
-            )
-
-            // Initialize the database helper
-            val dbHelper = dbHelper(context, dbname)
-
-            val month = fragmentindex[getCurrentMonth()-1]
 
 
-
-            val date = getCurrentDay().toString()
-
-            Log.d("todaysdatedetails", " :todays data $month  $date")
-            // Fetch rows for the specified month
-            val todaysdatedetails = dbHelper.getRowByMonthAndDate(month,date,"cal${getCurrentYear()}")
+            val todaysdatedetails = toaydata
             Log.d("todaysdatedetails", " :todays data $todaysdatedetails")
 
             runOnUiThread {
-                todaytithi.text = todaysdatedetails?.get("tithi")
-                todaynakshatra.text = todaysdatedetails?.get("nakshatra")
-                todaymonth.text = todaysdatedetails?.get("monthname")
+                val tithiData = todaysdatedetails["tithi"]
+                val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
+                val TithiNames = parsedTithi?.joinToString(", ") ?: "~"
 
+                val nakshatraData = todaysdatedetails["nakshatra"]
+                val nakshatraTithi = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
+                val nakshatraNames = nakshatraTithi?.joinToString(", ") ?: "~"
+
+
+
+                todaytithi.text = TithiNames
+                todaynakshatra.text = nakshatraNames
+                todaymonth.text = TranslationUtils. translateToHindiDevanagariHinduMonth (todaysdatedetails?.get("monthname").toString())
+
+                val formattedSunrise = "${TranslationUtils.formatTimeD(todaysdatedetails?.get("sunrise").toString().toInt() , todaysdatedetails?.get("sunrisemin").toString().toDouble())}"
+                val formattedSunset = "${TranslationUtils.formatTimeD(todaysdatedetails?.get("sunset").toString().toInt() , todaysdatedetails?.get("sunsetmin").toString().toDouble())}"
                 // Setting sunrise and sunset times
-                todaysunrise.text = "${todaysdatedetails?.get("sunrise")}:${todaysdatedetails?.get("sunrisemin")}"
-                todaysunset.text = "${todaysdatedetails?.get("sunset")}:${todaysdatedetails?.get("sunsetmin")}"
+                todaysunrise.text =     formattedSunrise
+                todaysunset.text = formattedSunset
+
 
                 // Setting Tithi and Nakshatra end times
-                tithiendtime.text = "${todaysdatedetails?.get("tithiendh")}:${todaysdatedetails?.get("tithiendm")}"
-                nakshatraendtime.text = "${todaysdatedetails?.get("nakshatraendh")}:${todaysdatedetails?.get("nakshatraendm")}"
+                val tithiendh= todaysdatedetails?.get("tithiendh")
+                val tithiendm= todaysdatedetails?.get("tithiendm")
+
+
+
+                Log.d("tithiendh", " :tithiendh  $tithiendh")
+                Log.d("tithiendh", " :tithiendh  $tithiendm")
+                if (tithiendh != null && tithiendm != null) {
+
+                    val formattedOutput = TranslationUtils.createTithitimeformat(tithiendh.toString(),
+                        tithiendm.toString()
+                    )
+                    tithiendtime .text =formattedOutput
+                }
+
+                val nakshatraendh= todaysdatedetails?.get("nakshatraendh")
+                val nakshatraendm= todaysdatedetails?.get("nakshatraendm")
+
+                if (nakshatraendh != null && nakshatraendm != null) {
+                    val formattedOutput = TranslationUtils.createTithitimeformat(nakshatraendh.toString(),
+                        nakshatraendm.toString()
+                    )
+                    nakshatraendtime .text =formattedOutput
+
+                }
+
+
+
+
+
 
                 // Setting additional details
-                todayrashi.text = todaysdatedetails?.get("rashi")
-                todaypaksha.text = todaysdatedetails?.get("paksha")
-                todayyog.text = todaysdatedetails?.get("yog")
+                todayrashi.text = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails?.get("rashi").toString())
+                todaypaksha.text = TranslationUtils.translateToPaksha(  todaysdatedetails?.get("paksha").toString()    )
+                todayyog.text =  TranslationUtils.translateNumberToYoga(todaysdatedetails?.get("yog").toString().toInt())
 
 
             }

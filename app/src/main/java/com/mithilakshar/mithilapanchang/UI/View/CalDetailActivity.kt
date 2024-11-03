@@ -15,9 +15,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.mithilakshar.mithilapanchang.Adapters.CalAdapter
 import com.mithilakshar.mithilapanchang.Adapters.CalendarAdapter
 import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
-import com.mithilakshar.mithilapanchang.Adapters.caladapter
+
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
 import com.mithilakshar.mithilapanchang.databinding.ActivityCalDetailBinding
@@ -28,7 +29,7 @@ import java.util.Calendar
 class CalDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCalDetailBinding
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: caladapter
+    private lateinit var adapter: CalAdapter
     private lateinit var spinner: Spinner
     private lateinit var calendarHelper: CalendarHelper
     private val selectedYear = MutableLiveData<Int>()
@@ -177,7 +178,7 @@ class CalDetailActivity : AppCompatActivity() {
 
                 recyclerView = binding.calrecycler
                 recyclerView.layoutManager = LinearLayoutManager(this@CalDetailActivity)
-                adapter = caladapter(this@CalDetailActivity,mergedRows)
+                adapter = CalAdapter(this@CalDetailActivity,mergedRows)
                 recyclerView.adapter = adapter
 
             }else{

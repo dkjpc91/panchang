@@ -1,21 +1,17 @@
-package com.mithilakshar.mithilapanchang.Dialog
+package com.mithilakshar.mithilapanchang
 
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import android.view.View
 import android.view.Window
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.transition.Visibility
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.mithilakshar.mithilapanchang.R
 import java.util.Locale
 
-class calendardialog : Dialog, TextToSpeech.OnInitListener {
-    // TextView references
+class CalendarDialog : Dialog, TextToSpeech.OnInitListener {
+
     private var calendarText: TextView? = null
     private var todayTithi: TextView? = null
     private var tithiEndTime: TextView? = null
@@ -32,9 +28,29 @@ class calendardialog : Dialog, TextToSpeech.OnInitListener {
     private var speakText: String? = "hello"
 
     constructor(context: Context) : super(context) {
+        initDialog(context)
+    }
+
+    constructor(context: Context, themeResId: Int) : super(context, themeResId) {
+        initDialog(context)
+    }
+
+    protected constructor(
+        context: Context,
+        cancelable: Boolean,
+        cancelListener: DialogInterface.OnCancelListener?
+    ) : super(context, cancelable, cancelListener) {
+        initDialog(context)
+    }
+
+    private fun initDialog(context: Context) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.calendardialog)
-        // Initialize UI components based on the provided XML layout
+        initializeViews()
+        tts = TextToSpeech(context, this)
+    }
+
+    private fun initializeViews() {
         calendarText = findViewById(R.id.calendardialogtext)
         todayTithi = findViewById(R.id.todaytithi)
         tithiEndTime = findViewById(R.id.tithiendtime)
@@ -46,101 +62,72 @@ class calendardialog : Dialog, TextToSpeech.OnInitListener {
         todaySunrise = findViewById(R.id.todaysunrise)
         todaySunset = findViewById(R.id.todaysunset)
         todayYog = findViewById(R.id.todayyog)
-        fab = findViewById(R.id.fab)
-
-        tts = TextToSpeech(context, this)
+        fab = findViewById(R.id.fab) // Assuming fab is initialized elsewhere in your layout
     }
 
-    constructor(context: Context, themeResId: Int) : super(context, themeResId)
-    protected constructor(
-        context: Context,
-        cancelable: Boolean,
-        cancelListener: DialogInterface.OnCancelListener?
-    ) : super(context, cancelable, cancelListener)
-
-
-    fun setCalendarDialogText(text: String?) {
-        calendarText?.text = text
-    }
-    fun setTodayTithi(text: String?) {
-        todayTithi?.text = text
-        Log.d("speak", "$text")
-    }
-    fun setTithiEndTime(text: String?) {
-        tithiEndTime?.text = text
-    }  fun setTodayNakshatra(text: String?) {
-        todayNakshatra?.text = text
-    }
-    fun setNakshatraEndTime(text: String?) {
-        nakshatraEndTime?.text = text
-    }
-
-    fun setTodayMonth(text: String?) {
-        todayMonth?.text = text
-    }
-
-    fun setTodayRashi(text: String?) {
-        todayRashi?.text = text
+    // New method to set all the dialog values
+    fun setDialogValues(
+        tithi: String?,
+        nakshatra: String?,
+        month: String?,
+        date: String?,
+        sunrise: String?,
+        sunset: String?,
+        tithiEndtime: String?,
+        nakshatraEndtime: String?,
+        yog: String?,
+        monthName: String?,
+        rashi: String?,
+        paksha: String?
+    ) {
+        todayTithi?.text = tithi ?: "Unknown Tithi"
+        todayNakshatra?.text = nakshatra ?: "Unknown Nakshatra"
+        todayMonth?.text = month ?: "Unknown Month"
+        calendarText?.text = date ?: "Unknown Date"
+        todaySunrise?.text = sunrise ?: "Unknown Sunrise"
+        todaySunset?.text = sunset ?: "Unknown Sunset"
+        tithiEndTime?.text = tithiEndtime ?: "Unknown Tithi End Time"
+        nakshatraEndTime?.text = nakshatraEndtime ?: "Unknown Nakshatra End Time"
+        todayYog?.text = yog ?: "Unknown Yog"
+        todayMonth?.text = monthName ?: "Unknown Month Name"
+        todayRashi?.text = rashi ?: "Unknown Rashi"
+        todayPaksha?.text = paksha ?: "Unknown Paksha"
     }
 
-    fun setTodayPaksha(text: String?) {
-        todayPaksha?.text = text
-    }
-    fun setTodaySunrise(text: String?) {
-        todaySunrise?.text = text
-    }
-
-    fun setTodaySunset(text: String?) {
-        todaySunset?.text = text
-    }
-
-    fun setTodayYog(text: String?) {
-        todayYog?.text = text
-    }
-
-    // Set the text to speak
+    // Existing methods
     fun setSpeakText(speakText: String?) {
         this.speakText = speakText
-        Log.d("speak", "$speakText")
+        Log.d("CalendarDialog", "Speak Text Set: $speakText")
     }
 
-
-
-
-
-    override fun onInit(p0: Int) {
-        if (p0 == TextToSpeech.SUCCESS) {
-
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.forLanguageTag("hi"))
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("CalendarDialog", "Hindi language not supported for TTS")
+            }
         } else {
-            // Initialization failed
+            Log.e("CalendarDialog", "TTS initialization failed")
         }
     }
 
     private fun speak(text: String) {
         if (tts == null) {
-            Log.e("speak", "TextToSpeech not initialized")
+            Log.e("CalendarDialog", "TextToSpeech not initialized")
             return
         }
-
-        // Set language only if TTS is initialized
-        val result = tts!!.setLanguage(Locale.forLanguageTag("hi"))
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            Log.e("speak", "Language not supported")
-            return
+        tts?.apply {
+            setPitch(1f)
+            setSpeechRate(0.6f)
+            speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            Log.d("CalendarDialog", "Speaking: $text")
         }
-
-        Log.d("speak", "Speaking: $text")
-        tts!!.setPitch(1f)
-        tts!!.setSpeechRate(0.6f)
-        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
-
 
     override fun dismiss() {
-        Log.d("speak", "end Speaking: ")
         tts?.stop()
         tts?.shutdown()
+        Log.d("CalendarDialog", "TTS stopped and shut down")
         super.dismiss()
     }
-
 }

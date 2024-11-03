@@ -271,29 +271,17 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                             }, {
 
-                                val year=getCurrentYear()
-                                dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
+
                                 recreateWithDelay(2000)
 
-                                setupViewPagerAndDatabase(
-                                    context = this@HomeActivity,
-                                    currentMonthString = currentMonthString,
-                                    currentDay = currentDay,
-                                    delayMillis = delayMillis,
-                                    dbHelperHoliday
-                                )
 
-                                val dbname="cal$year.db"
-                                var table="cal"
-                                table="$table$year"
-                                val month=getCurrentMonth()
-                                val dATE=getCurrentDay()
 
                             }
                         )
 
 
                     } else {
+
                         val nonExistentFiles= checkFilesExistence(filesWithIds)
                         dbSupabaseDownloadeSequence.observeMultipleFileExistence(
                             nonExistentFiles,
@@ -314,13 +302,15 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 binding.homeBanner.visibility = View.VISIBLE
                                 val year=getCurrentYear()
 
+
+
                                 dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
 
                                 dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
 
                                 val dbname="cal$year.db"
                                 var table="cal"
-                                 table="$table$year"
+                                table="$table$year"
                                 val month=getCurrentMonth()
                                 val dATE=getCurrentDay()
 
@@ -329,52 +319,50 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 val mergedRows = mergeRowsByDate(rows)
 
 
-                                Log.d("month", "month: ${TranslationUtils.translateTomonthnumber(
+                               Log.d("month", "month: ${TranslationUtils.translateTomonthnumber(
                                     month.toString())}")
                                 Log.d("month", "dATE: $dATE")
                                 val filtereddata = mergedRows.filter { it["date"] == dATE.toString() } //today item
-                              logMergedRows(filtereddata)
-                                if (filtereddata.isNotEmpty()) {
+                                logMergedRows(filtereddata)
+
+                                if (filtereddata.isNotEmpty() && filtereddata[0] != null) {
                                     val toaydata = filtereddata[0]
+
                                     val sentence = speakFunction(
-                                        month = toaydata!!.get("month").toString(),
-                                        date = toaydata.get("date")!!.toString(),
-                                        day = toaydata.get("day")!!.toString(),
-                                        year = "$year",  // Assuming this is dynamic and should be provided as a String
-                                        tithi = toaydata.get("tithi")!!.toString(),
-                                        tithiEndH = toaydata.get("tithiendh")!!.toString(),
-                                        tithiEndM = toaydata.get("tithiendm")!!.toString(),
-                                        nakshatra = toaydata.get("nakshatra")!!.toString(),
-                                        nakshatraEndH = toaydata.get("nakshatraendh")!!.toString(),
-                                        nakshatraEndM=toaydata.get("nakshatraendm")!!.toString(),
-                                        monthName = toaydata.get("monthname")!!.toString(),
-                                        rashi = toaydata.get("rashi")!!.toString(),
-                                        paksha = toaydata.get("paksha")!!.toString()
+                                        month = toaydata?.get("month")?.toString() ?: "Unknown month",
+                                        date = toaydata?.get("date")?.toString() ?: "Unknown date",
+                                        day = toaydata?.get("day")?.toString() ?: "Unknown day",
+                                        year = year.toString(),  // Assuming this is dynamically provided as a String
+                                        tithi = toaydata?.get("tithi")?.toString() ?: "Unknown tithi",
+                                        tithiEndH = toaydata?.get("tithiendh")?.toString() ?: "Unknown",
+                                        tithiEndM = toaydata?.get("tithiendm")?.toString() ?: "Unknown",
+                                        nakshatra = toaydata?.get("nakshatra")?.toString() ?: "Unknown nakshatra",
+                                        nakshatraEndH = toaydata?.get("nakshatraendh")?.toString() ?: "Unknown",
+                                        nakshatraEndM = toaydata?.get("nakshatraendm")?.toString() ?: "Unknown",
+                                        monthName = toaydata?.get("monthname")?.toString() ?: "Unknown month name",
+                                        rashi = toaydata?.get("rashi")?.toString() ?: "Unknown rashi",
+                                        paksha = toaydata?.get("paksha")?.toString() ?: "Unknown paksha"
                                     )
 
                                     loadTodaysDetails(this@HomeActivity, toaydata)
 
                                     Log.d("toaydata", "$toaydata")
-                                    Log.d("toaydata", "$sentence")
+                                    Log.d("sentence", "$sentence")
 
                                     speak = sentence
-                                    textToSpeech = TextToSpeech(
-                                        this@HomeActivity,
-                                        TextToSpeech.OnInitListener { status ->
-                                            if (status == TextToSpeech.SUCCESS) {
-                                                textToSpeech?.language = Locale.forLanguageTag("hi")
-                                                Log.d("speak", "TTS success")
-                                                delayedTask(1000, speak.toString())
-                                            } else {
-                                                Log.d("speak", "TTS failed")
-                                            }
-                                        })
-
+                                    textToSpeech = TextToSpeech(this@HomeActivity) { status ->
+                                        if (status == TextToSpeech.SUCCESS) {
+                                            textToSpeech?.language = Locale.forLanguageTag("hi")
+                                            Log.d("speak", "TTS initialized successfully")
+                                            delayedTask(1000, speak.toString())
+                                        } else {
+                                            Log.d("speak", "TTS initialization failed")
+                                        }
+                                    }
                                 }
 
-                                //val toaydata= dbHelpercalander.getRowByMonthAndDate(TranslationUtils.translateTomonthnumber(month.toString()).toString(),dATE.toString(),"cal$year")
 
-                                handleHolidayData(
+                              handleHolidayData(
                                     dbHelpercalander = dbHelpercalander,
                                     dbHelperimage = dbHelperimage,
                                     currentMonthString = currentMonthString,
@@ -390,8 +378,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     dbHelperHoliday
                                 )
 
-
-
                             }
                         )
 
@@ -403,14 +389,14 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-                        homeBroadcast = viewModel.gethomeBroadcast()
+                   /*     homeBroadcast = viewModel.gethomeBroadcast()
                         Log.d("homeBroadcast", "$homeBroadcast")
 
                         if (homeBroadcast.isNullOrEmpty()) {
                             binding.floatingActionButton.visibility = View.GONE
                         } else {
                             binding.floatingActionButton.visibility = View.VISIBLE
-                        }
+                        }*/
 
 
                     }

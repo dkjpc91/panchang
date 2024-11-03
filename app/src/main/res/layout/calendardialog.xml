@@ -1,308 +1,308 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300dp"
-
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
     android:backgroundTint="@color/fabColorOriginal"
     app:cardCornerRadius="10dp"
-    android:background="@color/blue"
-    android:layout_height="wrap_content">
+    android:background="@color/blue">
 
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:layout_gravity="right"
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
         android:layout_margin="16dp"
         android:src="@drawable/speaker"
         android:contentDescription="@string/app_name_h" />
 
+    <!-- Main Card for Calendar Details -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_margin="5dp"
+        app:cardCornerRadius="3dp"
+        android:background="@android:color/white">
 
-
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            app:cardCornerRadius="3dp"
-            android:background="@android:color/white">
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Header Text -->
+            <TextView
+                android:id="@+id/calendardialogtext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="विवरण:"
+                android:textSize="28sp"
+                android:textColor="@android:color/holo_orange_dark"
+                android:layout_gravity="center"
+                android:paddingBottom="8dp" />
+
+            <!-- Calendar Details Section -->
+
+            <!-- Tithi -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/border"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/calendardialogtext"
-                    android:layout_width="wrap_content"
+                    android:text="तिथि :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="विवरण:"
-                    android:textSize="28sp"
-                    android:textColor="@android:color/holo_orange_dark"
-                    android:layout_gravity="center"
-                    android:paddingBottom="8dp" /> <!-- Added padding for spacing -->
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
 
-                <!-- Reusable horizontal layout for items -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/todaytithi"
+                    android:text="13"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <!-- Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:text="तिथि :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaytithi"
-                            android:text="13"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- End Date -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="तिथि समाप्त :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/tithiendtime"
-                            android:text="19:40"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Nakshatra -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="नक्षत्र :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaynakshatra"
-                            android:text="2"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Nakshatra End Time -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="नक्षत्र समाप्त :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/nakshatraendtime"
-                            android:text="07:50"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Month -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="महीना :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaymonth"
-                            android:text="DECEMBER"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Rashi -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="राशि :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todayrashi"
-                            android:text="Dhanus"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Paksha -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="पक्ष :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaypaksha"
-                            android:text="s"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Sunrise -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="सूर्योदय :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaysunrise"
-                            android:text="06:32"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Sunset -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="सूर्यास्त :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todaysunset"
-                            android:text="17:15"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-
-                    <!-- Yog -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="2dp">
-
-                        <TextView
-                            android:text="योग :-"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_orange_dark" />
-
-                        <TextView
-                            android:id="@+id/todayyog"
-                            android:text="20"
-                            android:textSize="25sp"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@android:color/holo_green_dark" />
-                    </LinearLayout>
-                </LinearLayout>
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
+            <!-- Tithi End Time -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
 
+                <TextView
+                    android:text="तिथि समाप्त :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
 
+                <TextView
+                    android:id="@+id/tithiendtime"
+                    android:text="19:40"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
 
+            <!-- Nakshatra -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="नक्षत्र :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todaynakshatra"
+                    android:text="2"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Nakshatra End Time -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="नक्षत्र समाप्त :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/nakshatraendtime"
+                    android:text="07:50"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Month -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="महीना :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todaymonth"
+                    android:text="DECEMBER"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Rashi -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="राशि :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todayrashi"
+                    android:text="Dhanus"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Paksha -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="पक्ष :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todaypaksha"
+                    android:text="s"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Sunrise -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="सूर्योदय :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todaysunrise"
+                    android:text="06:32"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Sunset -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="सूर्यास्त :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todaysunset"
+                    android:text="18:45"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+
+            <!-- Yog -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:text="योग :-"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_orange_dark" />
+
+                <TextView
+                    android:id="@+id/todayyog"
+                    android:text="V"
+                    android:textSize="25sp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/holo_green_dark" />
+            </LinearLayout>
+            <TextView
+                android:layout_marginTop="20dp"
+                android:text="सूर्योदय और सूर्यास्त का समय 82°5'E देशांतर पर भारतीय मानक समय के अनुसार "
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/red" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </androidx.cardview.widget.CardView>

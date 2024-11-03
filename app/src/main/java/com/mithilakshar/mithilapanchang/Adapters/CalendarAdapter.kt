@@ -9,228 +9,223 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.mithilakshar.mithilapanchang.Dialog.calendardialog
+import com.mithilakshar.mithilapanchang.CalendarDialog
 import com.mithilakshar.mithilapanchang.R
+import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
 import com.mithilakshar.mithilapanchang.databinding.CalendardayitemBinding
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
 
-
 class CalendarAdapter(
     private val data: List<Map<String, Any?>>,
     private val context: Context,
     private val year: Int
-) : RecyclerView.Adapter<CalendarAdapter.calendarviewholder>() {
+) : RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder>() {
 
-    class calendarviewholder(val binding: CalendardayitemBinding) : RecyclerView.ViewHolder(binding.root) {
+    class CalendarViewHolder(private val binding: CalendardayitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun bind(model: Map<String, Any?>, context: Context, year: Int) {
             binding.apply {
-
                 val currentDateStr = getCurrentDateString()
-                val currentDateStrmonth = getCurrentMonthName()
-                Log.d("date", "$currentDateStr")
-                Log.d("date", " date sustem $currentDateStrmonth")
-                Log.d("date", "date mdoel ${model.get("month").toString()}")
+                val currentMonthStr = getCurrentMonthName()
+                Log.d("date", "Current Date: $currentDateStr, Current Month: $currentMonthStr, Model Month: ${model["month"]}")
 
+                calendardayText.text = model["tithi"].toString()
+                calendardescText.text = model["monthhindi"].toString()
 
-                calendardateText.text = translateToHindidate(model.get("date").toString())
-                calendardayText.text = model.get("tithi").toString()
-                calendardescText.text = model.get("monthhindi").toString()
-
-                when {
-                    // Check if holiday is not blank
-                    model.get("holiday").toString().isNotEmpty() && (model.get("date").toString() != currentDateStr)-> {
-                        // Set the background color to white
-                        val redcolor = ContextCompat.getColor(context, R.color.background)
-                        setbackgroundcolor(binding, redcolor)
+                val backgroundColor = when {
+                    model["holiday"].toString().isNotEmpty() && model["date"].toString() != currentDateStr -> {
+                        ContextCompat.getColor(context, R.color.background)
                     }
-
-                    model.get("holiday").toString().isNotEmpty() && (model.get("month").toString() != currentDateStrmonth) -> {
-                        // Set the background color to white
-                        val redcolor = ContextCompat.getColor(context, R.color.background)
-                        setbackgroundcolor(binding, redcolor)
+                    model["holiday"].toString().isNotEmpty() && model["month"].toString() != currentMonthStr -> {
+                        ContextCompat.getColor(context, R.color.background)
                     }
-                    // Check if the date and month match
-                    (model.get("date").toString() == currentDateStr) && (model.get("month").toString() == currentDateStrmonth) -> {
-                        // Set the background color to green
-                        val greenColor = ContextCompat.getColor(context, R.color.green)
-                        setbackgroundcolor(binding, greenColor)
+                    model["date"].toString() == currentDateStr && model["month"].toString() == currentMonthStr -> {
+                        ContextCompat.getColor(context, R.color.green)
                     }
-                    else -> {
-                        // No match for date, month, or holiday - set the default background color
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    }
+                    else -> Color.WHITE
                 }
 
-
+                setBackgroundColor(binding, backgroundColor)
             }
 
             binding.root.setOnClickListener {
-
-                val calendarDialog = calendardialog(context)
-                val currentDate = LocalDate.now()
-
-                val hindiMonth = translateToHindi(model.get("month").toString())
-
-                val hindidate = translateToHindidate(model.get("date").toString())
-
-                val hindiyear = translateToHindidate(year.toString())
-
-
-               // calendarDialog.setcalendardialogtext1(model.get("tithi").toString())
-
-
-
-                calendarDialog.show()
+                showCalendarDialog(context, model, year)
             }
-
         }
 
-        private fun setbackgroundcolor(binding: CalendardayitemBinding, color: Int) {
-            binding.calendardateText.setBackgroundColor(color)
-            binding.calendardayText.setBackgroundColor(color)
-            binding.calendardescText.setBackgroundColor(color)
+        private fun setBackgroundColor(binding: CalendardayitemBinding, color: Int) {
+            binding.apply {
+                calendardateText.setBackgroundColor(color)
+                calendardayText.setBackgroundColor(color)
+                calendardescText.setBackgroundColor(color)
+            }
         }
-
 
         private fun getCurrentDateString(): String {
             val dateFormat = SimpleDateFormat("dd", Locale.getDefault())
             return dateFormat.format(Calendar.getInstance().time)
         }
 
-
         private fun getCurrentMonthName(): String {
             val dateFormat = SimpleDateFormat("MMMM", Locale.getDefault())
             return dateFormat.format(Calendar.getInstance().time).uppercase(Locale.getDefault())
         }
 
+        private fun showCalendarDialog(context: Context, todaysdatedetails: Map<String, Any?>, year: Int) {
+            val calendarDialog = CalendarDialog(context)
+
+            val tithiData = todaysdatedetails["tithi"]
+            val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
+            val tithiNames = parsedTithi?.joinToString(", ") ?: "~"
+
+
+            // Parsing Nakshatra
+            val nakshatraData = todaysdatedetails["nakshatra"]
+            val parsedNakshatra = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
+            val nakshatraNames = parsedNakshatra?.joinToString(", ") ?: "~"
+
+
+            // Month, Date, Day, and Year
+            val monthName = todaysdatedetails["monthname"]?.toString()
+            val translatedMonth = TranslationUtils.translateToHindiDevanagariHinduMonth(monthName ?: "Unknown")
+
+
+            val day = todaysdatedetails["day"]?.toString()
+            val date = todaysdatedetails["date"]?.toString()
+            val year = todaysdatedetails["year"]?.toString()
+
+
+            // Sunrise and Sunset
+            val sunriseHour = todaysdatedetails["sunrise"]?.toString()?.toIntOrNull() ?: 0
+            val sunriseMinute = todaysdatedetails["sunrisemin"]?.toString()?.toDoubleOrNull() ?: 0.0
+            val formattedSunrise = TranslationUtils.formatTimeD(sunriseHour, sunriseMinute)
+
+            val sunsetHour = todaysdatedetails["sunset"]?.toString()?.toIntOrNull() ?: 0
+            val sunsetMinute = todaysdatedetails["sunsetmin"]?.toString()?.toDoubleOrNull() ?: 0.0
+            val formattedSunset = TranslationUtils.formatTimeD(sunsetHour, sunsetMinute)
+
+
+            // Tithi End Time
+            val tithiEndH = todaysdatedetails["tithiendh"]?.toString() ?: "Unknown"
+            val tithiEndM = todaysdatedetails["tithiendm"]?.toString() ?: "Unknown"
+            val formattedTithiEnd = TranslationUtils.createTithitimeformat(tithiEndH, tithiEndM)
+
+
+            // Nakshatra End Time
+            val nakshatraEndH = todaysdatedetails["nakshatraendh"]?.toString() ?: "Unknown"
+            val nakshatraEndM = todaysdatedetails["nakshatraendm"]?.toString() ?: "Unknown"
+            val formattedNakshatraEnd = TranslationUtils.createTithitimeformat(nakshatraEndH, nakshatraEndM)
+
+
+            // Rashi and Paksha
+            val rashi = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails["rashi"].toString())
+
+
+            val paksha = TranslationUtils.translateToPaksha(todaysdatedetails["paksha"].toString())
+
+
+            // Yog
+            val yogValue = todaysdatedetails["yog"]?.toString()?.toIntOrNull() ?: 0
+            val translatedYog = TranslationUtils.translateNumberToYoga(yogValue)
+
+
+            // Set all values in the dialog
+            calendarDialog.setDialogValues(
+                    tithi = tithiNames,
+                    nakshatra = nakshatraNames,
+
+                    month = translatedMonth,
+                    date =    "$day, $date $translatedMonth, $year",
+                   sunrise=formattedSunrise,
+                    sunset=formattedSunset,
+
+                    tithiEndtime = formattedTithiEnd,
+                    nakshatraEndtime = formattedNakshatraEnd,
+                    yog=translatedYog,
+                    monthName = monthName,
+                    rashi = rashi,
+                    paksha = paksha,
+                )
+
+            calendarDialog.show()
+        }
+
 
     }
 
+    private var itemWidth = 0
 
-
-        private var itemWidth = 0
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): calendarviewholder {
-
-            val binding=CalendardayitemBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-
-            val layoutParams = binding.root.layoutParams
-            layoutParams.width = itemWidth
-            binding.root.layoutParams = layoutParams
-
-            return calendarviewholder(binding)
-        }
-
-        @RequiresApi(Build.VERSION_CODES.O)
-        override fun onBindViewHolder(holder: calendarviewholder, position: Int) {
-            val currentdata=data.get(position)
-
-            if (currentdata != null) {
-                holder.bind(currentdata,context,year)
-            }
-
-        }
-
-        fun setItemWidth(itemWidth: Int) {
-            this.itemWidth = itemWidth
-            notifyDataSetChanged() // Refresh the adapter to apply the new item width
-        }
-
-        override fun getItemCount(): Int {
-            return data.size
-        }
-
-
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
+        val binding = CalendardayitemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val layoutParams = binding.root.layoutParams
+        layoutParams.width = itemWidth
+        binding.root.layoutParams = layoutParams
+        return CalendarViewHolder(binding)
     }
 
-private fun translateToHindi(currentMonth: String): String? {
-    // Manually create a mapping for English to Hindi month names
-    val monthTranslation: MutableMap<String, String> = HashMap()
-    monthTranslation["JANUARY"] = "जनवरी"
-    monthTranslation["FEBRUARY"] = "फ़रवरी"
-    monthTranslation["MARCH"] = "मार्च"
-    monthTranslation["APRIL"] = "अप्रैल"
-    monthTranslation["MAY"] = "मई"
-    monthTranslation["JUNE"] = "जून"
-    monthTranslation["JULY"] = "जुलाई"
-    monthTranslation["AUGUST"] = "अगस्त"
-    monthTranslation["SEPTEMBER"] = "सितंबर"
-    monthTranslation["OCTOBER"] = "अक्टूबर"
-    monthTranslation["NOVEMBER"] = "नवंबर"
-    monthTranslation["DECEMBER"] = "दिसंबर"
-    // Return the translated month name
-    return monthTranslation[currentMonth]
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
+        val currentData = data[position]
+        holder.bind(currentData, context, year)
+    }
+
+    fun setItemWidth(itemWidth: Int) {
+        this.itemWidth = itemWidth
+        notifyDataSetChanged() // Refresh the adapter to apply the new item width
+    }
+
+    override fun getItemCount(): Int {
+        return data.size
+    }
+
+    private fun translateToHindi(currentMonth: String): String? {
+        val monthTranslation = mapOf(
+            "JANUARY" to "जनवरी",
+            "FEBRUARY" to "फ़रवरी",
+            "MARCH" to "मार्च",
+            "APRIL" to "अप्रैल",
+            "MAY" to "मई",
+            "JUNE" to "जून",
+            "JULY" to "जुलाई",
+            "AUGUST" to "अगस्त",
+            "SEPTEMBER" to "सितंबर",
+            "OCTOBER" to "अक्टूबर",
+            "NOVEMBER" to "नवंबर",
+            "DECEMBER" to "दिसंबर"
+        )
+        return monthTranslation[currentMonth]
+    }
+
+    private fun translateToHindiday(currentDay: String): String? {
+        val dayTranslation = mapOf(
+            "MONDAY" to "सोमवार",
+            "TUESDAY" to "मंगलवार",
+            "WEDNESDAY" to "बुधवार",
+            "THURSDAY" to "गुरुवार",
+            "FRIDAY" to "शुक्रवार",
+            "SATURDAY" to "शनिवार",
+            "SUNDAY" to "रविवार"
+        )
+        return dayTranslation[currentDay]
+    }
+
+    private fun translateToHindidate(date: String): String? {
+        val dateTranslation = mapOf(
+            "1" to "१", "2" to "२", "3" to "३", "4" to "४", "5" to "५",
+            "6" to "६", "7" to "७", "8" to "८", "9" to "९", "10" to "१०",
+            "11" to "११", "12" to "१२", "13" to "१३", "14" to "१४",
+            "15" to "१५", "16" to "१६", "17" to "१७", "18" to "१८",
+            "19" to "१९", "20" to "२०", "21" to "२१", "22" to "२२",
+            "23" to "२३", "24" to "२४", "25" to "२५", "26" to "२६",
+            "27" to "२७", "28" to "२८", "29" to "२९", "30" to "३०",
+            "31" to "३१", "2024" to "२०२४", "2025" to "२०२५",
+            "2026" to "२०२६", "2027" to "२०२७", "2028" to "२०२८",
+            "2029" to "२०२९", "2030" to "२०३०"
+        )
+        return dateTranslation[date]
+    }
 }
-
-
-private fun translateToHindiday(currentDay: String): String? {
-    // Manually create a mapping for English to Hindi month names
-    val monthTranslation: MutableMap<String, String> = HashMap()
-    monthTranslation["MONDAY"] = "सोमवार"
-    monthTranslation["TUESDAY"] = "मंगलवार"
-    monthTranslation["WEDNESDAY"] = "बुधवार"
-    monthTranslation["THURSDAY"] = "गुरुवार"
-    monthTranslation["FRIDAY"] = "शुक्रवार"
-    monthTranslation["SATURDAY"] = "शनिवार"
-    monthTranslation["SUNDAY"] = "रविवार"
-    // Return the translated month name
-    return monthTranslation[currentDay]
-}
-
-private fun translateToHindidate(date: String): String? {
-    // Manually create a mapping for English to Hindi month names
-    val nmap: MutableMap<String, String> = HashMap()
-    nmap["1"] = "१"
-    nmap["2"] = "२"
-    nmap["3"] = "३"
-    nmap["4"] = "४"
-    nmap["5"] = "५"
-    nmap["6"] = "६"
-    nmap["7"] = "७"
-    nmap["8"] = "८"
-    nmap["9"] = "९"
-    nmap["10"] = "१०"
-    nmap["11"] = "११"
-    nmap["12"] = "१२"
-    nmap["13"] = "१३"
-    nmap["14"] = "१४"
-    nmap["15"] = "१५"
-    nmap["16"] = "१६"
-    nmap["17"] = "१७"
-    nmap["18"] = "१८"
-    nmap["19"] = "१९"
-    nmap["20"] = "२०"
-    nmap["21"] = "२१"
-    nmap["22"] = "२२"
-    nmap["23"] = "२३"
-    nmap["24"] = "२४"
-    nmap["25"] = "२५"
-    nmap["26"] = "२६"
-    nmap["27"] = "२७"
-    nmap["28"] = "२८"
-    nmap["29"] = "२९"
-    nmap["30"] = "३०"
-    nmap["31"] = "३१"
-    nmap["2024"] = "२०२४"
-    nmap["2025"] = "२०२५"
-    nmap["2026"] = "२०२६"
-    nmap["2027"] = "२०२७"
-    nmap["2028"] = "२०२८"
-    nmap["2029"] = "२०२९"
-    nmap["2030"] = "२०३०"
-    // Return the translated month name
-    return nmap[date]
-
-
-
-
-}
-
-
-
-
-

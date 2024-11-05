@@ -99,6 +99,20 @@ object TranslationUtils {
         return monthTranslation[currentDay]
     }
 
+    fun translateToHindidaythree(currentDay: String): String? {
+        // Manually create a mapping for English to Hindi month names
+        val monthTranslation: MutableMap<String, String> = HashMap()
+        monthTranslation["Mon"] = "सोमवार"
+        monthTranslation["Tue"] = "मंगलवार"
+        monthTranslation["Wed"] = "बुधवार"
+        monthTranslation["Thu"] = "गुरुवार"
+        monthTranslation["Fri"] = "शुक्रवार"
+        monthTranslation["Sat"] = "शनिवार"
+        monthTranslation["Sun"] = "रविवार"
+        // Return the translated month name
+        return monthTranslation[currentDay]
+    }
+
      fun translateToHindidate(date: String): String? {
         // Manually create a mapping for English to Hindi month names
         val nmap: MutableMap<String, String> = HashMap()
@@ -336,7 +350,7 @@ object TranslationUtils {
             1 to "प्रतिपदा", 2 to "द्वितीया", 3 to "तृतीया", 4 to "चतुर्थी",
             5 to "पञ्चमी", 6 to "षष्ठी", 7 to "सप्तमी", 8 to "अष्टमी",
             9 to "नवमी", 10 to "दशमी", 11 to "एकादशी", 12 to "द्वादशी",
-            13 to "त्रयोदशी", 14 to "चतुर्दशी", 15 to "पूर्णिमा", 16 to "अमावस्या"
+            13 to "त्रयोदशी", 14 to "चतुर्दशी", 15 to "पूर्णिमा", 30 to "अमावस्या"
         )
 
         return try {
@@ -418,9 +432,32 @@ object TranslationUtils {
             val endMinute = if (index < tithiEndMList.size) tithiEndMList[index] else 0.0
             val formattedTime = formatTimeD(endHour, endMinute)
             "$formattedTime"
-        }.joinToString("; ")
+        }.joinToString(" एवं  ")
     }
 
+    fun parseYogaInput(yoga: String): List<String>? {
+        val yogaTranslation = mapOf(
+            1 to "विष्कुम्भ", 2 to "प्रिति", 3 to "आयुष्मान", 4 to "सौभाग्य",
+            5 to "शोभना", 6 to "अतिगंड", 7 to "सुखर्मा", 8 to "धृति",
+            9 to "सूला", 10 to "गंड", 11 to "वृद्धि", 12 to "ध्रुवा",
+            13 to "व्याघात", 14 to "हर्षण", 15 to "वज्र", 16 to "सिद्धि (अस्रिक)",
+            17 to "व्यतिपात", 18 to "वरियान", 19 to "परिघ", 20 to "शिव",
+            21 to "सिद्ध", 22 to "साध्य", 23 to "शुभ", 24 to "सुख्ल (सुक्रा)",
+            25 to "ब्रह्म", 26 to "इन्द्र", 27 to "विधृति"
+        )
+
+        return try {
+            if (yoga.startsWith("[") && yoga.endsWith("]")) {
+                yoga.removeSurrounding("[", "]")
+                    .split(", ")
+                    .mapNotNull { it.toIntOrNull()?.let(yogaTranslation::get) }
+            } else {
+                listOfNotNull(yoga.toIntOrNull()?.let(yogaTranslation::get))
+            }
+        } catch (e: NumberFormatException) {
+            null
+        }
+    }
 
 
 }

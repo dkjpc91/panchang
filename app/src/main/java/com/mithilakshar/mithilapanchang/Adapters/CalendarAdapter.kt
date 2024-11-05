@@ -33,8 +33,15 @@ class CalendarAdapter(
                 val currentMonthStr = getCurrentMonthName()
                 Log.d("date", "Current Date: $currentDateStr, Current Month: $currentMonthStr, Model Month: ${model["month"]}")
 
-                calendardayText.text = model["tithi"].toString()
-                calendardescText.text = model["monthhindi"].toString()
+
+                val tithiData = model["tithi"]
+                val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
+                val tithiNames = parsedTithi?.joinToString(", ") ?: "~"
+
+                calendardayText.text = tithiNames
+                calendardateText.text = model["date"]?.toString() ?: ""
+                calendardescText.text = TranslationUtils.translateToPaksha(model["paksha"]?.toString() ?: "")
+
 
                 val backgroundColor = when {
                     model["holiday"].toString().isNotEmpty() && model["date"].toString() != currentDateStr -> {
@@ -80,23 +87,26 @@ class CalendarAdapter(
 
             val tithiData = todaysdatedetails["tithi"]
             val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
-            val tithiNames = parsedTithi?.joinToString(", ") ?: "~"
+            val tithiNames = parsedTithi?.joinToString("  एवं  ") ?: "~"
 
 
             // Parsing Nakshatra
             val nakshatraData = todaysdatedetails["nakshatra"]
             val parsedNakshatra = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
-            val nakshatraNames = parsedNakshatra?.joinToString(", ") ?: "~"
+            val nakshatraNames = parsedNakshatra?.joinToString("  एवं  ") ?: "~"
 
 
             // Month, Date, Day, and Year
-            val monthName = todaysdatedetails["monthname"]?.toString()
-            val translatedMonth = TranslationUtils.translateToHindiDevanagariHinduMonth(monthName ?: "Unknown")
+            val monthName = todaysdatedetails["month"]?.toString()
+            val monthhindi=TranslationUtils.translateToHindi(monthName.toString())
 
+            val hindimonthName = todaysdatedetails["monthname"]?.toString()
+
+            val translatedMonth = TranslationUtils.translateToHindiDevanagariHinduMonth(hindimonthName ?: "Unknown")
+            Log.d("monthh", "$hindimonthName $translatedMonth")
 
             val day = todaysdatedetails["day"]?.toString()
             val date = todaysdatedetails["date"]?.toString()
-            val year = todaysdatedetails["year"]?.toString()
 
 
             // Sunrise and Sunset
@@ -112,13 +122,30 @@ class CalendarAdapter(
             // Tithi End Time
             val tithiEndH = todaysdatedetails["tithiendh"]?.toString() ?: "Unknown"
             val tithiEndM = todaysdatedetails["tithiendm"]?.toString() ?: "Unknown"
-            val formattedTithiEnd = TranslationUtils.createTithitimeformat(tithiEndH, tithiEndM)
+            var formattedTithiEnd=""
+            if (tithiEndH != null && tithiEndM != null) {
+
+                val formattedOutput = TranslationUtils.createTithitimeformat(tithiEndH.toString(),
+                    tithiEndM.toString()
+                )
+                formattedTithiEnd =formattedOutput
+            }
+
+
 
 
             // Nakshatra End Time
             val nakshatraEndH = todaysdatedetails["nakshatraendh"]?.toString() ?: "Unknown"
             val nakshatraEndM = todaysdatedetails["nakshatraendm"]?.toString() ?: "Unknown"
-            val formattedNakshatraEnd = TranslationUtils.createTithitimeformat(nakshatraEndH, nakshatraEndM)
+
+            var formattedNakshatraEnd =" "
+            if (nakshatraEndH != null && nakshatraEndM != null) {
+                val formattedOutput = TranslationUtils.createTithitimeformat(nakshatraEndH.toString(),
+                    nakshatraEndM.toString()
+                )
+                formattedNakshatraEnd=formattedOutput
+
+            }
 
 
             // Rashi and Paksha
@@ -129,26 +156,34 @@ class CalendarAdapter(
 
 
             // Yog
-            val yogValue = todaysdatedetails["yog"]?.toString()?.toIntOrNull() ?: 0
-            val translatedYog = TranslationUtils.translateNumberToYoga(yogValue)
+            val yogValue = todaysdatedetails["yog"]
+            val parsedyog = TranslationUtils.parseYogaInput(yogValue.toString())
+            val yogNames = parsedyog?.joinToString(" एवं ") ?: "~"
 
+
+            Log.d("monthh", "$yogValue $yogNames")
 
             // Set all values in the dialog
             calendarDialog.setDialogValues(
+                date =    "${TranslationUtils.translateToHindidaythree(day.toString())}, $date $monthhindi, $year",
+
                     tithi = tithiNames,
+                tithiEndtime = formattedTithiEnd,
                     nakshatra = nakshatraNames,
+                nakshatraEndtime = formattedNakshatraEnd,
 
                     month = translatedMonth,
-                    date =    "$day, $date $translatedMonth, $year",
+
+                        rashi = rashi,
+                     paksha = paksha,
                    sunrise=formattedSunrise,
                     sunset=formattedSunset,
 
-                    tithiEndtime = formattedTithiEnd,
-                    nakshatraEndtime = formattedNakshatraEnd,
-                    yog=translatedYog,
-                    monthName = monthName,
-                    rashi = rashi,
-                    paksha = paksha,
+
+
+                    yog=yogNames,
+
+
                 )
 
             calendarDialog.show()

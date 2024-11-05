@@ -1090,11 +1090,11 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             runOnUiThread {
                 val tithiData = todaysdatedetails["tithi"]
                 val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
-                val TithiNames = parsedTithi?.joinToString(", ") ?: "~"
+                val TithiNames = parsedTithi?.joinToString(" एवं  ") ?: "~"
 
                 val nakshatraData = todaysdatedetails["nakshatra"]
                 val nakshatraTithi = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
-                val nakshatraNames = nakshatraTithi?.joinToString(", ") ?: "~"
+                val nakshatraNames = nakshatraTithi?.joinToString(" एवं  ") ?: "~"
 
 
 
@@ -1144,7 +1144,13 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 // Setting additional details
                 todayrashi.text = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails?.get("rashi").toString())
                 todaypaksha.text = TranslationUtils.translateToPaksha(  todaysdatedetails?.get("paksha").toString()    )
-                todayyog.text =  TranslationUtils.translateNumberToYoga(todaysdatedetails?.get("yog").toString().toInt())
+
+                // Yog
+                val yogValue = todaysdatedetails["yog"]
+                val parsedyog = TranslationUtils.parseYogaInput(yogValue.toString())
+                val yogNames = parsedyog?.joinToString(" एवं ") ?: "~"
+
+                todayyog.text =  yogNames
 
 
             }

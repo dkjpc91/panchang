@@ -10,7 +10,7 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
+
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
@@ -21,18 +21,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mithilakshar.mithilapanchang.Adapters.CalendarAdapter
 import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
 import com.mithilakshar.mithilapanchang.R
-import com.mithilakshar.mithilapanchang.Room.UpdatesDao
-import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
+
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
-import com.mithilakshar.mithilapanchang.Utility.FirebaseFileDownloader
-import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
-import com.mithilakshar.mithilapanchang.Utility.dbDownloadersequence
+
 
 import com.mithilakshar.mithilapanchang.databinding.FragmentMayfragmentBinding
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.joinAll
+
 import kotlinx.coroutines.launch
-import java.io.File
+
 import java.time.LocalDate
 import java.util.Calendar
 

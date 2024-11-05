@@ -76,7 +76,6 @@ class CalendarDialog : Dialog, TextToSpeech.OnInitListener {
         tithiEndtime: String?,
         nakshatraEndtime: String?,
         yog: String?,
-        monthName: String?,
         rashi: String?,
         paksha: String?
     ) {
@@ -89,7 +88,6 @@ class CalendarDialog : Dialog, TextToSpeech.OnInitListener {
         tithiEndTime?.text = tithiEndtime ?: "Unknown Tithi End Time"
         nakshatraEndTime?.text = nakshatraEndtime ?: "Unknown Nakshatra End Time"
         todayYog?.text = yog ?: "Unknown Yog"
-        todayMonth?.text = monthName ?: "Unknown Month Name"
         todayRashi?.text = rashi ?: "Unknown Rashi"
         todayPaksha?.text = paksha ?: "Unknown Paksha"
     }

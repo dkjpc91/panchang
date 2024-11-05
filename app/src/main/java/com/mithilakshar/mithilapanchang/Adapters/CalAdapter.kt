@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Context
+import android.util.Log
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
 import com.mithilakshar.mithilapanchang.databinding.ItemAlarmDataBinding
 import com.mithilakshar.mithilapanchang.databinding.ItemCaldataBinding
@@ -13,75 +14,89 @@ class CalAdapter(private val context: Context, private var list: List<Map<String
 
     class CalViewHolder(val binding: ItemCaldataBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(model: Map<String, Any?>) {
+        fun bind(todaysdatedetails: Map<String, Any?>) {
             binding.apply {
-                val tithiData = model["tithi"]
+                val tithiData = todaysdatedetails["tithi"]
                 val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
-                val tithiNames = parsedTithi?.joinToString(", ") ?: "~"
+                val tithiNames = parsedTithi?.joinToString("  एवं  ") ?: "~"
 
 
                 // Parsing Nakshatra
-                val nakshatraData = model["nakshatra"]
+                val nakshatraData = todaysdatedetails["nakshatra"]
                 val parsedNakshatra = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
-                val nakshatraNames = parsedNakshatra?.joinToString(", ") ?: "~"
+                val nakshatraNames = parsedNakshatra?.joinToString("  एवं  ") ?: "~"
 
 
                 // Month, Date, Day, and Year
-                val monthName = model["monthname"]?.toString()
-                val translatedMonth =
-                    TranslationUtils.translateToHindiDevanagariHinduMonth(monthName ?: "Unknown")
+                val monthName = todaysdatedetails["month"]?.toString()
+                val monthhindi=TranslationUtils.translateToHindi(monthName.toString())
 
+                val hindimonthName = todaysdatedetails["monthname"]?.toString()
 
-                val day = model["day"]?.toString()
-                val date = model["date"]?.toString()
-                val year = model["year"]?.toString()
+                val translatedMonth = TranslationUtils.translateToHindiDevanagariHinduMonth(hindimonthName ?: "Unknown")
+                Log.d("monthh", "$hindimonthName $translatedMonth")
+
+                val day = todaysdatedetails["day"]?.toString()
+                val date = todaysdatedetails["date"]?.toString()
 
 
                 // Sunrise and Sunset
-                val sunriseHour = model["sunrise"]?.toString()?.toIntOrNull() ?: 0
-                val sunriseMinute = model["sunrisemin"]?.toString()?.toDoubleOrNull() ?: 0.0
+                val sunriseHour = todaysdatedetails["sunrise"]?.toString()?.toIntOrNull() ?: 0
+                val sunriseMinute = todaysdatedetails["sunrisemin"]?.toString()?.toDoubleOrNull() ?: 0.0
                 val formattedSunrise = TranslationUtils.formatTimeD(sunriseHour, sunriseMinute)
 
-                val sunsetHour = model["sunset"]?.toString()?.toIntOrNull() ?: 0
-                val sunsetMinute = model["sunsetmin"]?.toString()?.toDoubleOrNull() ?: 0.0
+                val sunsetHour = todaysdatedetails["sunset"]?.toString()?.toIntOrNull() ?: 0
+                val sunsetMinute = todaysdatedetails["sunsetmin"]?.toString()?.toDoubleOrNull() ?: 0.0
                 val formattedSunset = TranslationUtils.formatTimeD(sunsetHour, sunsetMinute)
 
 
                 // Tithi End Time
-                val tithiEndH = model["tithiendh"]?.toString() ?: "Unknown"
-                val tithiEndM = model["tithiendm"]?.toString() ?: "Unknown"
-                val formattedTithiEnd = TranslationUtils.createTithitimeformat(tithiEndH, tithiEndM)
+                val tithiEndH = todaysdatedetails["tithiendh"]?.toString() ?: "Unknown"
+                val tithiEndM = todaysdatedetails["tithiendm"]?.toString() ?: "Unknown"
+                var formattedTithiEnd=""
+                if (tithiEndH != null && tithiEndM != null) {
+
+                    val formattedOutput = TranslationUtils.createTithitimeformat(tithiEndH.toString(),
+                        tithiEndM.toString()
+                    )
+                    formattedTithiEnd =formattedOutput
+                }
+
+
 
 
                 // Nakshatra End Time
-                val nakshatraEndH = model["nakshatraendh"]?.toString() ?: "Unknown"
-                val nakshatraEndM = model["nakshatraendm"]?.toString() ?: "Unknown"
-                val formattedNakshatraEnd =
-                    TranslationUtils.createTithitimeformat(nakshatraEndH, nakshatraEndM)
+                val nakshatraEndH = todaysdatedetails["nakshatraendh"]?.toString() ?: "Unknown"
+                val nakshatraEndM = todaysdatedetails["nakshatraendm"]?.toString() ?: "Unknown"
+
+                var formattedNakshatraEnd =" "
+                if (nakshatraEndH != null && nakshatraEndM != null) {
+                    val formattedOutput = TranslationUtils.createTithitimeformat(nakshatraEndH.toString(),
+                        nakshatraEndM.toString()
+                    )
+                    formattedNakshatraEnd=formattedOutput
+
+                }
 
 
                 // Rashi and Paksha
-                val rashi =
-                    TranslationUtils.translateToHindiDevanagariRashi(model["rashi"].toString())
+                val rashi = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails["rashi"].toString())
 
 
-                val paksha = TranslationUtils.translateToPaksha(model["paksha"].toString())
+                val paksha = TranslationUtils.translateToPaksha(todaysdatedetails["paksha"].toString())
 
 
                 // Yog
-                val yogValue = model["yog"]?.toString()?.toIntOrNull() ?: 0
-                val translatedYog = TranslationUtils.translateNumberToYoga(yogValue)
+                val yogValue = todaysdatedetails["yog"]
+                val parsedyog = TranslationUtils.parseYogaInput(yogValue.toString())
+                val yogNames = parsedyog?.joinToString(" एवं ") ?: "~"
+
 
                 binding.apply {
-                    tithiValue.text = tithiNames
-                    nakshatraValue.text = nakshatraNames
-                    month.text = translatedMonth
-                    taskDate.text = "$day, $date $translatedMonth, $year"
-                    sunrise.text = formattedSunrise
-                    sunset.text = formattedSunset
-                    tithiEndtime.text = formattedTithiEnd
-                    nakshatraEndtime.text = formattedNakshatraEnd
-                    yog.text = translatedYog
+                    taskTitle.text =  "${TranslationUtils.translateToHindidaythree(day.toString())}, $date $monthhindi "
+                    tithivalue.text=tithiNames
+                    tithiEndtimevalue.text=formattedTithiEnd
+                    nakshatravalue.text=nakshatraNames
 
 
                 }

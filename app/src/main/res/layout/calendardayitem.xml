@@ -27,7 +27,7 @@
                     android:id="@+id/calendardayText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="0.7"
+                    android:layout_weight="1.4"
                     android:textColor="@color/blue"
 
                     android:textStyle="bold"
@@ -42,7 +42,7 @@
                     android:id="@+id/calendardateText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_weight="1.2"
                     android:textColor="@color/red"
                     android:textStyle="bold"
                     android:textSize="28sp"
@@ -59,7 +59,7 @@
                     android:id="@+id/calendardescText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1.2"
+                    android:layout_weight="1"
                     android:textColor="#E413A9"
 
                     android:textStyle="bold"

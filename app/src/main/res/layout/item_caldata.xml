@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
             android:layout_marginBottom="1dp">
 
             <TextView
@@ -89,237 +89,246 @@
                 android:visibility="visible" />
         </LinearLayout>
 
-        <!-- Nakshatra -->
         <LinearLayout
-            android:visibility="gone"
+            android:id="@+id/expandableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
+                android:orientation="vertical">
+            <!-- Nakshatra -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/nakshatra"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="नक्षत्र : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/nakshatravalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="नाम"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Nakshatra End Time -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/nakshatraEndtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="नक्षत्र समाप्ति समय : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/nakshatraEndtimevalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="समय: सुबह 10:00 बजे"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Month -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="माह : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/monthvalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="माह का नाम"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Rashi -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/rashi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="राशि : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/rashivalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="राशि का नाम"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Paksha -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/paksha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="पक्ष : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/pakshavalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="पक्ष का नाम"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Sunrise -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/sunrise"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="सूर्योदय : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/sunrisevalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="सुबह का समय"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Sunset -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/sunset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="सूर्यास्त : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/sunsetvalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="शाम का समय"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
+
+            <!-- Yog -->
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="1dp">
+
+                <TextView
+                    android:id="@+id/yog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="योग : "
+                    android:textColor="@color/red"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/yogvalue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="योग का नाम"
+                    android:textColor="@color/red"
+                    android:textSize="18sp"
+                    android:layout_marginStart="1dp" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/nakshatra"
-                android:layout_width="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="सूर्योदय और सूर्यास्त का समय 82°5'E देशांतर पर भारतीय मानक समय के अनुसार "
+                android:textSize="15sp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="नक्षत्र : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
+                android:textColor="@color/red" />
 
-            <TextView
-                android:id="@+id/nakshatravalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="नाम"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/share"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_width="32dp"
+            android:src="@drawable/forward"
+            android:layout_gravity="end|bottom"
+            android:layout_height="32dp"/>
+
         </LinearLayout>
 
-        <!-- Nakshatra End Time -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/nakshatraEndtime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="नक्षत्र समाप्ति समय : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/nakshatraEndtimevalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="समय: सुबह 10:00 बजे"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Month -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/month"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="माह : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/monthvalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="माह का नाम"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Rashi -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/rashi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="राशि : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/rashivalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="राशि का नाम"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Paksha -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/paksha"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="पक्ष : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/pakshavalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="पक्ष का नाम"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Sunrise -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/sunrise"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="सूर्योदय : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/sunrisevalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="सुबह का समय"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Sunset -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/sunset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="सूर्यास्त : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/sunsetvalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="शाम का समय"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <!-- Yog -->
-        <LinearLayout
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="1dp">
-
-            <TextView
-                android:id="@+id/yog"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="योग : "
-                android:textColor="@color/red"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/yogvalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="योग का नाम"
-                android:textColor="@color/red"
-                android:textSize="18sp"
-                android:layout_marginStart="1dp" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_marginTop="20dp"
-            android:text="सूर्योदय और सूर्यास्त का समय 82°5'E देशांतर पर भारतीय मानक समय के अनुसार "
-            android:textSize="15sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/red" />
-
-    </LinearLayout>
-    <ImageView
-        android:layout_marginRight="4dp"
-        android:layout_marginBottom="4dp"
-        android:layout_width="32dp"
-        android:src="@drawable/forward"
-        android:layout_gravity="end|bottom"
-        android:layout_height="32dp"/>
 </androidx.cardview.widget.CardView>
 

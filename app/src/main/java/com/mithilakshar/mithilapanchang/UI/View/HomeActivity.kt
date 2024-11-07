@@ -54,6 +54,7 @@ import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
+import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
@@ -96,6 +97,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
+    private lateinit var interstitialAdManager: InterstitialAdManager
+
     private var delayMillis: Long = 4000
 
     private lateinit var dbSupabaseDownloadeSequence: dbSupabaseDownloadeSequence
@@ -117,8 +120,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val lottieView: LottieAnimationView =  binding.homeviewloading
         val animationList = listOf(
-            R.raw.a1,
-            R.raw.a2,
+            R.raw.a1 ,
+            R.raw.a2  ,
+            R.raw.k3  ,
             R.raw.a3  ,
             R.raw.a4  ,
             R.raw.om  ,
@@ -130,6 +134,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
+
+        interstitialAdManager = InterstitialAdManager(this)
+        interstitialAdManager.loadAd {  }
 
         fun mergeRowsByDate(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
             val mergedMap = mutableMapOf<Any?, MutableMap<String, Any?>>()
@@ -465,15 +472,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             binding.cal.setOnClickListener {
                 val i = Intent(this, CalActivity::class.java)
-
                 startActivity(i)
+              /*  interstitialAdManager.showAd(this){
+                    startActivity(i)
+                }*/
                 stopAudio()
             }
 
             binding.caldetail.setOnClickListener {
                 val i = Intent(this, CalDetailActivity::class.java)
-
                 startActivity(i)
+                interstitialAdManager.showAd(this){
+                    startActivity(i)
+                }
+
                 stopAudio()
             }
 

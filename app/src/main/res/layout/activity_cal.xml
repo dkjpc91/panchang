@@ -54,7 +54,7 @@
 
     <com.google.android.gms.ads.AdView
         android:visibility="gone"
-        android:id="@+id/adView4"
+        android:id="@+id/adView3"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_gravity="center"

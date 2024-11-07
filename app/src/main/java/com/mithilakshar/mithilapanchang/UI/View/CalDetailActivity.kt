@@ -15,18 +15,30 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 import com.mithilakshar.mithilapanchang.Adapters.CalAdapter
 import com.mithilakshar.mithilapanchang.Adapters.CalendarAdapter
 import com.mithilakshar.mithilapanchang.Adapters.CustomSpinnerAdapter
+import com.mithilakshar.mithilapanchang.Dialog.Networkdialog
+import com.mithilakshar.mithilapanchang.Notification.NetworkManager
 
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
+import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.databinding.ActivityCalDetailBinding
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Calendar
 
 class CalDetailActivity : AppCompatActivity() {
+
+    private lateinit var adView5: AdView
+
+
     private lateinit var binding: ActivityCalDetailBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CalAdapter
@@ -58,12 +70,46 @@ class CalDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         binding=ActivityCalDetailBinding.inflate(layoutInflater)
+
+
+
+
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        val networkdialog = Networkdialog(this)
+        val networkManager= NetworkManager(this)
+        networkManager.observe(this, {
+            if (!it){
+                if (!networkdialog.isShowing){networkdialog.show()}
+
+            }else{
+                if (networkdialog.isShowing){networkdialog.dismiss()}
+
+            }
+        })
+
+        MobileAds.initialize(this)
+        adView5 = findViewById(R.id.adView5)
+        val adRequest = AdRequest.Builder().build()
+        // Set an AdListener to make the AdView visible when the ad is loaded
+        adView5.adListener = object : AdListener() {
+            override fun onAdLoaded() {
+                // Make the AdView visible when the ad is loaded
+                adView5.visibility = View.VISIBLE
+            }
+
+            override fun onAdFailedToLoad(p0: LoadAdError) {
+                // Optionally, you can log or handle the error here
+            }
+        }
+        adView5.loadAd(adRequest)
+
+
         selectedYear.value = getCurrentYear()
 
         val items = listOf(

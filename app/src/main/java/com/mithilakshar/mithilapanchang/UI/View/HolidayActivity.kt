@@ -51,8 +51,8 @@ class HolidayActivity : AppCompatActivity() {
     lateinit var binding: ActivityHolidayBinding
     private lateinit var adView3: AdView
     val handler = Handler(Looper.getMainLooper())
-    val totalDuration = 3000L
-    val interval = 1000L
+    val totalDuration = 1200L
+    val interval = 500L
 
     private  var selectedyear:Int = getCurrentYear()
     private lateinit var interstitialAdManager: InterstitialAdManager
@@ -98,8 +98,9 @@ class HolidayActivity : AppCompatActivity() {
 
         val lottieView: LottieAnimationView =  binding.lottieAnimationView
         val animationList = listOf(
-            R.raw.a1,
-            R.raw.a2,
+            R.raw.a1 ,
+            R.raw.a2  ,
+            R.raw.k3  ,
             R.raw.a3  ,
             R.raw.a4  ,
             R.raw.om  ,

@@ -113,6 +113,239 @@ class dbHelper(context: Context, dbName: String) {
         return rowCount
     }
 
+    fun getLastRowIndex(tableName: String): Int {
+        var lastRowIndex = -1
+        db?.let {
+            val cursor = it.rawQuery("SELECT * FROM $tableName", null)
+            cursor.use { c ->
+                if (c.moveToLast()) {
+                    lastRowIndex = c.position // This gives the index of the last row
+                }
+            }
+        }
+        return lastRowIndex
+    }
+    @SuppressLint("Range")
+    fun getFirstHolidayMatchRow(monthName: String, startDate: String, tableName: String): Map<String, String>? {
+        val rowData = mutableMapOf<String, String>()
+
+        // Validate input parameters
+        val startDay = startDate.toIntOrNull()
+        if (monthName.isEmpty() || startDate.isEmpty() || startDay == null) {
+            Log.w(TAG, "Invalid parameters: monthName=$monthName, startDate=$startDate")
+            return null // Return null if parameters are invalid
+        }
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading holidays.")
+                return null // Return null if database is not open
+            }
+
+            // SQL query to select rows with the specified month and datenumber >= startDate
+            val query = "SELECT * FROM $tableName WHERE month = ? AND CAST(datenumber AS INTEGER) >= ?"
+            val selectionArgs = arrayOf(monthName, startDay.toString())
+
+            try {
+                // Execute the query and process the cursor
+                database.rawQuery(query, selectionArgs)?.use { cursor ->
+                    // Loop through the cursor to find the first match
+                    while (cursor.moveToNext()) {
+                        val monthFromDb = cursor.getString(cursor.getColumnIndex("month"))
+                        val datenumberFromDb = cursor.getInt(cursor.getColumnIndex("datenumber"))
+                        val nameFromDb = cursor.getString(cursor.getColumnIndex("name"))
+                        val descFromDb = cursor.getString(cursor.getColumnIndex("desc"))
+
+                        // Log for debugging
+                        Log.d(TAG, "Checking row: month=$monthFromDb, datenumber=$datenumberFromDb")
+
+                        // If the current row matches the month and datenumber condition
+                        if (monthFromDb == monthName && datenumberFromDb >= startDay) {
+                            // Log the first matching row data
+                            Log.d(TAG, "Found matching row: $monthFromDb, $datenumberFromDb, $nameFromDb, $descFromDb")
+
+                            // Populate the rowData map with the values of the matching row
+                            rowData["month"] = monthFromDb
+                            rowData["datenumber"] = datenumberFromDb.toString()
+                            rowData["name"] = nameFromDb
+                            rowData["desc"] = descFromDb
+
+                            return rowData // Return the row data immediately after the first match
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error querying holidays: ${e.message}", e)
+            }
+        }
+
+        // If no matching row is found, return null
+        return null
+    }
+
+    fun getFirstHolidayMatchOriginalIndex(monthName: String, startDate: String, tableName: String): Int {
+        // Validate input parameters
+        val startDay = startDate.toIntOrNull()
+        if (monthName.isEmpty() || startDate.isEmpty() || startDay == null) {
+            Log.w(TAG, "Invalid parameters: monthName=$monthName, startDate=$startDate")
+            return -1 // Return -1 if parameters are invalid
+        }
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading holidays.")
+                return -1 // Return -1 if database is not open
+            }
+
+            // SQL query to select all rows in the table (no filtering)
+            val query = "SELECT * FROM $tableName"
+            try {
+                // Execute the query and process the cursor
+                database.rawQuery(query, null)?.use { cursor ->
+                    var rowIndex = 0  // Keep track of the original row index
+                    while (cursor.moveToNext()) {
+                        val monthFromDb = cursor.getString(cursor.getColumnIndex("month"))
+                        val datenumberFromDb = cursor.getInt(cursor.getColumnIndex("datenumber"))
+                        val nameFromDb = cursor.getString(cursor.getColumnIndex("name"))
+                        val descFromDb = cursor.getString(cursor.getColumnIndex("desc"))
+
+                        // Log for debugging
+                        Log.d(TAG, "Row $rowIndex: month=$monthFromDb, datenumber=$datenumberFromDb")
+
+                        // Check if the row matches the month and datenumber criteria
+                        if (monthFromDb == monthName && datenumberFromDb >= startDay) {
+                            // Log and return the original index of the matching row
+                            Log.d(TAG, "Found matching row at original index: $rowIndex")
+                            // Return the index from the original (unfiltered) list
+                            return rowIndex
+                        }
+
+                        rowIndex++ // Increment the row index for the next row
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error querying holidays: ${e.message}", e)
+            }
+        }
+
+        // If no matching row is found, return -1
+        return -1
+    }
+
+    fun getRandomHolidayIndex(monthName: String, startDate: String, tableName: String): Int {
+        // Validate input parameters
+        val startDay = startDate.toIntOrNull()
+        if (monthName.isEmpty() || startDate.isEmpty() || startDay == null) {
+            Log.w(TAG, "Invalid parameters: monthName=$monthName, startDate=$startDate")
+            return -1 // Return -1 if parameters are invalid
+        }
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading holidays.")
+                return -1 // Return -1 if database is not open
+            }
+
+            // First, find the index of the first matching holiday
+            val firstMatchIndex = getFirstHolidayMatchOriginalIndex(monthName, startDate, tableName)
+            if (firstMatchIndex == -1) {
+                Log.w(TAG, "No matching holiday found.")
+                return -1 // Return -1 if no matching row is found
+            }
+
+            // Next, find the last row index in the table
+            val lastRowIndex = getLastRowIndex(tableName)
+            if (lastRowIndex == -1) {
+                Log.w(TAG, "Error retrieving the last row index.")
+                return -1 // Return -1 if the last row index can't be found
+            }
+
+            // Ensure that firstMatchIndex <= lastRowIndex
+            if (firstMatchIndex > lastRowIndex) {
+                Log.w(TAG, "First match index is greater than last row index.")
+                return -1
+            }
+
+            // Generate a random index between firstMatchIndex and lastRowIndex
+            val randomIndex = (firstMatchIndex..lastRowIndex).random()
+            Log.d(TAG, "Random index between $firstMatchIndex and $lastRowIndex: $randomIndex")
+
+            // Return the random index
+            return randomIndex
+        }
+
+        // If database is not open or some error occurs, return -1
+        return -1
+    }
+    fun getRandomHoliday(monthName: String, startDate: String, tableName: String): Map<String, String>? {
+        // Validate input parameters
+        val startDay = startDate.toIntOrNull()
+        if (monthName.isEmpty() || startDate.isEmpty() || startDay == null) {
+            Log.w(TAG, "Invalid parameters: monthName=$monthName, startDate=$startDate")
+            return null // Return null if parameters are invalid
+        }
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading holidays.")
+                return null // Return null if database is not open
+            }
+
+            // First, find the index of the first matching holiday
+            val firstMatchIndex = getFirstHolidayMatchOriginalIndex(monthName, startDate, tableName)
+            if (firstMatchIndex == -1) {
+                Log.w(TAG, "No matching holiday found.")
+                return null // Return null if no matching row is found
+            }
+
+            // Next, find the last row index in the table
+            val lastRowIndex = getLastRowIndex(tableName)
+            if (lastRowIndex == -1) {
+                Log.w(TAG, "Error retrieving the last row index.")
+                return null // Return null if the last row index can't be found
+            }
+
+            // Ensure that firstMatchIndex <= lastRowIndex
+            if (firstMatchIndex > lastRowIndex) {
+                Log.w(TAG, "First match index is greater than last row index.")
+                return null
+            }
+
+            // Generate a random index between firstMatchIndex and lastRowIndex
+            val randomIndex = (firstMatchIndex..lastRowIndex).random()
+            Log.d(TAG, "Random index between $firstMatchIndex and $lastRowIndex: $randomIndex")
+
+            // SQL query to select all rows in the table (no filtering)
+            val query = "SELECT * FROM $tableName"
+            try {
+                database.rawQuery(query, null)?.use { cursor ->
+                    var rowIndex = 0
+                    while (cursor.moveToNext()) {
+                        if (rowIndex == randomIndex) {
+                            // Extract values from the cursor at the random index
+                            val holidayData = mutableMapOf<String, String>()
+                            holidayData["month"] = cursor.getString(cursor.getColumnIndex("month"))
+                            holidayData["date"] = cursor.getString(cursor.getColumnIndex("date"))
+                            holidayData["name"] = cursor.getString(cursor.getColumnIndex("name"))
+                            holidayData["desc"] = cursor.getString(cursor.getColumnIndex("desc"))
+                            Log.d(TAG, "Random holiday data: $holidayData")
+                            return holidayData // Return the row data as a map
+                        }
+                        rowIndex++ // Increment row index
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error querying holidays: ${e.message}", e)
+            }
+        }
+
+        // If database is not open or some error occurs, return null
+        return null
+    }
+
+
+
+
     fun getRowValues(tableName: String, primaryKeyValue: Any): List<Any>? {
         var rowValues: MutableList<Any>? = null // Use MutableList instead of List
         db?.let {
@@ -354,6 +587,21 @@ class dbHelper(context: Context, dbName: String) {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //get row by getRowsByColumnKeywordIfExists
 
     @SuppressLint("Range")
@@ -543,8 +791,106 @@ class dbHelper(context: Context, dbName: String) {
 
         return rows
     }
+    @SuppressLint("Range")
+    fun tithilist(monthName: String, dbName: String, tableName: String): List<Map<String, String>> {
+        val tithiList = mutableListOf<Map<String, String>>()
+        db?.let { database ->
+            // Check if the database is open
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading Tithi data for month: $monthName")
+                return emptyList()
+            }
 
+            // Query to select rows where the Timing column contains the specified month
+            val query = "SELECT * FROM $tableName WHERE Timing LIKE ?"
+            val selectionArgs = arrayOf("%$monthName%") // Search for the month name in the Timing column
 
+            // Execute the query
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val rowData = mutableMapOf<String, String>()
+                    // Extract data from the cursor
+                    val tithi = cursor.getString(cursor.getColumnIndex("Tithi"))
+                    val timing = cursor.getString(cursor.getColumnIndex("Timing"))
+                    val hindiTithi = cursor.getString(cursor.getColumnIndex("Hindi Tithi"))
+                    val hindiTiming = cursor.getString(cursor.getColumnIndex("Hindi Timinig"))
 
+                    // Add data to the map
+                    rowData["Tithi"] = tithi
+                    rowData["Timing"] = timing
+                    rowData["Hindi Tithi"] = hindiTithi
+                    rowData["Hindi Timinig"] = hindiTiming
+
+                    // Add the row to the list
+                    tithiList.add(rowData)
+                }
+            }
+        }
+
+        // If no Tithi data is found, return a default value
+        if (tithiList.isEmpty()) {
+            val defaultTithi = mutableMapOf<String, String>()
+            defaultTithi["Tithi"] = "अपडेट प्रक्रिया में"
+            defaultTithi["Timing"] = ""
+            defaultTithi["Hindi Tithi"] = "अपडेट प्रक्रिया में"
+            defaultTithi["Hindi Timinig"] = ""
+            tithiList.add(defaultTithi)
+        }
+
+        return tithiList
+    }
+
+    @SuppressLint("Range")
+    fun tithiSearchFilter(searchText: String, tableName: String): List<Map<String, String>> {
+        val filteredResults = mutableListOf<Map<String, String>>()
+        val TAG = "TithiSearchFilter"
+
+        db?.let { database ->
+            // Check if the database is open
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for searching with text: $searchText")
+                return emptyList()
+            }
+
+            Log.d(TAG, "Searching in table: $tableName for text: $searchText")
+
+            // Query to filter rows by the Tithi column
+            val query = "SELECT * FROM $tableName WHERE Tithi LIKE ?"
+            val selectionArgs = arrayOf("%$searchText%")
+
+            Log.d(TAG, "Executing query: $query with args: ${selectionArgs.joinToString()}")
+
+            // Execute the query
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                val rowCount = cursor.count
+                Log.d(TAG, "Number of rows found: $rowCount")
+
+                // Iterate through the cursor and extract data
+                while (cursor.moveToNext()) {
+                    val rowData = mutableMapOf<String, String>()
+
+                    // Extract data from the cursor
+                    val tithi = cursor.getString(cursor.getColumnIndex("Tithi"))
+                    val timing = cursor.getString(cursor.getColumnIndex("Timing"))
+                    val hindiTithi = cursor.getString(cursor.getColumnIndex("Hindi Tithi"))
+                    val hindiTiming = cursor.getString(cursor.getColumnIndex("Hindi Timinig"))
+
+                    Log.d(TAG, "Retrieved row - Tithi: $tithi, Timing: $timing, Hindi Tithi: $hindiTithi, Hindi Timing: $hindiTiming")
+
+                    // Add data to the map
+                    rowData["Tithi"] = tithi
+                    rowData["Timing"] = timing
+                    rowData["Hindi Tithi"] = hindiTithi
+                    rowData["Hindi Timinig"] = hindiTiming
+
+                    // Add the row to the filtered results
+                    filteredResults.add(rowData)
+                }
+            }
+        } ?: Log.e(TAG, "Database reference is null")
+
+        Log.d(TAG, "Filtered results: $filteredResults")
+        return filteredResults
+    }
 
 }

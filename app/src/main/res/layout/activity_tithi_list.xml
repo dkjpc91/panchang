@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UI.View.TithiListActivity">
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="-90dp"
+        android:src="@drawable/header"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_marginTop="-130dp"
+        android:padding="27dp"
+        android:src="@drawable/splashtxt"/>
+
+    <com.google.android.gms.ads.AdView
+        android:visibility="gone"
+        android:id="@+id/adView5"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        app:adSize="BANNER"
+        app:adUnitId="@string/bannerunitholidaylist"/>
+
+    <androidx.appcompat.widget.SearchView
+        android:visibility="gone"
+
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:id="@+id/searchviewr"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layoutDirection="rtl"
+        android:clickable="true"
+        android:focusable="true"
+        app:searchIcon="@drawable/mglass"
+        />
+
+
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/titler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="तिथि "
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FF6F6F"
+            android:layout_gravity="center"
+            android:padding="8dp" />
+        <View
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:background="@drawable/left_border" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/tithirecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp" />
+
+
+
+
+</LinearLayout>

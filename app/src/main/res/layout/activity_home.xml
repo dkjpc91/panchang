@@ -34,31 +34,37 @@
                 android:layout_height="match_parent"
                 android:padding="10dp">
 
-            <ImageView
-                android:id="@+id/homeBanner"
-                android:visibility="gone"
-                android:layout_marginTop="94dp"
-                android:layout_marginBottom="60dp"
-                android:clipToOutline="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/swastika"
-                app:layout_collapseMode="parallax"
-                android:scaleType="center" />
+                <!-- Banner Image -->
+                <ImageView
+
+                    android:id="@+id/homeBanner"
+                    android:visibility="gone"
+                    android:layout_marginTop="94dp"
+                    android:layout_marginBottom="60dp"
+                    android:clipToOutline="true"
+                    android:src="@drawable/swastika"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_collapseMode="parallax"
+                    android:scaleType="center" />
+
+                <!-- Share Icon positioned below the banner -->
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/shareicon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/forward"
+                    android:layout_below="@id/homeBanner"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="-40dp"
+                    android:layout_marginRight="10dp"
+                    app:tint="@color/blue" />
 
 
-            <ImageView
-                android:id="@+id/shareicon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/forward"
-                android:layout_below="@id/homeBanner"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="-40dp"
-                android:layout_marginRight="10dp"
-                app:tint="@color/blue" />
 
-        </RelativeLayout>
+            </RelativeLayout>
+
 
 
 
@@ -96,8 +102,11 @@
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
+
+
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- CardView inserted inside RelativeLayout -->
 
     <FrameLayout
         android:visibility="visible"
@@ -130,6 +139,16 @@
         android:layout_margin="1dp"
         android:orientation="vertical">
 
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:visibility="visible"
+            android:id="@+id/viewPager"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="230dp" />
+
         <com.google.android.gms.ads.AdView
             android:layout_marginTop="3dp"
             android:visibility="gone"
@@ -139,6 +158,193 @@
             android:layout_gravity="center"
             app:adSize="MEDIUM_RECTANGLE"
             app:adUnitId="@string/bannerunithome1" />
+
+        <!-- CardView for rounded corners and background -->
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/holidaycounter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/shareicon"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="60dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            app:cardCornerRadius="46dp"
+            android:background="@android:color/transparent"
+            android:elevation="4dp"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:background="@drawable/header_background"
+                android:padding="17dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <!-- Title TextView -->
+                <TextView
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:id="@+id/titleTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Countdown"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="#FF5722"
+                    android:layout_marginBottom="8dp"/>
+
+                <!-- Subtitle TextView -->
+                <TextView
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:id="@+id/subtitleTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="To the target date"
+                    android:textSize="24sp"
+                    android:textColor="#FF5722"
+                    android:layout_marginBottom="24dp"/>
+                <TextView
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="दिन-शेष "
+                    android:textSize="22sp"
+                    android:gravity="center"
+                    android:textColor="#FF5722"/>
+
+                <!-- Countdown LinearLayout (with circles for days, hours, minutes, seconds) -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp">
+
+
+                    <!-- Circle for Days -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/daysTextView"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_bg"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#FF5722"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="दिन"
+                            android:textSize="22sp"
+                            android:gravity="center"
+                            android:textColor="#FF5722"/>
+                    </LinearLayout>
+
+                    <!-- Circle for Hours -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/hoursTextView"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_bg"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#FF5722"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="घंटा "
+                            android:textSize="22sp"
+                            android:gravity="center"
+                            android:textColor="#FF5722"/>
+                    </LinearLayout>
+
+                    <!-- Circle for Minutes -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/minutesTextView"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_bg"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#FF5722"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="मिनट "
+                            android:textSize="22sp"
+                            android:gravity="center"
+                            android:textColor="#FF5722"/>
+                    </LinearLayout>
+
+                    <!-- Circle for Seconds -->
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/secondsTextView"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:gravity="center"
+                            android:background="@drawable/circle_bg"
+                            android:text="0"
+                            android:textSize="22sp"
+                            android:textColor="#FF5722"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="सेकंड "
+                            android:textSize="22sp"
+                            android:gravity="center"
+                            android:textColor="#FF5722"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -578,14 +784,7 @@
                 app:adSize="BANNER"
                 app:adUnitId="@string/bannerunitholidaylist"  />
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:visibility="visible"
-                android:id="@+id/viewPager"
-                android:layout_marginTop="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp"
-                android:layout_width="match_parent"
-                android:layout_height="230dp" />
+
 
             <GridLayout
 
@@ -678,16 +877,15 @@
                             android:layout_weight="2"
                             android:background="@drawable/header"
                             android:gravity="center"
-                            android:text="पंचांग"
+                            android:text="कैलेंडर"
                             android:textColor="@color/red"
                             android:textSize="30dp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
-
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/alarm"
+                    android:id="@+id/tithi"
                     android:layout_width="0dp"
                     android:layout_height="180dp"
                     android:layout_columnWeight="1"
@@ -707,7 +905,7 @@
                             android:layout_weight="5"
                             android:background="@color/white"
                             android:padding="5dp"
-                            android:src="@drawable/clock" />
+                            android:src="@drawable/tithi" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -716,13 +914,15 @@
                             android:layout_weight="2"
                             android:background="@drawable/header"
                             android:gravity="center"
-                            android:text="अलार्म"
+                            android:text="तिथि"
                             android:textColor="@color/red"
                             android:textSize="30dp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
+
+
 
 
             </GridLayout>
@@ -774,12 +974,49 @@
 
                 </androidx.cardview.widget.CardView>
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/alarm"
+                    android:layout_width="0dp"
+                    android:layout_height="180dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
 
+                    app:cardCornerRadius="60dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="5"
+                            android:background="@color/white"
+                            android:padding="5dp"
+                            android:src="@drawable/clock" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_weight="2"
+                            android:background="@drawable/header"
+                            android:gravity="center"
+                            android:text="अलार्म"
+                            android:textColor="@color/red"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
 
 
             </GridLayout>
 
             <GridLayout
+                android:visibility="gone"
 
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -858,6 +1095,57 @@
                             android:background="@drawable/header"
                             android:gravity="center"
                             android:text="शेयर"
+                            android:textColor="@color/red"
+                            android:textSize="30dp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+
+
+            </GridLayout>
+
+            <GridLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:background="#E8F1F0"
+                android:columnCount="3"
+                android:padding="4dp">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/shareapp"
+                    android:layout_width="0dp"
+                    android:layout_height="180dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="@color/white"
+                    app:cardCornerRadius="60dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="5"
+                            android:background="@color/white"
+                            android:padding="5dp"
+                            android:src="@drawable/connect" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="1dp"
+                            android:layout_weight="2"
+                            android:background="@drawable/header"
+                            android:gravity="center"
+                            android:text="ऐप शेयर"
                             android:textColor="@color/red"
                             android:textSize="30dp"
                             android:textStyle="bold" />

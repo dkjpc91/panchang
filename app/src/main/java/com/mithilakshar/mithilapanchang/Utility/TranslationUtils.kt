@@ -50,10 +50,10 @@ object TranslationUtils {
         rashiTranslation["makar"] = "मकर"          // Capricorn
         rashiTranslation["kumbh"] = "कुंभ"         // Aquarius
         rashiTranslation["meen"] = "मीन"           // Pisces
-        rashiTranslation["mesha"] = "मेष"          // Aries
+        rashiTranslation["mesh"] = "मेष"          // Aries
         rashiTranslation["vrish"] = "वृष"          // Taurus
         rashiTranslation["mithun"] = "मिथुन"       // Gemini
-        rashiTranslation["karka"] = "कर्क"          // Cancer
+        rashiTranslation["karkata"] = "कर्क"          // Cancer
         rashiTranslation["singh"] = "सिंह"         // Leo
         rashiTranslation["kanya"] = "कन्या"        // Virgo
         rashiTranslation["tula"] = "तुला"          // Libra

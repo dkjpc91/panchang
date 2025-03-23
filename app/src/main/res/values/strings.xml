@@ -7,14 +7,17 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--
 
-    <!--    //prod
+       //prod
     <string name="caprod">"ca-app-pub-4403504868154729~4560897504"</string>
     <string name="bannerunithome1">ca-app-pub-4403504868154729/6839891118</string>
     <string name="bannerunitholiday">"ca-app-pub-4403504868154729/7829539151"</string>
     <string name="bannerunitholidaylist">"ca-app-pub-4403504868154729/6516457480"</string>
     <string name="bannerunitcalander">"ca-app-pub-4403504868154729/5526809442"</string>
-    <string name="interstitialholiday">"ca-app-pub-4403504868154729/1858754102"</string>-->
+    <string name="interstitialholiday">"ca-app-pub-4403504868154729/1858754102"</string>
+    <string name="interstitialcal">"ca-app-pub-4403504868154729/4095758376"</string>
+-->
 
 
     //test
@@ -24,6 +27,7 @@
     <string name="bannerunitholidaylist">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="bannerunitcalander">"ca-app-pub-3940256099942544/6300978111"</string>
     <string name="interstitialholiday">"ca-app-pub-3940256099942544/1033173712"</string>
+    <string name="interstitialcal">"ca-app-pub-3940256099942544/1033173712"</string>
 
 
 </resources>

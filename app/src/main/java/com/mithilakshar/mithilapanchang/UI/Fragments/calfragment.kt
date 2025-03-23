@@ -88,7 +88,6 @@ class calfragment : Fragment() {
         selectedYear.value = getCurrentYear()
 
         val items = listOf(
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, "2024"),
             CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, "2025"),
         )
         val adapter = CustomSpinnerAdapter(requireContext(), R.layout.spinner_item, items)

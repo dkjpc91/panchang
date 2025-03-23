@@ -68,6 +68,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import java.util.concurrent.Executors
 
 
@@ -98,6 +101,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var adView: AdView
     private lateinit var adviewMR: AdView
     private lateinit var interstitialAdManager: InterstitialAdManager
+    private lateinit var interstitialAdManagercal: InterstitialAdManager
 
     private var delayMillis: Long = 4000
 
@@ -135,8 +139,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val networkdialog = Networkdialog(this)
         val networkManager = NetworkManager(this)
 
-        interstitialAdManager = InterstitialAdManager(this)
+        interstitialAdManager = InterstitialAdManager(this, R.string.interstitialholiday.toString())
+        interstitialAdManagercal = InterstitialAdManager(this,this.getString(R.string.interstitialcal))
         interstitialAdManager.loadAd {  }
+        interstitialAdManagercal.loadAd {  }
 
         fun mergeRowsByDate(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
             val mergedMap = mutableMapOf<Any?, MutableMap<String, Any?>>()
@@ -252,6 +258,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 Pair("holi2024", 79),
                 Pair("holi2025", 80),
                 Pair("cal2025", 89),
+                Pair("t2025", 65),
+                Pair("t2026", 66),
 
                 )
 
@@ -315,11 +323,24 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                                 dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
 
+
+
+
                                 val dbname="cal$year.db"
                                 var table="cal"
                                 table="$table$year"
                                 val month=getCurrentMonth()
                                 val dATE=getCurrentDay()
+
+                                val randomHoliday1 =  dbHelperHoliday .getRandomHoliday( currentMonthString.lowercase(Locale.getDefault()),
+                                    currentDay.toString(), "holi$year")
+
+
+                                binding.titleTextView.text=randomHoliday1?.get("name")
+                                binding.subtitleTextView.text="${randomHoliday1?.get("date")}  ${randomHoliday1?.get("desc")}  "
+
+                                Log.d("randomHoliday", "randomHoliday1: $randomHoliday1 ")
+
 
                                 dbHelpercalander  = CalendarHelper(this@HomeActivity, dbname)
                                 val rows = dbHelpercalander.getAllTableDataForMonth(table,TranslationUtils.translateTomonthnumber(month.toString()).toString())
@@ -369,13 +390,23 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 }
 
 
-                              handleHolidayData(
-                                    dbHelpercalander = dbHelpercalander,
-                                    dbHelperimage = dbHelperimage,
-                                    currentMonthString = currentMonthString,
-                                    currentDay = currentDay,
-                                    currentDayName = currentDayName
-                                )
+
+                                    binding.shareicon.visibility=View.VISIBLE
+                                    binding.homeBanner.visibility=View.VISIBLE
+
+                                    handleHolidayData(
+                                        dbHelpercalander = dbHelpercalander,
+                                        dbHelperimage = dbHelperimage,
+                                        currentMonthString = currentMonthString,
+                                        currentDay = currentDay,
+                                        currentDayName = currentDayName
+                                    )
+                                    binding.holidaycounter.visibility=View.VISIBLE
+                                    randomHoliday1?.get("date")?.let { startCountdown(it) }
+
+
+
+
 
                                 setupViewPagerAndDatabase(
                                     context = this@HomeActivity,
@@ -437,7 +468,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
                     delayedBroadcast(1000,binding.floatingActionButton)
 
-
                 } else {
 
                     stopAudio()
@@ -482,7 +512,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             binding.caldetail.setOnClickListener {
                 val i = Intent(this, CalDetailActivity::class.java)
                 startActivity(i)
-                interstitialAdManager.showAd(this){
+                interstitialAdManagercal.showAd(this){
                     startActivity(i)
                 }
 
@@ -497,12 +527,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 stopAudio()
             }
 
+
+            binding.tithi.setOnClickListener {
+                val i = Intent(this, TithiActivity::class.java)
+
+                startActivity(i)
+                stopAudio()
+            }
+
             binding.shareicon.setOnClickListener {
                 ViewShareUtil.shareViewAsImageDirectly(binding.homeBanner,this)
 
             }
 
-            binding.share.setOnClickListener {
+            binding.shareapp.setOnClickListener {
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     // Put the text to share in the intent
 
@@ -1154,7 +1192,20 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
                 // Setting additional details
+
+                val rawRashi = todaysdatedetails?.get("rashi").toString()
+                Log.d("TodayRashi", "Raw Rashi value: $rawRashi")
+
+// Translate the Rashi to Hindi Devanagari
+                val translatedRashi = TranslationUtils.translateToHindiDevanagariRashi(rawRashi)
+                Log.d("TodayRashi", "Translated Rashi: $translatedRashi")
+
+// Set the translated Rashi to the TextView
+                todayrashi.text = translatedRashi
+                Log.d("TodayRashi", "Rashi text set to TextView: ${todayrashi.text}")
+
                 todayrashi.text = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails?.get("rashi").toString())
+
                 todaypaksha.text = TranslationUtils.translateToPaksha(  todaysdatedetails?.get("paksha").toString()    )
 
                 // Yog
@@ -1223,5 +1274,81 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         Log.d("supabase", "Non-existent files: $nonExistentFiles")
         return nonExistentFiles // Return the list of non-existent files
     }
+
+
+    private fun startCountdown(hindiDate: String) {
+        // Mapping of Hindi months to English month names
+        val hindiMonths = mapOf(
+            "जनवरी" to "January", "फरवरी" to "February", "मार्च" to "March", "अप्रैल" to "April",
+            "मई" to "May", "जून" to "June", "जुलाई" to "July", "अगस्त" to "August",
+            "सितंबर" to "September", "अक्तूबर" to "October", "नवंबर" to "November", "दिसंबर" to "December"
+        )
+
+        // Parse the Hindi date string
+        val dateParts = hindiDate.split(" ")
+        if (dateParts.size != 3) {
+            Log.e("Countdown", "Invalid date format: $hindiDate")
+            return
+        }
+
+        val day = dateParts[0].toIntOrNull()
+        val monthHindi = dateParts[1]
+        val year = dateParts[2].toIntOrNull()
+
+        if (day == null || year == null) {
+            Log.e("Countdown", "Invalid day or year in date: $hindiDate")
+            return
+        }
+
+        val monthEnglish = hindiMonths[monthHindi] ?: run {
+            Log.e("Countdown", "Invalid month name: $monthHindi")
+            return
+        }
+
+        val month = SimpleDateFormat("MMMM", Locale.ENGLISH).parse(monthEnglish)?.month ?: run {
+            Log.e("Countdown", "Failed to parse month: $monthEnglish")
+            return
+        }
+
+        // Set target countdown date
+        val calendar = Calendar.getInstance().apply {
+            set(year, month, day, 0, 0, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val targetDate = calendar.time
+
+        // Countdown Runnable
+        val runnable = object : Runnable {
+            override fun run() {
+                val diffInMillis = targetDate.time - System.currentTimeMillis()
+
+                if (diffInMillis <= 0) {
+                    binding.daysTextView.text = "0"
+                    binding.hoursTextView.text = "0"
+                    binding.minutesTextView.text = "0"
+                    binding.secondsTextView.text = "0"
+                    return
+                }
+
+                val days = (diffInMillis / (1000 * 60 * 60 * 24)).toInt()
+                val hours = ((diffInMillis / (1000 * 60 * 60)) % 24).toInt()
+                val minutes = ((diffInMillis / (1000 * 60)) % 60).toInt()
+                val seconds = ((diffInMillis / 1000) % 60).toInt()
+
+                // Update UI
+                binding.daysTextView.text = days.toString()
+                binding.hoursTextView.text = hours.toString()
+                binding.minutesTextView.text = minutes.toString()
+                binding.secondsTextView.text = seconds.toString()
+
+                // Schedule next update
+                handler.postDelayed(this, 1000)
+            }
+        }
+
+        // Start the countdown
+        handler.post(runnable)
+    }
+
 
 }

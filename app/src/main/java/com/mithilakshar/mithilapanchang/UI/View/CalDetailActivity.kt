@@ -113,7 +113,6 @@ class CalDetailActivity : AppCompatActivity() {
         selectedYear.value = getCurrentYear()
 
         val items = listOf(
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, "2024"),
             CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, "2025"),
         )
         val adapter = CustomSpinnerAdapter(this@CalDetailActivity, R.layout.spinner_item, items)

@@ -22,6 +22,12 @@
         android:theme="@style/Theme.MithilaPanchang"
         tools:targetApi="31">
         <activity
+            android:name=".UI.View.TithiListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UI.View.TithiActivity"
+            android:exported="false" />
+        <activity
             android:name=".UI.View.CalDetailActivity"
             android:exported="false" />
         <activity

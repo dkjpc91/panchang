@@ -12,13 +12,14 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.mithilakshar.mithilapanchang.R
 
 class InterstitialAdManager(
-    private val context: Context
+    private val context: Context,
+    adUnitId: String
 ) {
 
     private var interstitialAd: InterstitialAd? = null
 
     // AdMob test ID, replace with real ad unit ID for production
-    private val adUnitId = context.getString(R.string.interstitialholiday)
+    private val adUnitId = adUnitId
 
     // Load the interstitial ad
      fun loadAd(onFailureCallback: () -> Unit) {

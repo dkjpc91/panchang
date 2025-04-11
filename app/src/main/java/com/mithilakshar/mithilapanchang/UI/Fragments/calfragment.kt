@@ -197,19 +197,21 @@ class calfragment : Fragment() {
     private fun loadfragmentdata(month:String,year: Int) {
 
         lifecycleScope.launch {
-            var dbname="cal.db"
-            var table="cal"
+            var dbname="caln.db"
+            var table="caln"
             if (year>2023){
-                dbname="cal$year.db"
+                dbname="caln$year.db"
                 table="$table$year"
                 calendarHelper = CalendarHelper(requireContext(), dbname)
 
                 val rows = calendarHelper.getAllTableDataForMonth(table,month)
-                val mergedRows = mergeRowsByDate(rows)
-                val adjustedrows=adjustListForDayfinal(mergedRows)
-                logMergedRows(mergedRows)
 
-                val calendarAdapter=CalendarAdapter(adjustedrows,requireContext(),year)
+                Log.d("rows", "$rows")
+     /*           val mergedRows = mergeRowsByDate(rows)
+                val adjustedrows=adjustListForDayfinal(mergedRows)
+                logMergedRows(mergedRows)*/
+
+                val calendarAdapter=CalendarAdapter(rows,requireContext(),year)
                 val layoutManager: RecyclerView.LayoutManager =
                     GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
 

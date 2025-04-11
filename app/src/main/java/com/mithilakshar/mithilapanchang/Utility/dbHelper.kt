@@ -11,6 +11,7 @@ import java.io.File
 class dbHelper(context: Context, dbName: String) {
 
     private val TAG = "DBHelper"
+    private val TAGcal = "DBHelper1"
     val dbFolderPath = context.getExternalFilesDir(null)?.absolutePath + File.separator + "test"
     val dbFilePath = "$dbFolderPath/$dbName"
     private var db: SQLiteDatabase? = null
@@ -23,23 +24,6 @@ class dbHelper(context: Context, dbName: String) {
         }
     }
 
-    fun getTableNames(): List<String> {
-        val tableNames = mutableListOf<String>()
-        db?.let {
-            val cursor = it.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name != 'android_metadata'", null)
-            try {
-                cursor.use { c ->
-                    while (c.moveToNext()) {
-                        val tableName = c.getString(0)
-                        tableNames.add(tableName)
-                    }
-                }
-            } finally {
-                cursor.close()  // Close the cursor even if an exception occurs
-            }
-        }
-        return tableNames
-    }
 
 
     @SuppressLint("Range")
@@ -72,46 +56,6 @@ class dbHelper(context: Context, dbName: String) {
 
 
 
-    fun getAllTableData(tableName: String): List<Map<String, Any?>> {
-
-
-        val dataList = mutableListOf<Map<String, Any?>>()
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open for table: $tableName")
-                return emptyList()
-            }
-
-            val cursor = database.rawQuery("SELECT * FROM $tableName", null)
-            cursor.use { c ->
-                val columnNames = getColumnNames(tableName)  // Reuse existing function for column names
-                while (c.moveToNext()) {
-                    val rowData = mutableMapOf<String, Any?>()
-                    for (i in 0 until columnNames.size) {
-                        val columnName = columnNames[i]
-                        val value = c.getString(i)  // Assuming all columns are string for simplicity
-                        rowData[columnName] = value
-                    }
-                    dataList.add(rowData)
-                }
-            }
-        }
-        return dataList
-    }
-
-
-    fun getRowCount(tableName: String): Int {
-        var rowCount = 0
-        db?.let {
-            val cursor = it.rawQuery("SELECT COUNT(*) FROM $tableName", null)
-            cursor.use { c ->
-                if (c.moveToFirst()) {
-                    rowCount = c.getInt(0)
-                }
-            }
-        }
-        return rowCount
-    }
 
     fun getLastRowIndex(tableName: String): Int {
         var lastRowIndex = -1
@@ -572,7 +516,7 @@ class dbHelper(context: Context, dbName: String) {
             val defaultHoliday = mutableMapOf<String, String>().apply {
                 put("month", monthName)
                 put("date", "")
-                put("name", "मअपडेट प्रक्रिया में।") // Indicates "In the update process."
+                put("name", "अपडेट प्रक्रिया में।") // Indicates "In the update process."
             }
             holidays.add(defaultHoliday) // Optional: add a default entry if needed
         }
@@ -602,134 +546,7 @@ class dbHelper(context: Context, dbName: String) {
 
 
 
-    //get row by getRowsByColumnKeywordIfExists
 
-    @SuppressLint("Range")
-    fun getRowsByColumnKeywordIfExists(tableName: String, columnName: String, keyword: String): List<Map<String, Any?>> {
-        val rows = mutableListOf<Map<String, Any?>>()
-
-        // Step 1: Check if column exists
-        val TAG_COLUMN_CHECK = "ColumnCheck"
-        Log.d(TAG_COLUMN_CHECK, "Checking if column $columnName exists in table $tableName")
-
-        if (!doesColumnExist(tableName, columnName)) {
-            Log.e(TAG_COLUMN_CHECK, "Column $columnName does not exist in table $tableName.")
-            return emptyList()  // Return an empty list if the column doesn't exist
-        }
-
-        Log.d(TAG_COLUMN_CHECK, "Column $columnName exists. Proceeding with query.")
-
-        db?.let { database ->
-            // Step 2: Database open check
-            val TAG_DB_CHECK = "DatabaseCheck"
-            if (!database.isOpen) {
-                Log.w(TAG_DB_CHECK, "Database not open for reading rows by column keyword")
-                return emptyList()
-            }
-            Log.d(TAG_DB_CHECK, "Database is open. Preparing to run query.")
-
-            // Step 3: Query execution with exact match
-            val TAG_QUERY_EXECUTION = "QueryExecution"
-            val query = "SELECT * FROM $tableName WHERE $columnName = ?"
-            val selectionArgs = arrayOf(keyword)  // No wildcards for exact match
-            Log.d(TAG_QUERY_EXECUTION, "Executing query: $query with keyword: $keyword")
-
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                // Step 4: Fetch column names
-                val TAG_COLUMN_FETCH = "ColumnFetch"
-                val columnNames = getColumnNames(tableName)
-                Log.d(TAG_COLUMN_FETCH, "Fetched column names: $columnNames")
-
-                var rowsFound = false
-                while (cursor.moveToNext()) {
-                    rowsFound = true
-                    val rowData = mutableMapOf<String, Any?>()
-                    Log.d(TAG_QUERY_EXECUTION, "Reading new row")
-
-                    // Step 5: Log each column and its value
-                    val TAG_ROW_DATA = "RowData"
-                    for (name in columnNames) {
-                        val value = cursor.getString(cursor.getColumnIndex(name))
-                        rowData[name] = value
-                        Log.d(TAG_ROW_DATA, "Column: $name, Value: $value")
-                    }
-
-                    rows.add(rowData)
-                    Log.d(TAG_ROW_DATA, "Row added to the result set: $rowData")
-                }
-
-                if (!rowsFound) {
-                    Log.d(TAG_QUERY_EXECUTION, "No rows matched the keyword: $keyword")
-                }
-            }
-
-            Log.d(TAG_QUERY_EXECUTION, "Query execution complete. Number of rows fetched: ${rows.size}")
-        }
-
-        return rows
-    }
-
-
-
-
-
-
-    @SuppressLint("Range")
-    fun getRowsByMonth(month: String,table: String): List<Map<String, String>> {
-        val rows = mutableListOf<Map<String, String>>()
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open for reading rows by month: $month")
-                return emptyList()
-            }
-
-            val query = "SELECT * FROM $table WHERE month = ?"
-            val selectionArgs = arrayOf(month)
-
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                val columnNames = cursor.columnNames
-
-                while (cursor.moveToNext()) {
-                    val rowData = mutableMapOf<String, String>()
-                    for (columnName in columnNames) {
-                        val value = cursor.getString(cursor.getColumnIndex(columnName)) ?: ""
-                        rowData[columnName] = value
-                    }
-                    rows.add(rowData)
-                }
-            }
-        } ?: Log.e(TAG, "Database is null!")
-
-        return rows
-    }
-
-    @SuppressLint("Range")
-    fun getRowByMonthAndDate(month: String, date: String,table: String): Map<String, String>? {
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open for reading rows by month: $month and date: $date")
-                return null
-            }
-
-            val query = "SELECT * FROM $table WHERE month = ? AND date = ?"
-            val selectionArgs = arrayOf(month, date)
-
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                val columnNames = cursor.columnNames
-
-                if (cursor.moveToFirst()) {
-                    val rowData = mutableMapOf<String, String>()
-                    for (columnName in columnNames) {
-                        val value = cursor.getString(cursor.getColumnIndex(columnName)) ?: ""
-                        rowData[columnName] = value
-                    }
-                    return rowData
-                }
-            }
-        } ?: Log.e(TAG, "Database is null!")
-
-        return null
-    }
 
 
     @SuppressLint("Range")
@@ -840,6 +657,53 @@ class dbHelper(context: Context, dbName: String) {
         return tithiList
     }
 
+    fun getTithiRowsContainingDate(
+        dateStr: String,
+        monthStr: String,
+        dbName: String,
+        tableName: String
+    ): List<Map<String, String>> {
+
+        val tithiList = mutableListOf<Map<String, String>>()
+        val searchPattern = "$dateStr $monthStr" // Example: "01 Jan"
+
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open")
+                return emptyList()
+            }
+
+            val query = "SELECT * FROM $tableName WHERE Timing LIKE ?"
+            val selectionArgs = arrayOf("%$searchPattern%")
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val rowData = mutableMapOf<String, String>()
+                    rowData["Tithi"] = cursor.getString(cursor.getColumnIndex("Tithi")) ?: ""
+                    rowData["Timing"] = cursor.getString(cursor.getColumnIndex("Timing")) ?: ""
+                    rowData["Hindi Tithi"] = cursor.getString(cursor.getColumnIndex("Hindi Tithi")) ?: ""
+                    rowData["Hindi Timinig"] = cursor.getString(cursor.getColumnIndex("Hindi Timinig")) ?: ""
+                    tithiList.add(rowData)
+                }
+            }
+        }
+
+        if (tithiList.isEmpty()) {
+            val defaultTithi = mutableMapOf<String, String>()
+            defaultTithi["Tithi"] = "अपडेट प्रक्रिया में"
+            defaultTithi["Timing"] = ""
+            defaultTithi["Hindi Tithi"] = "अपडेट प्रक्रिया में"
+            defaultTithi["Hindi Timinig"] = ""
+            tithiList.add(defaultTithi)
+        }
+
+        return tithiList
+    }
+
+
+
+
+
     @SuppressLint("Range")
     fun tithiSearchFilter(searchText: String, tableName: String): List<Map<String, String>> {
         val filteredResults = mutableListOf<Map<String, String>>()
@@ -892,5 +756,35 @@ class dbHelper(context: Context, dbName: String) {
         Log.d(TAG, "Filtered results: $filteredResults")
         return filteredResults
     }
+
+
+
+    fun getRowByMonthAndDate(month: String, date: String,table: String): Map<String, String>? {
+        db?.let { database ->
+            if (!database.isOpen) {
+                Log.w(TAG, "Database not open for reading rows by month: $month and date: $date")
+                return null
+            }
+
+            val query = "SELECT * FROM $table WHERE month = ? AND date = ?"
+            val selectionArgs = arrayOf(month, date)
+
+            database.rawQuery(query, selectionArgs)?.use { cursor ->
+                val columnNames = cursor.columnNames
+
+                if (cursor.moveToFirst()) {
+                    val rowData = mutableMapOf<String, String>()
+                    for (columnName in columnNames) {
+                        val value = cursor.getString(cursor.getColumnIndex(columnName)) ?: ""
+                        rowData[columnName] = value
+                    }
+                    return rowData
+                }
+            }
+        } ?: Log.e(TAG, "Database is null!")
+
+        return null
+    }
+
 
 }

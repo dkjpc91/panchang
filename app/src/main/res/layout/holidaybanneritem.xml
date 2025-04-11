@@ -44,7 +44,7 @@
             android:ellipsize="none"
             android:gravity="center"
             android:maxLines="5"
-            android:text="अहिंसा सबसे बड़ा धर्म है, लेकिन धर्म की रक्षा के लिए हिंसा भी धर्म है।"
+            android:text=""
             android:textColor="#3F51B5"
             android:textSize="26sp" />
     </RelativeLayout>

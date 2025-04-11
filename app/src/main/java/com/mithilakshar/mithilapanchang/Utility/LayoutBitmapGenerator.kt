@@ -18,7 +18,6 @@ class LayoutBitmapGenerator(private val context: Context) {
 
     fun generateBitmap(
         holidayNameData: String,
-        holidayGreetingData: String,
         imageUrl: String,
         callback: (Bitmap?) -> Unit
     ) {
@@ -48,9 +47,9 @@ class LayoutBitmapGenerator(private val context: Context) {
 
                     // Set the text
                     holidayName.text = holidayNameData
-                    holidayGreeting.text = insertNewlinesEveryNChars(holidayGreetingData, 38)
+                    holidayGreeting.text =  "_____________"
                     Log.d("BitmapGenerator", "Holiday name set to: $holidayNameData")
-                    Log.d("BitmapGenerator", "Holiday greeting set to: $holidayGreetingData")
+
 
                     // Set the bitmap to the ImageView
                     holidayImage.setImageBitmap(bitmap)

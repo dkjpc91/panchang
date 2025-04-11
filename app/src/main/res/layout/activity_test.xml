@@ -1,94 +1,293 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".UI.View.TestActivity">
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="-90dp"
-        android:src="@drawable/header"/>
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_marginTop="-130dp"
-        android:padding="27dp"
-        android:src="@drawable/splashtxt"/>
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
 
-    <com.google.android.gms.ads.AdView
-        android:visibility="gone"
-        android:id="@+id/adView5"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        app:adSize="BANNER"
-        app:adUnitId="@string/bannerunitholidaylist"/>
-
-    <androidx.appcompat.widget.SearchView
-        android:visibility="gone"
-
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        android:id="@+id/searchview"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layoutDirection="rtl"
-        android:clickable="true"
-        android:focusable="true"
-        app:searchIcon="@drawable/mglass"
-        />
-
-
-
-
-
-
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:padding="16dp">
+        android:layout_margin="16dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        >
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Test"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FF6F6F"
-            android:layout_gravity="center"
-            android:padding="8dp" />
-        <View
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:background="@drawable/left_border" />
-
-        <Button
-            android:layout_marginTop="100dp"
-            android:id="@+id/download"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
-
-        <ImageButton
-            android:layout_gravity="center"
-            android:layout_marginTop="200dp"
-            android:id="@+id/delete"
+            android:orientation="vertical"
             android:background="@android:color/transparent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/baseline_close_24" />
-    </LinearLayout>
+            android:padding="8dp">
+
+            <!-- Header with Decorative Elements -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:padding="16dp"
+                android:background="@drawable/grid_bg">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/swastika"
+                    app:tint="#FF5722"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="#FF5722"
+                    android:textStyle="bold"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+            <!-- Date Display Card with Neumorphic Design -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="140dp"
+                android:layout_height="160dp"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="10dp"
+                android:backgroundTint="#F8F8F8"
+                app:cardPreventCornerOverlap="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_neumorphic">
+
+                    <!-- Month -->
+                    <TextView
+                        android:id="@+id/textViewMonth"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="3"
+                        android:textColor="#E53935"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:padding="8dp"/>
+
+                    <!-- Date -->
+                    <TextView
+                        android:id="@+id/textViewDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="4"
+                        android:textColor="#000000"
+                        android:textStyle="bold"
+                        android:textSize="42sp"
+                        android:gravity="center"
+                        android:text="15"/>
+
+                    <!-- Day -->
+                    <TextView
+                        android:id="@+id/textViewDay"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="3"
+                        android:textColor="#1E88E5"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:padding="8dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
 
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/header_background"
+                android:elevation="6dp"
+                android:layout_margin="8dp"
+                android:padding="16dp"
+                android:gravity="center_horizontal">
+
+                <!-- Tithi -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="तिथि"
+                    android:textSize="24sp"
+                    android:textColor="#FF5722"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/todaytithi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="त्रयोदशी"
+                    android:textSize="20sp"
+                    android:textColor="#E65100"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/tithiendtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="19:40"
+                    android:textSize="20sp"
+                    android:background="@drawable/wave"
+                    android:textColor="#FF5722"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+                <!-- Nakshatra -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="नक्षत्र"
+                    android:textSize="24sp"
+                    android:textColor="#388E3C"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/todaynakshatra"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="उत्तराषाढ़ा"
+                    android:textSize="20sp"
+                    android:textColor="#1B5E20"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/nakshatraendtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="07:50"
+                    android:textSize="20sp"
+                    android:textColor="#388E3C"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+                <!-- Hindi Month -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="महीना"
+                    android:textSize="24sp"
+                    android:textColor="#0288D1"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/hindimonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="चैत्र"
+                    android:textSize="20sp"
+                    android:textColor="#0288D1"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+                <!-- Paksha -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="पक्ष"
+                    android:textSize="20sp"
+                    android:textColor="#689F38"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/paksha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="कृष्ण पक्ष"
+                    android:textSize="18sp"
+                    android:textColor="#689F38"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+                <!-- Rashi -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="राशि"
+                    android:textSize="20sp"
+                    android:textColor="#1976D2"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/todayrashi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="धनु"
+                    android:textSize="18sp"
+                    android:textColor="#1976D2"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+                <!-- Karna -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="करण"
+                    android:textSize="10sp"
+                    android:textColor="#C2185B"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/karnaname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="वणिज"
+                    android:textSize="18sp"
+                    android:textColor="#C2185B"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/karnaendtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12:30"
+                    android:textSize="18sp"
+                    android:textColor="#C2185B"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"/>
+
+
+            </LinearLayout>
+
+
+
+            <!-- Footer -->
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:textSize="14sp"
+                android:src="@drawable/swastika"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

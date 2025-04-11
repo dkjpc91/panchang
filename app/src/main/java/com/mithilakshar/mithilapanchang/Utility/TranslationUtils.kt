@@ -1,5 +1,6 @@
 package com.mithilakshar.mithilapanchang.Utility
 
+import android.util.Log
 import java.util.Locale
 import kotlin.math.floor
 
@@ -182,40 +183,6 @@ object TranslationUtils {
     }
 
 
-    fun translateNumberToYoga(number: Int): String? {
-        val yogaTranslation: MutableMap<Int, String> = HashMap()
-        yogaTranslation[1] = "विष्कुम्भ"         // 1 -> Viskumbha
-        yogaTranslation[2] = "प्रिति"             // 2 -> Priti
-        yogaTranslation[3] = "आयुष्मान"           // 3 -> Ayusman
-        yogaTranslation[4] = "सौभाग्य"           // 4 -> Saubhagya
-        yogaTranslation[5] = "शोभना"            // 5 -> Sobhana
-        yogaTranslation[6] = "अतिगंड"            // 6 -> Atiganda
-        yogaTranslation[7] = "सुखर्मा"           // 7 -> Sukarma
-        yogaTranslation[8] = "धृति"              // 8 -> Dhriti
-        yogaTranslation[9] = "सूला"              // 9 -> Sula
-        yogaTranslation[10] = "गंड"              // 10 -> Ganda
-        yogaTranslation[11] = "वृद्धि"            // 11 -> Vriddhi
-        yogaTranslation[12] = "ध्रुवा"            // 12 -> Dhruva
-        yogaTranslation[13] = "व्याघात"           // 13 -> Vyaghata
-        yogaTranslation[14] = "हर्षण"             // 14 -> Harshana
-        yogaTranslation[15] = "वज्र"              // 15 -> Vajra
-        yogaTranslation[16] = "सिद्धि (अस्रिक)"    // 16 -> Siddhi (Asrik)
-        yogaTranslation[17] = "व्यतिपात"         // 17 -> Vyatipata
-        yogaTranslation[18] = "वरियान"            // 18 -> Variyan
-        yogaTranslation[19] = "परिघ"              // 19 -> Parigha
-        yogaTranslation[20] = "शिव"               // 20 -> Siva
-        yogaTranslation[21] = "सिद्ध"             // 21 -> Siddha
-        yogaTranslation[22] = "साध्य"             // 22 -> Sadhya
-        yogaTranslation[23] = "शुभ"              // 23 -> Subha
-        yogaTranslation[24] = "सुख्ल (सुक्रा)"     // 24 -> Sukla (Sukra)
-        yogaTranslation[25] = "ब्रह्म"            // 25 -> Brahma
-        yogaTranslation[26] = "इन्द्र"            // 26 -> Indra
-        yogaTranslation[27] = "विधृति"            // 27 -> Vaidhriti
-
-        // Return the translated Yoga name or null if not found
-        return yogaTranslation[number]
-    }
-
 
     fun translateAbbreviatedDayToHindi(dayAbbreviation: String): String? {
         val dayTranslation: MutableMap<String, String> = HashMap()
@@ -234,84 +201,45 @@ object TranslationUtils {
 
 
 
+
+
     fun speakFunction(
+        formattedTextt: String,
         month: String,
         date: String,
         day: String,
-        year: String,
-        tithi: String,
-        tithiEndH: String,
-        tithiEndM: String,
-        nakshatra: String,
-        nakshatraEndH: String,
-        nakshatraEndM: String,
         monthName: String,
         rashi: String,
-        paksha: String
+        paksha: String,
+        hindiDate: String,
+        holidayName: String,
+        holidayDesc: String,
     ): String {
-        // Parse tithi and tithi end hours and minutes as lists
-        val tithiList = parseTithiInput(tithi) ?: listOf("अज्ञात तिथि")
-        val tithiEndHList = parseIntListInput(tithiEndH) ?: listOf(0)
-        val tithiEndMList = parseDoubleListInput(tithiEndM) ?: listOf(0.0)
 
-        // Parse nakshatra and nakshatra end hours and minutes as lists
-        val nakshatraList = parseNakshatraInput(nakshatra) ?: listOf("अज्ञात नक्षत्र")
-        val nakshatraEndHList = parseIntListInput(nakshatraEndH) ?: listOf(0)
-        val nakshatraEndMList = parseDoubleListInput(nakshatraEndM) ?: listOf(0.0)
+        Log.d("SpeakFunction", "formattedTextt: $formattedTextt")
+        Log.d("SpeakFunction", "month: $month")
+        Log.d("SpeakFunction", "date: $date")
+        Log.d("SpeakFunction", "day: $day")
+        Log.d("SpeakFunction", "monthName: $monthName")
+        Log.d("SpeakFunction", "rashi: $rashi")
+        Log.d("SpeakFunction", "paksha: $paksha")
+        Log.d("SpeakFunction", "hindiDate: $hindiDate")
+        Log.d("SpeakFunction", "holidayName: $holidayName")
+        Log.d("SpeakFunction", "holidayDesc: $holidayDesc")
 
-        // Prepare formatted tithi message
-        val tithiMessage = tithiList.mapIndexed { index, tithiName ->
-            val endHour = if (index < tithiEndHList.size) tithiEndHList[index] else 0
-            val endMinute = if (index < tithiEndMList.size) tithiEndMList[index] else 0.0
-            val formattedTime = formatTime(endHour, endMinute)
-            " तिथि,  $tithiName  , तिथि समाप्ति समय: $formattedTime"
-        }.joinToString("; ")
+        val hindimonth=translateToHindiDevanagariHinduMonth (monthName)
+        val pakshahindi= translateToPaksha (paksha)
+        val hindiday=translateAbbreviatedDayToHindi (day.toUpperCase())
+        val hindirashi= translateToHindiDevanagariRashi (rashi)
+        val tithispeak=convertPanchangTextToMaithili(formattedTextt)
 
-        // Prepare formatted nakshatra message
-        val nakshatraMessage = nakshatraList.mapIndexed { index, nakshatraName ->
-            val endHour = if (index < nakshatraEndHList.size) nakshatraEndHList[index] else 0
-            val endMinute = if (index < nakshatraEndMList.size) nakshatraEndMList[index] else 0.0
-            val formattedTime = formatTime(endHour, endMinute)
-            "$nakshatraName नक्षत्र,  नक्षत्र  समाप्ति समय: $formattedTime"
-        }.joinToString("; ")
+        Log.d("SpeakFunction", "tithispeak: $tithispeak")
 
-        // Prepare final message
-        val sentence = """
-        आई, दिनांक $date. $month $year. दिन ${translateAbbreviatedDayToHindi(day)}. 
-        $tithiMessage; $monthName मास. ${translateToPaksha(paksha)}. 
-        $nakshatraMessage; $rashi राशि अइछ। मिथिला पंचांग उपयोग करबाक लेल धन्यवाद।
-    """.trimIndent()
-
-        return sentence
+        return "आई ${hindiDate}, दिन ${hindiday}, तिथि  ${tithispeak} ,  ${hindimonth} महीना, ${pakshahindi}  , ${hindirashi}  राशि अईछ।  मिथिला पंचांग प्रयोग के लेल धन्यवाद"
     }
 
-    // Format time as "<hours> baje ke <minutes> minute aur <seconds> sec <AM/PM>"
-    fun formatTime(hours: Int, minutes: Double): String {
-        // Wrap hours around to 48-hour format
-        val validHours = hours % 12
 
-        // Calculate the actual minutes
-        val minutePart = floor(minutes).toInt()
 
-        // Adjust period based on the new rules
-        val period = when {
-            validHours < 12 -> "पूर्वाहन" // Purvahan for 0-12
-            validHours < 24 -> "अपराहन" // Aprahan for 12-24
-            validHours < 36 -> "पूर्वाहन" // Purvahan for 24-36
-            validHours < 48 -> "अपराहन" // Aprahan for 36-48
-            else -> "पूर्वाहन" // Purvahan for 48+
-        }
-
-        // Adjust hours for AM/PM format
-        val adjustedHours = when {
-            validHours == 0 -> 12
-            validHours > 12 -> validHours - 12
-            else -> validHours
-        }
-
-        // Format the time as "<period>, <hours> बाइज क <minutes> मिनट अई ,"
-        return String.format("  %s,  %2d बाइज क  %02d मिनट अई , ", period, adjustedHours, minutePart)
-    }
 
 
     fun formatTimeD(hours: Int, minutes: Double): String {
@@ -458,6 +386,75 @@ object TranslationUtils {
             null
         }
     }
+
+
+    fun convertPanchangTextToMaithili(text: String): String {
+        val dayMap = mapOf(
+            "सोमवार" to "सोमदिन",
+            "मंगलवार" to "मंगलदिन",
+            "बुधवार" to "बुधदिन",
+            "गुरुवार" to "बृहस्पतिदिन",
+            "शुक्रवार" to "शुक्रदिन",
+            "शनिवार" to "शनिदिन",
+            "रविवार" to "रविदिन"
+        )
+
+        val resultBuilder = StringBuilder()
+        val lines = text.split("\n")
+
+        for (line in lines) {
+            val parts = line.split(" - ")
+            if (parts.size == 2) {
+                val tithi = parts[0].trim()
+                val timeParts = parts[1].split(" से ")
+                if (timeParts.size == 2) {
+                    val start = timeParts[0].trim()
+                    val end = timeParts[1].trim()
+
+                    // Separate the day from the datetime using first comma
+                    val startCommaIndex = start.indexOf(",")
+                    val endCommaIndex = end.indexOf(",")
+
+                    if (startCommaIndex != -1 && endCommaIndex != -1) {
+                        val startDay = start.substring(0, startCommaIndex).trim()
+                        val startDateTime = start.substring(startCommaIndex + 1).trim()
+
+                        val endDay = end.substring(0, endCommaIndex).trim()
+                        val endDateTime = end.substring(endCommaIndex + 1).trim()
+
+                        val startFormatted = formatDateTime(startDateTime)
+                        val endFormatted = formatDateTime(endDateTime)
+
+                        val startDayMaithili = dayMap[startDay] ?: startDay
+                        val endDayMaithili = dayMap[endDay] ?: endDay
+
+                        resultBuilder.append(" $tithi, तिथि समय ,$startFormatted स, $startDayMaithili, $endFormatted तक.\n")
+                    }
+                }
+            }
+        }
+
+        return resultBuilder.toString().trim()
+    }
+
+    fun formatDateTime(dateTimeStr: String): String {
+        // Example: "11 अप्रैल 2025, 01:01 पूर्वाह्न"
+        val parts = dateTimeStr.split(" ")
+        if (parts.size >= 5) {
+            val day = parts[0]
+            val month = parts[1]
+            val year = parts[2].replace(",", "")
+            val time = parts[3]
+            val meridiem = parts[4]
+
+            val (hour, minute) = time.split(":")
+            val meridiemMaithili = if (meridiem.contains("पूर्वाह्न")) "पूर्वाह्न" else "अपराह्न"
+
+            return "$day ,$month, $year, ${hour.trim()} : ${minute.trim()} $meridiemMaithili"
+        }
+        return dateTimeStr
+    }
+
 
 
 }

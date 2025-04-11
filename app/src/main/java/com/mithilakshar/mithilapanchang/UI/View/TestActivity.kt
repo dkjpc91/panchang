@@ -66,67 +66,10 @@ class TestActivity : AppCompatActivity() {
             )
 
 
-            binding.delete.setOnClickListener {
-                performPreUpdateTasks{
-
-                    runOnUiThread {
-                        Toast.makeText(this, "files deleted", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-            }
 
 
 
-            binding.download.setOnClickListener {
 
-                lifecycleScope.launch {
-                    // Initialize UpdateChecker and check for updates
-                    val updateChecker = UpdateChecker(updatesDao)
-                    val isUpdateNeeded = updateChecker.getUpdateStatus()
-
-
-
-                    Log.d("supabase", "isUpdateNeeded: $isUpdateNeeded")
-                    withContext(Dispatchers.Main) {
-                    // Perform actions based on whether an update is needed
-                    if (isUpdateNeeded != "a") {
-                        Log.d("supabase", "Update needed: $isUpdateNeeded")
-
-                        dbSupabaseDownloadeSequence.observeMultipleFileExistence(
-                            filesWithIds,
-                            this@TestActivity,
-                            lifecycleScope,
-                            homeActivity = this@TestActivity, // Your activity
-                            progressCallback = { progress, filePair ->
-                                Log.d("supabase", "File: ${filePair.first()}.db, Progress: $progress%")
-                            },
-                            {
-                                Log.d("supabase", "File: completed when update required")
-                            }
-                        )
-
-                    }else {
-                       val nonExistentFiles= checkFilesExistence(filesWithIds)
-                        Log.d("supabase", "File: non exist  $nonExistentFiles")
-
-                   dbSupabaseDownloadeSequence.observeMultipleFileExistence(
-                            nonExistentFiles,
-                            this@TestActivity,
-                            lifecycleScope,
-                            homeActivity = this@TestActivity,
-                            progressCallback = { progress, filePair ->
-                                Log.d("supabase", "File: ${filePair.first()}.db, Progress: $progress%")
-                            },
-                            {
-                                Log.d("supabase", "File: completed when non-existent required")
-                            }
-                        )
-                    }
-
-                }
-                }
-            }
 
 
 

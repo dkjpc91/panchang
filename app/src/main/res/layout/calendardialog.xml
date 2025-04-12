@@ -19,16 +19,41 @@
         android:src="@drawable/speaker"
         android:contentDescription="@string/app_name_h" />
 
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="1dp">
+            android:padding="4dp">
+
+            <TextView
+                android:layout_marginTop="20dp"
+
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/wave"
+                android:backgroundTint="@color/red"
+                android:textColor="@color/red" />
+            <TextView
+                android:layout_marginTop="20dp"
+
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/wave"
+                android:backgroundTint="@color/red"
+                android:textColor="@color/red" />
 
             <!-- Header Text -->
             <TextView
+                android:layout_marginTop="5dp"
                 android:id="@+id/calendardialogtext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,7 +86,7 @@
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
@@ -72,22 +97,6 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="1dp">
 
-                <TextView
-                    android:text="तिथि समाप्त :-"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_orange_dark" />
-
-                <TextView
-                    android:id="@+id/tithiendtime"
-                    android:text="19:40"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
             <!-- Nakshatra -->
@@ -111,7 +120,7 @@
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
@@ -122,22 +131,6 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="0dp">
 
-                <TextView
-                    android:text="नक्षत्र समाप्त :-"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_orange_dark" />
-
-                <TextView
-                    android:id="@+id/nakshatraendtime"
-                    android:text="07:50"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
             <!-- Month -->
@@ -148,7 +141,7 @@
                 android:layout_marginTop="2dp">
 
                 <TextView
-                    android:text="महीना :-"
+                    android:text="महीना :"
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -161,7 +154,7 @@
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
@@ -186,7 +179,7 @@
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
@@ -211,19 +204,21 @@
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
             <!-- Sunrise -->
             <LinearLayout
+                android:id="@+id/holidaylinear"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="2dp">
 
                 <TextView
-                    android:text="सूर्योदय :-"
+                    android:text="त्यौहार :"
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -231,72 +226,35 @@
                     android:textColor="@android:color/holo_orange_dark" />
 
                 <TextView
-                    android:id="@+id/todaysunrise"
+                    android:id="@+id/todayholidayname"
                     android:text="06:32"
                     android:textSize="22sp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_weight="4"
                     android:textColor="@android:color/holo_green_dark" />
             </LinearLayout>
 
-            <!-- Sunset -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="2dp">
 
-                <TextView
-                    android:text="सूर्यास्त :-"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_orange_dark" />
-
-                <TextView
-                    android:id="@+id/todaysunset"
-                    android:text="18:45"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_green_dark" />
-            </LinearLayout>
-
-            <!-- Yog -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="2dp">
-
-                <TextView
-                    android:text="योग :-"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_orange_dark" />
-
-                <TextView
-                    android:id="@+id/todayyog"
-                    android:text="V"
-                    android:textSize="22sp"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/holo_green_dark" />
-            </LinearLayout>
             <TextView
                 android:layout_marginTop="20dp"
-                android:text="सूर्योदय और सूर्यास्त का समय 82°5'E देशांतर पर भारतीय मानक समय के अनुसार "
+
                 android:textSize="15sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/wave"
+                android:backgroundTint="@color/red"
+                android:textColor="@color/red" />
+            <TextView
+                android:layout_marginTop="20dp"
+
+                android:textSize="15sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/wave"
+                android:backgroundTint="@color/red"
                 android:textColor="@color/red" />
 
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
+    </ScrollView>
+</androidx.cardview.widget.CardView>

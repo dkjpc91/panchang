@@ -27,11 +27,11 @@
                     android:id="@+id/calendardayText"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1.4"
+                    android:layout_weight="1"
                     android:textColor="@color/blue"
 
                     android:textStyle="bold"
-                    android:textSize="13sp"
+                    android:textSize="17sp"
                     android:gravity="center_horizontal" />
 
                 <TextView
@@ -63,7 +63,7 @@
                     android:textColor="#E413A9"
 
                     android:textStyle="bold"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:gravity="center_horizontal" />
 
 

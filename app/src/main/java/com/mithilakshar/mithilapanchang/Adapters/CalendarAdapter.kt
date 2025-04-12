@@ -12,10 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mithilakshar.mithilapanchang.CalendarDialog
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
+import com.mithilakshar.mithilapanchang.Utility.dbHelper
 import com.mithilakshar.mithilapanchang.databinding.CalendardayitemBinding
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class CalendarAdapter(
@@ -26,6 +27,8 @@ class CalendarAdapter(
 
     class CalendarViewHolder(private val binding: CalendardayitemBinding) : RecyclerView.ViewHolder(binding.root) {
 
+
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun bind(model: Map<String, Any?>, context: Context, year: Int) {
             binding.apply {
@@ -34,32 +37,44 @@ class CalendarAdapter(
                 Log.d("date", "Current Date: $currentDateStr, Current Month: $currentMonthStr, Model Month: ${model["month"]}")
 
 
-                val tithiData = model["tithi"]
-                val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
-                val tithiNames = parsedTithi?.joinToString(", ") ?: "~"
+                val tithiData = model["monthname"]
 
-                calendardayText.text = tithiNames
+                calendardayText.text = TranslationUtils.translateToHindiDevanagariHinduMonth(
+                    tithiData.toString())
                 calendardateText.text = model["date"]?.toString() ?: ""
                 calendardescText.text = TranslationUtils.translateToPaksha(model["paksha"]?.toString() ?: "")
 
 
                 val backgroundColor = when {
-                    model["holiday"].toString().isNotEmpty() && model["date"].toString() != currentDateStr -> {
+                    // Case 1: If "holidayname" is not empty and the date is not today's date
+                    model["holidayname"]?.toString()?.isNotEmpty() == true &&
+                            model["date"]?.toString() != currentDateStr -> {
                         ContextCompat.getColor(context, R.color.background)
                     }
-                    model["holiday"].toString().isNotEmpty() && model["month"].toString() != currentMonthStr -> {
+
+                    // Case 2: If "holidayname" is not null/blank, not "null", and month is not current month
+                    !model["holidayname"]?.toString()?.trim().isNullOrBlank() &&
+                            !model["holidayname"]?.toString()?.trim().equals("null", ignoreCase = true) &&
+                            model["month"]?.toString()?.trim() != currentMonthStr -> {
                         ContextCompat.getColor(context, R.color.background)
                     }
-                    model["date"].toString() == currentDateStr && model["month"].toString() == currentMonthStr -> {
+
+                    // Case 3: If today’s date and month match
+                    model["date"]?.toString() == currentDateStr &&
+                            model["month"]?.toString() == currentMonthStr -> {
                         ContextCompat.getColor(context, R.color.green)
                     }
+
+                    // Default case if none of the above match
                     else -> Color.WHITE
                 }
 
                 setBackgroundColor(binding, backgroundColor)
+
             }
 
             binding.root.setOnClickListener {
+                if(model["date"]?.toString()?.isNotEmpty() == true)
                 showCalendarDialog(context, model, year)
             }
         }
@@ -85,15 +100,49 @@ class CalendarAdapter(
         private fun showCalendarDialog(context: Context, todaysdatedetails: Map<String, Any?>, year: Int) {
             val calendarDialog = CalendarDialog(context)
 
-            val tithiData = todaysdatedetails["tithi"]
-            val parsedTithi = TranslationUtils.parseTithiInput(tithiData.toString())
-            val tithiNames = parsedTithi?.joinToString("  एवं  ") ?: "~"
+
+            val tithidbname="t$year.db"
+            val ttable="t$year"
+            val nakshatradbname="n$year.db"
+            val ntable="n$year"
+
+            val dbHelpertithi=dbHelper(context,tithidbname)
+            val dbHelpernakshatra=dbHelper(context,nakshatradbname)
+            val (todayDate, todayMonth) = getTodayDateAndMonth()
+            val todaystithi=dbHelpertithi.getTithiRowsContainingDate(todayDate,todayMonth,tithidbname,ttable)
+            val todaysnakshatra=dbHelpernakshatra.getTithiRowsContainingDate(todayDate,todayMonth,nakshatradbname,ntable)
+            Log.d("todaystithi", "Received todaystithi: ${todaystithi}")
+            val formattedTextt = todaystithi.joinToString(separator = "\n") { row ->
+                val hindiTithi = row["Hindi Tithi"] ?: "N/A"
+                val hindiTiming = row["Hindi Timinig"] ?: ""
+
+                // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
+                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
+                val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+
+                val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+                val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+
+                "$hindiTithi - $startTime से $endTime"
+            }
+            val formattedTextn = todaysnakshatra.joinToString(separator = "\n") { row ->
+                val hindiTithi = row["Hindi Tithi"] ?: "N/A"
+                val hindiTiming = row["Hindi Timinig"] ?: ""
+
+                // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
+                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
+                val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+
+                val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+                val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+
+                "$hindiTithi - $startTime से $endTime"
+            }
 
 
-            // Parsing Nakshatra
-            val nakshatraData = todaysdatedetails["nakshatra"]
-            val parsedNakshatra = TranslationUtils.parseNakshatraInput(nakshatraData.toString())
-            val nakshatraNames = parsedNakshatra?.joinToString("  एवं  ") ?: "~"
+
+            val tithiNames = formattedTextt
+            val nakshatraNames = formattedTextn
 
 
             // Month, Date, Day, and Year
@@ -108,85 +157,37 @@ class CalendarAdapter(
             val day = todaysdatedetails["day"]?.toString()
             val date = todaysdatedetails["date"]?.toString()
 
-
-            // Sunrise and Sunset
-            val sunriseHour = todaysdatedetails["sunrise"]?.toString()?.toIntOrNull() ?: 0
-            val sunriseMinute = todaysdatedetails["sunrisemin"]?.toString()?.toDoubleOrNull() ?: 0.0
-            val formattedSunrise = TranslationUtils.formatTimeD(sunriseHour, sunriseMinute)
-
-            val sunsetHour = todaysdatedetails["sunset"]?.toString()?.toIntOrNull() ?: 0
-            val sunsetMinute = todaysdatedetails["sunsetmin"]?.toString()?.toDoubleOrNull() ?: 0.0
-            val formattedSunset = TranslationUtils.formatTimeD(sunsetHour, sunsetMinute)
-
-
-            // Tithi End Time
-            val tithiEndH = todaysdatedetails["tithiendh"]?.toString() ?: "Unknown"
-            val tithiEndM = todaysdatedetails["tithiendm"]?.toString() ?: "Unknown"
-            var formattedTithiEnd=""
-            if (tithiEndH != null && tithiEndM != null) {
-
-                val formattedOutput = TranslationUtils.createTithitimeformat(tithiEndH.toString(),
-                    tithiEndM.toString()
-                )
-                formattedTithiEnd =formattedOutput
-            }
-
-
-
-
-            // Nakshatra End Time
-            val nakshatraEndH = todaysdatedetails["nakshatraendh"]?.toString() ?: "Unknown"
-            val nakshatraEndM = todaysdatedetails["nakshatraendm"]?.toString() ?: "Unknown"
-
-            var formattedNakshatraEnd =" "
-            if (nakshatraEndH != null && nakshatraEndM != null) {
-                val formattedOutput = TranslationUtils.createTithitimeformat(nakshatraEndH.toString(),
-                    nakshatraEndM.toString()
-                )
-                formattedNakshatraEnd=formattedOutput
-
-            }
-
-
             // Rashi and Paksha
             val rashi = TranslationUtils.translateToHindiDevanagariRashi(todaysdatedetails["rashi"].toString())
 
-
             val paksha = TranslationUtils.translateToPaksha(todaysdatedetails["paksha"].toString())
-
-
-            // Yog
-            val yogValue = todaysdatedetails["yog"]
-            val parsedyog = TranslationUtils.parseYogaInput(yogValue.toString())
-            val yogNames = parsedyog?.joinToString(" एवं ") ?: "~"
-
-
-            Log.d("monthh", "$yogValue $yogNames")
+            val holidayname = todaysdatedetails["holidayname"].toString()
+            val holidayname1 = todaysdatedetails["monthhindi"].toString()
 
             // Set all values in the dialog
             calendarDialog.setDialogValues(
                 date =    "${TranslationUtils.translateToHindidaythree(day.toString())}, $date $monthhindi, $year",
 
                     tithi = tithiNames,
-                tithiEndtime = formattedTithiEnd,
                     nakshatra = nakshatraNames,
-                nakshatraEndtime = formattedNakshatraEnd,
-
                     month = translatedMonth,
-
                         rashi = rashi,
                      paksha = paksha,
-                   sunrise=formattedSunrise,
-                    sunset=formattedSunset,
-
-
-
-                    yog=yogNames,
-
-
+                holiday= holidayname+"\n"+holidayname1
                 )
 
             calendarDialog.show()
+        }
+
+        fun getTodayDateAndMonth(): Pair<String, String> {
+            val date = Date()
+            val dayFormat = SimpleDateFormat("dd", Locale.ENGLISH) // returns "01", "02", etc.
+            val monthFormat = SimpleDateFormat("MMM", Locale.ENGLISH) // returns "Jan", "Feb", etc.
+
+            val day = dayFormat.format(date)
+            val month = monthFormat.format(date)
+
+            return Pair(day, month)
         }
 
 
@@ -263,4 +264,6 @@ class CalendarAdapter(
         )
         return dateTranslation[date]
     }
+
+
 }

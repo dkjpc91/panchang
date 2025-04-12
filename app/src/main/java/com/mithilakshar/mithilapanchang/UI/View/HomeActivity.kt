@@ -38,6 +38,7 @@ import java.util.Locale
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import android.content.Context
+import android.os.CountDownTimer
 import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -1364,38 +1365,32 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             set(Calendar.MILLISECOND, 0)
         }
         val targetDate = calendar.time
+        val currentDate = Calendar.getInstance().time
+        val diffInMillis = targetDate.time - currentDate.time
 
-        // Countdown Runnable
-        val runnable = object : Runnable {
-            override fun run() {
-                val diffInMillis = targetDate.time - System.currentTimeMillis()
+        if (diffInMillis > 0) {
+            // Calculate the remaining days
+            val remainingDays = (diffInMillis / (1000 * 60 * 60 * 24)).toInt()
+            val remainingHours = ((diffInMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toInt()
+            val remainingMinutes = ((diffInMillis % (1000 * 60 * 60)) / (1000 * 60)).toInt()
+            val remainingSeconds = ((diffInMillis % (1000 * 60)) / 1000).toInt()
 
-                if (diffInMillis <= 0) {
-                    binding.daysTextView.text = "0"
-                    binding.hoursTextView.text = "0"
-                    binding.minutesTextView.text = "0"
-                    binding.secondsTextView.text = "0"
-                    return
-                }
-
-                val days = (diffInMillis / (1000 * 60 * 60 * 24)).toInt()
-                val hours = ((diffInMillis / (1000 * 60 * 60)) % 24).toInt()
-                val minutes = ((diffInMillis / (1000 * 60)) % 60).toInt()
-                val seconds = ((diffInMillis / 1000) % 60).toInt()
-
-                // Update UI
-                binding.daysTextView.text = days.toString()
-                binding.hoursTextView.text = hours.toString()
-                binding.minutesTextView.text = minutes.toString()
-                binding.secondsTextView.text = seconds.toString()
-
-                // Schedule next update
-                handler.postDelayed(this, 1000)
-            }
+            // Update the UI with the remaining time
+            binding.daysTextView.text = remainingDays.toString()
+            binding.hoursTextView.text = remainingHours.toString()
+            binding.minutesTextView.text = remainingMinutes.toString()
+            binding.secondsTextView.text = remainingSeconds.toString()
+        } else {
+            // If the target date has passed, show 0 for all
+            binding.daysTextView.visibility = View.GONE
+            binding.hoursTextView.visibility =  View.GONE
+            binding.minutesTextView.visibility =  View.GONE
+            binding.secondsTextView.visibility =  View.GONE
         }
 
-        // Start the countdown
-        handler.post(runnable)
+
+
+
     }
 
     fun getTodayDateAndMonth(): Pair<String, String> {

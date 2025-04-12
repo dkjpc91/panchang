@@ -206,12 +206,13 @@ class calfragment : Fragment() {
 
                 val rows = calendarHelper.getAllTableDataForMonth(table,month)
 
-                Log.d("rows", "$rows")
-     /*           val mergedRows = mergeRowsByDate(rows)
-                val adjustedrows=adjustListForDayfinal(mergedRows)
-                logMergedRows(mergedRows)*/
+                Log.d("rows", "rows$rows")
 
-                val calendarAdapter=CalendarAdapter(rows,requireContext(),year)
+                val adjustedrows=adjustListForDayfinal(rows)
+                Log.d("rows", "adjustedrows $adjustedrows")
+                logMergedRows(adjustedrows)
+
+                val calendarAdapter=CalendarAdapter(adjustedrows,requireContext(),year)
                 val layoutManager: RecyclerView.LayoutManager =
                     GridLayoutManager(context, 7, LinearLayoutManager.HORIZONTAL, false)
 
@@ -242,69 +243,41 @@ class calfragment : Fragment() {
 
     }
 
-    fun adjustListForDayfinal(data: List<Map<String, Any?>>): List<Map<String, Any?>> {
-        // Check if the list is not empty
-        if (data.isNotEmpty()) {
-            // Get the first element's "day"
-            val firstDay = data[0]["day"] as? String
 
-            // Determine how many blank elements to add
-            val blanksToAdd = when (firstDay?.lowercase()) {
-                "mon" -> 0
-                "tue" -> 1
-                "wed" -> 2
-                "thu" -> 3
-                "fri" -> 4
-                "sat" -> 5
-                "sun" -> 6
-                else -> 0 // If the day is unknown or not found, add no blanks
-            }
+    fun adjustListForDayfinal(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
+        if (rows.isEmpty()) return rows
 
-            // Create the blank maps to insert (all fields are null)
-            val blankEntry = mapOf<String, Any?>(
-                "sno" to null, "month" to null, "date" to null, "day" to null,
-                "sunrise" to null, "sunrisemin" to null, "noon" to null,
-                "noon min" to null, "sunset" to null, "sunsetmin" to null,
-                "tithi" to null, "tithiendh" to null, "tithiendm" to null,
-                "nakshatra" to null, "nakshatraendh" to null, "nakshatraendm" to null,
-                "yog" to null, "yogendh" to null, "yogendm" to null,
-                "monthname" to null, "rashi" to null, "paksha" to null
-            )
+        // Get the first row's "day"
+        val firstDay = rows[0]["day"]?.toString()?.trim()?.lowercase() ?: return rows
 
-            // Create a list with the blank entries
-            val blankEntries = List(blanksToAdd) { blankEntry }
-
-            // Add blank entries followed by the original data
-            var result = (blankEntries + data).toMutableList()
-
-            // Check if the resulting list has more than 35 elements
-            if (result.size > 35) {
-                // Elements beyond the 35th position (starting from index 35)
-                val excessElements = result.subList(35, result.size)
-
-                // For each excess element, adjust its "sno" and overwrite the initial elements
-                excessElements.forEachIndexed { index, map ->
-                    if (index < 35) {
-                        // Adjust "sno" of excess element to 36, 37, 38, ...
-                        val adjustedMap = map.toMutableMap()
-                        adjustedMap["sno"] = 36 + index
-
-                        // Overwrite the element at the corresponding index
-                        result[index] = adjustedMap
-                    }
-                }
-
-                // Trim the list to 35 elements after overwriting
-                result = result.take(35).toMutableList()
-            }
-
-            // Return the final adjusted list
-            return result
+        // Determine how many blanks to add (Mon = 0, Tue = 1, ..., Sun = 6)
+        val blanksToAdd = when (firstDay) {
+            "mon" -> 0
+            "tue" -> 1
+            "wed" -> 2
+            "thu" -> 3
+            "fri" -> 4
+            "sat" -> 5
+            "sun" -> 6
+            else -> 0
         }
 
-        // If the list is empty, just return the original list
-        return data
+        // Define your blank entry map (make sure keys match your original maps)
+        val blankEntry = mapOf(
+            "sno" to null, "month" to null, "date" to null, "day" to null,
+            "monthname" to null, "rashi" to null, "paksha" to null, "helper" to null,
+            "hindidate" to null, "holidayname" to null, "monthhindi" to null,
+            "holidaydesc" to null,
+            "holidayimage" to "https://i.pinimg.com/736x/35/71/00/35710061f8c642aedec21dc90c7f4262.jpg",
+            "filter" to null
+        )
+
+        // Create the final list with blanks at the beginning
+        val blanks = List(blanksToAdd) { blankEntry }
+        return blanks + rows
     }
+
+
 
 
 
@@ -329,34 +302,8 @@ class calfragment : Fragment() {
         // Return the translated month name
         return monthTranslation[currentMonth]
     }
-    fun mergeRowsByDate(rows: List<Map<String, Any?>>): List<Map<String, Any?>> {
-        val mergedMap = mutableMapOf<Any?, MutableMap<String, Any?>>()
 
-        for (row in rows) {
-            val dateKey = row["date"] // Use "date" as the unique key for merging
-            if (!mergedMap.containsKey(dateKey)) {
-                mergedMap[dateKey] = mutableMapOf()
-            }
-            val existingRow = mergedMap[dateKey]!!
 
-            for ((k, v) in row) {
-                if (existingRow.containsKey(k)) {
-                    // If the value is different, merge them into a list
-                    if (existingRow[k] != v) {
-                        existingRow[k] = if (existingRow[k] is List<*>) {
-                            (existingRow[k] as List<Any?>) + v
-                        } else {
-                            listOf(existingRow[k], v)
-                        }
-                    }
-                } else {
-                    existingRow[k] = v
-                }
-            }
-        }
-
-        return mergedMap.values.map { it.toMap() }
-    }
     fun logMergedRows(mergedRows: List<Map<String, Any?>>) {
         mergedRows.forEachIndexed { index, row ->
             val logMessage = StringBuilder("Row ${index + 1}: ")

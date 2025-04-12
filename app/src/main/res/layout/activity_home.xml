@@ -1079,6 +1079,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/caldetail"
+                    android:visibility="gone"
                     android:layout_width="0dp"
                     android:layout_height="180dp"
                     android:layout_columnWeight="1"

@@ -55,6 +55,7 @@ import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
+import com.mithilakshar.mithilapanchang.Utility.GoogleSignInHelper
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader

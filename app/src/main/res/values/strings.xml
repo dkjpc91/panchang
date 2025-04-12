@@ -6,7 +6,7 @@
     <string name="configure">Configure</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
 
 <!--           //prod
     <string name="caprod">"ca-app-pub-4403504868154729~4560897504"</string>

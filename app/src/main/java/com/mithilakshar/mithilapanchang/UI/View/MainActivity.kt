@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun startMainActivity() {
-        val intent = Intent(this, HomeActivity::class.java)
+        val intent = Intent(this, TestActivity::class.java)
         startActivity(intent)
         finish() // Close the splash activity
     }

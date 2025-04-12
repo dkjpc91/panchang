@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.mithilakshar.mithilapanchang"
-    compileSdk = 34
+    compileSdk = 35
 
     // Load properties from local.properties
     val localProperties = Properties().apply {
@@ -21,13 +21,18 @@ android {
         load(project.rootProject.file("local.properties").inputStream())
     }
 
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
 
     defaultConfig {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
         targetSdk = 34
-        versionCode = 32
-        versionName = "32.0"
+        versionCode = 33
+        versionName = "33.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -72,6 +77,12 @@ dependencies {
 
     implementation("io.github.jan-tennert.supabase:storage-kt:1.3.2")
 
+
+    // New Identity SDK (replaces play-services-auth)
+    implementation ("com.google.android.gms:play-services-identity:18.0.1")
+    implementation ("com.google.android.gms:play-services-auth-api-phone:18.0.1")
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
@@ -109,6 +120,10 @@ dependencies {
     implementation(libs.play.services.ads.lite)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.inappmessaging.display)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
 
     annotationProcessor(libs.androidx.room.room.compiler)

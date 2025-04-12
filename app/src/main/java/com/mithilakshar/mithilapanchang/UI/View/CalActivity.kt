@@ -16,11 +16,12 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.UI.Fragments.calfragment
+import com.mithilakshar.mithilapanchang.Utility.GoogleSignInHelper
 import com.mithilakshar.mithilapanchang.databinding.ActivityCalBinding
 
 class CalActivity : AppCompatActivity() {
 
-
+    private lateinit var googleSignInHelper: GoogleSignInHelper
     private lateinit var binding: ActivityCalBinding
 
     val handler = Handler(Looper.getMainLooper())
@@ -95,7 +96,12 @@ class CalActivity : AppCompatActivity() {
 
         replaceFragment(calfragment())
 
+        googleSignInHelper = GoogleSignInHelper(this)
 
+        binding.logout.setOnClickListener {
+            googleSignInHelper.signOut()
+
+        }
     }
 
     fun replaceFragment(fragment: Fragment) {

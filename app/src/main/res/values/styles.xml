@@ -19,4 +19,11 @@
     <style name="CollapsedTitleTextStyle">
         <item name="android:textSize">35sp</item> <item name="android:textColor">#F41505</item>  </style>
 
+    <style name="SignInButtonStyle" parent="@android:style/Widget">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/gray_800</item>
+    </style>
+
 </resources>

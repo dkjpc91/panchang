@@ -229,7 +229,7 @@ object TranslationUtils {
 
         val hindimonth=translateToHindiDevanagariHinduMonth (monthName)
         val pakshahindi= translateToPaksha (paksha)
-        val hindiday=translateAbbreviatedDayToHindi (day.toUpperCase())
+        val hindiday=translateAbbreviatedDayToHindi (day.uppercase())
         val hindirashi= translateToHindiDevanagariRashi (rashi)
         val tithispeak=convertPanchangTextToMaithili(formattedTextt)
 

@@ -40,6 +40,8 @@
     <color name="cyan_800">#00838F</color>
     <color name="cyan_900">#006064</color>
 
+    <color name="gray_500">#9E9E9E</color>
+
     <color name="orange">#FFA500</color>
     <color name="background">#E9FF14</color>
 

@@ -390,52 +390,51 @@ object TranslationUtils {
 
     fun convertPanchangTextToMaithili(text: String): String {
         val dayMap = mapOf(
-            "सोमवार" to "सोमदिन",
-            "मंगलवार" to "मंगलदिन",
-            "बुधवार" to "बुधदिन",
-            "गुरुवार" to "बृहस्पतिदिन",
-            "शुक्रवार" to "शुक्रदिन",
-            "शनिवार" to "शनिदिन",
-            "रविवार" to "रविदिन"
+            "सोमवार" to "सोमदिन", "सोम" to "सोमदिन",
+            "मंगलवार" to "मंगलदिन", "मंगल" to "मंगलदिन",
+            "बुधवार" to "बुधदिन", "बुध" to "बुधदिन",
+            "गुरुवार" to "बृहस्पतिदिन", "गुरु" to "बृहस्पतिदिन",
+            "शुक्रवार" to "शुक्रदिन", "शुक्र" to "शुक्रदिन",
+            "शनिवार" to "शनिदिन", "शनि" to "शनिदिन",
+            "रविवार" to "रविदिन", "रवि" to "रविदिन"
         )
 
         val resultBuilder = StringBuilder()
-        val lines = text.split("\n")
+        val lines = text.trim().split("\n")
 
         for (line in lines) {
             val parts = line.split(" - ")
-            if (parts.size == 2) {
-                val tithi = parts[0].trim()
-                val timeParts = parts[1].split(" से ")
-                if (timeParts.size == 2) {
-                    val start = timeParts[0].trim()
-                    val end = timeParts[1].trim()
+            if (parts.size != 2) continue
 
-                    // Separate the day from the datetime using first comma
-                    val startCommaIndex = start.indexOf(",")
-                    val endCommaIndex = end.indexOf(",")
+            val tithi = parts[0].trim()
+            val timeParts = parts[1].split(" से ")
+            if (timeParts.size != 2) continue
 
-                    if (startCommaIndex != -1 && endCommaIndex != -1) {
-                        val startDay = start.substring(0, startCommaIndex).trim()
-                        val startDateTime = start.substring(startCommaIndex + 1).trim()
+            val start = timeParts[0].trim()
+            val end = timeParts[1].trim()
 
-                        val endDay = end.substring(0, endCommaIndex).trim()
-                        val endDateTime = end.substring(endCommaIndex + 1).trim()
+            val startCommaIndex = start.indexOf(",")
+            val endCommaIndex = end.indexOf(",")
 
-                        val startFormatted = formatDateTime(startDateTime)
-                        val endFormatted = formatDateTime(endDateTime)
+            if (startCommaIndex == -1 || endCommaIndex == -1) continue
 
-                        val startDayMaithili = dayMap[startDay] ?: startDay
-                        val endDayMaithili = dayMap[endDay] ?: endDay
+            // For start time, we don't need the day (it's before "से")
+            val startDateTime = start.substring(startCommaIndex + 1).trim()
 
-                        resultBuilder.append(" $tithi, तिथि समय ,$startFormatted स, $startDayMaithili, $endFormatted तक.\n")
-                    }
-                }
-            }
+            // For end time, we need both day and date
+            val endDay = end.substring(0, endCommaIndex).trim()
+            val endDateTime = end.substring(endCommaIndex + 1).trim()
+
+            // Translate only the end day
+            val endDayMaithili = dayMap[endDay] ?: endDay
+
+            resultBuilder.append("$tithi, तिथि समय, $startDateTime स, $endDayMaithili, $endDateTime तक.\n")
         }
 
         return resultBuilder.toString().trim()
     }
+
+
 
     fun formatDateTime(dateTimeStr: String): String {
         // Example: "11 अप्रैल 2025, 01:01 पूर्वाह्न"
@@ -447,13 +446,22 @@ object TranslationUtils {
             val time = parts[3]
             val meridiem = parts[4]
 
-            val (hour, minute) = time.split(":")
-            val meridiemMaithili = if (meridiem.contains("पूर्वाह्न")) "पूर्वाह्न" else "अपराह्न"
+            val timeParts = time.split(":")
+            if (timeParts.size == 2) {
+                val hour = timeParts[0].trim()
+                val minute = timeParts[1].trim()
+                val meridiemMaithili = when {
+                    meridiem.contains("पूर्वाह्न") -> "पूर्वाह्न"
+                    meridiem.contains("अपराह्न") -> "अपराह्न"
+                    else -> meridiem // fallback if unknown
+                }
 
-            return "$day ,$month, $year, ${hour.trim()} : ${minute.trim()} $meridiemMaithili"
+                return "$day $month, $year, $hour:$minute $meridiemMaithili"
+            }
         }
         return dateTimeStr
     }
+
 
 
 

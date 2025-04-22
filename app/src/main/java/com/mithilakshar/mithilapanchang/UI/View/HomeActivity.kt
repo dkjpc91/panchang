@@ -38,7 +38,6 @@ import java.util.Locale
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import android.content.Context
-import android.os.CountDownTimer
 import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
@@ -55,7 +54,7 @@ import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
-import com.mithilakshar.mithilapanchang.Utility.GoogleSignInHelper
+
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
@@ -65,6 +64,8 @@ import com.mithilakshar.mithilapanchang.Utility.UpdateChecker
 import com.mithilakshar.mithilapanchang.Utility.ViewShareUtil
 import com.mithilakshar.mithilapanchang.Utility.dbSupabaseDownloadeSequence
 import com.mithilakshar.mithilapanchang.databinding.ActivityHomeBinding
+import com.onesignal.OneSignal
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
@@ -116,6 +117,10 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+
+
 
         appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
         if (updateType == AppUpdateType.FLEXIBLE) {
@@ -285,6 +290,9 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                 binding.homeBanner.visibility = View.VISIBLE
                                 val year=getCurrentYear()
 
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    OneSignal.Notifications.requestPermission(true)
+                                }
 
 
                                 dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
@@ -358,11 +366,13 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                                     val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
                                     val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
 
-                                    val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-                                    val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+                                    val startTime = startRegex?.groupValues?.get(1)?.replace("बजे", "")?.trim() ?: "N/A"
+                                    val endTime = endRegex?.groupValues?.get(1)?.replace("बजे", "")?.trim() ?: "N/A"
 
                                     "$hindiTithi - $startTime से $endTime"
                                 }
+                                Log.d("todaystithi", "Received todaystithi: ${formattedTextt}")
+
 
 
                                 if (todayrow?.isNotEmpty() == true && todayrow != null) {
@@ -1208,7 +1218,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 }
 
 
-                Log.d("TodaysDetails", "Received data: ${todaydata}")
+                Log.d("todaysnakshatra", "Received data: ${todaysnakshatra}")
 
                 runOnUiThread {
 

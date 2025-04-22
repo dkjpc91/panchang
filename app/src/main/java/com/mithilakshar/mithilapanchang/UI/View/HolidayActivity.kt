@@ -146,7 +146,7 @@ class HolidayActivity : AppCompatActivity() {
 
 
         val items = listOf(
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2025"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2025"),
 
             )
 

@@ -108,8 +108,8 @@ class TithiActivity : AppCompatActivity() {
 
         // Spinner setup
         val items = listOf(
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2025"),
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.festival, "2026"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2025"),
+            CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2026"),
 
         )
         val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, items)

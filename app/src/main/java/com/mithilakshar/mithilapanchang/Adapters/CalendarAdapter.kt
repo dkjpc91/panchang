@@ -75,7 +75,7 @@ class CalendarAdapter(
 
             binding.root.setOnClickListener {
                 if(model["date"]?.toString()?.isNotEmpty() == true)
-                showCalendarDialog(context, model, year)
+                showCalendarDialog(context, model, year, model["date"].toString(), model["month"].toString())
             }
         }
 
@@ -97,7 +97,7 @@ class CalendarAdapter(
             return dateFormat.format(Calendar.getInstance().time).uppercase(Locale.getDefault())
         }
 
-        private fun showCalendarDialog(context: Context, todaysdatedetails: Map<String, Any?>, year: Int) {
+        private fun showCalendarDialog(context: Context, todaysdatedetails: Map<String, Any?>, year: Int,todayDate:String,todayMonth:String) {
             val calendarDialog = CalendarDialog(context)
 
 
@@ -108,36 +108,40 @@ class CalendarAdapter(
 
             val dbHelpertithi=dbHelper(context,tithidbname)
             val dbHelpernakshatra=dbHelper(context,nakshatradbname)
-            val (todayDate, todayMonth) = getTodayDateAndMonth()
-            val todaystithi=dbHelpertithi.getTithiRowsContainingDate(todayDate,todayMonth,tithidbname,ttable)
-            val todaysnakshatra=dbHelpernakshatra.getTithiRowsContainingDate(todayDate,todayMonth,nakshatradbname,ntable)
+            val todayDate = todayDate
+            val  todayMonth = todayMonth
+            val formatMonth=formatMonth(todayMonth)
+            Log.d("todaystithi", "Received todaystithi: ${formatMonth + todayDate}")
+            val todaystithi=dbHelpertithi.getTithiRowsContainingDate(todayDate,formatMonth,tithidbname,ttable)
+            val todaysnakshatra=dbHelpernakshatra.getTithiRowsContainingDate(todayDate,formatMonth,nakshatradbname,ntable)
             Log.d("todaystithi", "Received todaystithi: ${todaystithi}")
             val formattedTextt = todaystithi.joinToString(separator = "\n") { row ->
                 val hindiTithi = row["Hindi Tithi"] ?: "N/A"
                 val hindiTiming = row["Hindi Timinig"] ?: ""
 
-                // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
-                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
-                val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+                // Match start time: non-greedy, ends before समाप्ति समय
+                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*(.*?)(?=\\s*समाप्ति समय)")
+                val endRegex = Regex("समाप्ति समय:\\s*(.+)")
 
-                val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-                val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+                val startTime = startRegex.find(hindiTiming)?.groupValues?.get(1)?.trim() ?: "N/A"
+                val endTime = endRegex.find(hindiTiming)?.groupValues?.get(1)?.trim() ?: "N/A"
 
-                "$hindiTithi - $startTime से $endTime"
+                "$hindiTithi - $startTime स $endTime"
             }
             val formattedTextn = todaysnakshatra.joinToString(separator = "\n") { row ->
                 val hindiTithi = row["Hindi Tithi"] ?: "N/A"
                 val hindiTiming = row["Hindi Timinig"] ?: ""
 
-                // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
-                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
-                val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+                // Match start time: non-greedy, ends before समाप्ति समय
+                val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*(.*?)(?=\\s*समाप्ति समय)")
+                val endRegex = Regex("समाप्ति समय:\\s*(.+)")
 
-                val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-                val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
+                val startTime = startRegex.find(hindiTiming)?.groupValues?.get(1)?.trim() ?: "N/A"
+                val endTime = endRegex.find(hindiTiming)?.groupValues?.get(1)?.trim() ?: "N/A"
 
-                "$hindiTithi - $startTime से $endTime"
+                "$hindiTithi - $startTime स $endTime"
             }
+
 
 
 
@@ -190,7 +194,9 @@ class CalendarAdapter(
             return Pair(day, month)
         }
 
-
+        fun formatMonth(month: String): String {
+            return month.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+        }
     }
 
     private var itemWidth = 0
@@ -264,6 +270,8 @@ class CalendarAdapter(
         )
         return dateTranslation[date]
     }
+
+
 
 
 }

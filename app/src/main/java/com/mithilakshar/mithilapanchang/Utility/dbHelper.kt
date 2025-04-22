@@ -657,48 +657,125 @@ class dbHelper(context: Context, dbName: String) {
         return tithiList
     }
 
+
+    fun formatMonth(month: String): String {
+        return month.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+    }
+
     fun getTithiRowsContainingDate(
         dateStr: String,
-        monthStr: String,
+        inputMonthStr: String,
         dbName: String,
         tableName: String
     ): List<Map<String, String>> {
 
-        val tithiList = mutableListOf<Map<String, String>>()
-        val searchPattern = "$dateStr $monthStr" // Example: "01 Jan"
+        val monthStr = formatMonth(inputMonthStr)
 
-        db?.let { database ->
-            if (!database.isOpen) {
-                Log.w(TAG, "Database not open")
-                return emptyList()
-            }
+        // Helper function to run query for a given date/month
+        fun queryTithi(date: String, month: String): List<Map<String, String>> {
+            val resultList = mutableListOf<Map<String, String>>()
 
-            val query = "SELECT * FROM $tableName WHERE Timing LIKE ?"
-            val selectionArgs = arrayOf("%$searchPattern%")
+            val formattedDate = if (date.length == 1) "0$date" else date
+            val searchPattern = ", $formattedDate $month"
 
-            database.rawQuery(query, selectionArgs)?.use { cursor ->
-                while (cursor.moveToNext()) {
-                    val rowData = mutableMapOf<String, String>()
-                    rowData["Tithi"] = cursor.getString(cursor.getColumnIndex("Tithi")) ?: ""
-                    rowData["Timing"] = cursor.getString(cursor.getColumnIndex("Timing")) ?: ""
-                    rowData["Hindi Tithi"] = cursor.getString(cursor.getColumnIndex("Hindi Tithi")) ?: ""
-                    rowData["Hindi Timinig"] = cursor.getString(cursor.getColumnIndex("Hindi Timinig")) ?: ""
-                    tithiList.add(rowData)
+            db?.let { database ->
+                if (!database.isOpen) {
+                    Log.w("DB", "Database not open")
+                    return emptyList()
+                }
+
+                val query = "SELECT * FROM $tableName WHERE Timing LIKE ?"
+                val selectionArgs = arrayOf("%$searchPattern%")
+
+                database.rawQuery(query, selectionArgs)?.use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val rowData = mutableMapOf<String, String>()
+                        rowData["Tithi"] = cursor.getString(cursor.getColumnIndex("Tithi")) ?: ""
+                        rowData["Timing"] = cursor.getString(cursor.getColumnIndex("Timing")) ?: ""
+                        rowData["Hindi Tithi"] = cursor.getString(cursor.getColumnIndex("Hindi Tithi")) ?: ""
+                        rowData["Hindi Timinig"] = cursor.getString(cursor.getColumnIndex("Hindi Timinig")) ?: ""
+                        resultList.add(rowData)
+                    }
                 }
             }
+
+            return resultList
         }
 
-        if (tithiList.isEmpty()) {
-            val defaultTithi = mutableMapOf<String, String>()
-            defaultTithi["Tithi"] = "अपडेट प्रक्रिया में"
-            defaultTithi["Timing"] = ""
-            defaultTithi["Hindi Tithi"] = "अपडेट प्रक्रिया में"
-            defaultTithi["Hindi Timinig"] = ""
-            tithiList.add(defaultTithi)
+        fun filterTithiByExactDate(
+            resultList: List<Map<String, String>>,
+            dateStr: String,
+            monthStr: String
+        ): List<Map<String, String>> {
+            val formattedDate = if (dateStr.length == 1) "0$dateStr" else dateStr
+            val exactDate = "$formattedDate $monthStr"
+
+            return resultList.filter { row ->
+                val timing = row["Timing"] ?: ""
+                val startMatch = Regex("Start Time :.*?,\\s*$exactDate").containsMatchIn(timing)
+                val endMatch = Regex("End Time :.*?,\\s*$exactDate").containsMatchIn(timing)
+                startMatch || endMatch
+            }
         }
 
-        return tithiList
+        fun getLastDayOfPreviousMonth(currentMonth: String): Pair<String, String> {
+            val monthOrder = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+            val daysInMonth = mapOf(
+                "Jan" to "31", "Feb" to "28", "Mar" to "31", "Apr" to "30",
+                "May" to "31", "Jun" to "30", "Jul" to "31", "Aug" to "31",
+                "Sep" to "30", "Oct" to "31", "Nov" to "30", "Dec" to "31"
+            )
+
+            val currentIndex = monthOrder.indexOf(currentMonth)
+            val previousIndex = if (currentIndex > 0) currentIndex - 1 else 11
+            val previousMonth = monthOrder[previousIndex]
+            val lastDay = daysInMonth[previousMonth] ?: "31"
+
+            return Pair(previousMonth, lastDay)
+        }
+
+        fun decrementDate(dateStr: String, monthStr: String): Pair<String, String> {
+            val dateInt = dateStr.toIntOrNull() ?: return Pair(dateStr, monthStr)
+            return if (dateInt > 1) {
+                Pair((dateInt - 1).toString().padStart(2, '0'), monthStr)
+            } else {
+                getLastDayOfPreviousMonth(monthStr)
+            }
+        }
+
+        // 1. Initial query
+        var finalResult = queryTithi(dateStr, monthStr)
+
+        // 2. If empty, keep decrementing date until something is found or we go too far
+        var currentDateStr = dateStr
+        var currentMonthStr = monthStr
+        while (finalResult.isEmpty()) {
+            val (newDate, newMonth) = decrementDate(currentDateStr, currentMonthStr)
+            currentDateStr = newDate
+            currentMonthStr = newMonth
+            finalResult = queryTithi(currentDateStr, currentMonthStr)
+
+            // Optional: break out if you've gone too far back
+            if (currentDateStr == "01" && currentMonthStr == "Jan") break
+        }
+
+        // 3. Still nothing? Return an empty default
+        if (finalResult.isEmpty()) {
+            return listOf(
+                mapOf(
+                    "Tithi" to "",
+                    "Timing" to "",
+                    "Hindi Tithi" to "",
+                    "Hindi Timinig" to ""
+                )
+            )
+        }
+
+        // 4. Filter rows to include only ones that match the actual date
+        return filterTithiByExactDate(finalResult, currentDateStr, currentMonthStr)
     }
+
+
 
 
 

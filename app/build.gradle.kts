@@ -31,8 +31,8 @@ android {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
         targetSdk = 34
-        versionCode = 33
-        versionName = "33.0"
+        versionCode = 38
+        versionName = "38.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -48,12 +48,14 @@ android {
             buildConfigField("boolean", "FIREBASE_ANALYTICS_ENABLED", "true")
             buildConfigField("String", "sUrl",  localProperties.getProperty("sUrl"))
             buildConfigField("String", "sK",  localProperties.getProperty("sK")) 
+            buildConfigField("String", "os",  localProperties.getProperty("os"))
         }
         debug {
             isMinifyEnabled = false // Set to true if you want to enable code shrinking for debug
             buildConfigField("boolean", "FIREBASE_ANALYTICS_ENABLED", "false")
             buildConfigField("String", "sUrl",  localProperties.getProperty("sUrl"))
             buildConfigField("String", "sK",  localProperties.getProperty("sK"))
+            buildConfigField("String", "os",  localProperties.getProperty("os"))
         }
     }
 
@@ -73,12 +75,12 @@ android {
 
 dependencies {
 
+    implementation("com.onesignal:OneSignal:[5.1.6, 5.1.99]")
     implementation("io.ktor:ktor-client-cio:2.3.4")
 
     implementation("io.github.jan-tennert.supabase:storage-kt:1.3.2")
 
 
-    // New Identity SDK (replaces play-services-auth)
     implementation ("com.google.android.gms:play-services-identity:18.0.1")
     implementation ("com.google.android.gms:play-services-auth-api-phone:18.0.1")
     implementation ("com.google.android.gms:play-services-auth:20.7.0")
@@ -124,6 +126,7 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.transport.api)
 
 
     annotationProcessor(libs.androidx.room.room.compiler)

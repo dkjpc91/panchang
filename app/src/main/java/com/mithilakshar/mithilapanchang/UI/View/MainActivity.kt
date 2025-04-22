@@ -10,6 +10,7 @@ import android.os.Looper
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import android.animation.ObjectAnimator
+import androidx.activity.enableEdgeToEdge
 import com.mithilakshar.mithilapanchang.R
 
 import com.mithilakshar.mithilapanchang.databinding.ActivityMainBinding
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-
+        enableEdgeToEdge()
 
         val animation = AnimationUtils.loadAnimation(this, R.anim.fade)
         animation.duration = 2500

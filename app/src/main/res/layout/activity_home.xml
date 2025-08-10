@@ -29,41 +29,58 @@
             style="?attr/collapsingToolbarLayoutLargeSize"
             android:layout_height="wrap_content">
 
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="10dp">
 
-                <!-- Banner Image -->
-                <ImageView
 
-                    android:id="@+id/homeBanner"
-                    android:visibility="gone"
-                    android:layout_marginTop="94dp"
-                    android:layout_marginBottom="60dp"
-                    android:clipToOutline="true"
-                    android:src="@drawable/logo"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/bannercard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_collapseMode="parallax"
-                    android:scaleType="center" />
+                    android:layout_marginTop="94dp"
+                    android:layout_marginBottom="60dp"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="12dp"
+                    app:cardUseCompatPadding="true">
 
-                <!-- Share Icon positioned below the banner -->
+                    <ImageView
+                        android:id="@+id/homeBanner"
+                        android:visibility="gone"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/logo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scaleType="centerCrop" />
+
+                </androidx.cardview.widget.CardView>
+
+
                 <ImageView
                     android:visibility="gone"
                     android:id="@+id/shareicon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:src="@drawable/forward"
-                    android:layout_below="@id/homeBanner"
+                    android:layout_below="@id/bannercard"
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="-40dp"
                     android:layout_marginRight="10dp"
                     app:tint="@color/blue" />
 
 
+                <!-- Share Icon positioned below the banner -->
+
+
+
 
             </RelativeLayout>
+
+
 
 
 

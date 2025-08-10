@@ -38,13 +38,27 @@ import java.util.Locale
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.util.Log
+import android.util.TypedValue
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.animation.OvershootInterpolator
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -57,7 +71,6 @@ import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
 import com.mithilakshar.mithilapanchang.Utility.DocList
 
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
-import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
 import com.mithilakshar.mithilapanchang.Utility.SupabaseFileDownloader
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils
 import com.mithilakshar.mithilapanchang.Utility.TranslationUtils.speakFunction
@@ -71,6 +84,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -184,27 +198,6 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             adviewMR.loadAd(adRequest)
             adView.loadAd(adRequest)
 
-            val maxHeightInDp = 700
-            val maxHeightInPx = (maxHeightInDp * resources.displayMetrics.density).toInt()
-
-            val imageView = binding.homeBanner
-
-            val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    val contentHeight = imageView.height
-                    val params = imageView.layoutParams as ViewGroup.LayoutParams
-
-                    // If the content height is greater than maxHeight, use maxHeight
-                    params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                    imageView.layoutParams = params
-
-                    // Remove the listener to prevent it from being called again
-                    imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                }
-            }
-
-// Add the global layout listener
-            imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
 
 
 
@@ -477,7 +470,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
 
-
+                                        binding.bannercard.animate().translationZ(16f).setDuration(200).start()
 
                                         setupViewPagerAndDatabase(
                                             context = this@HomeActivity,
@@ -1074,18 +1067,24 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             val holidaybannerurl = holidayurl
             val holidayNameData = holidaytoday.toString()
 
-            val layoutBitmapGenerator = LayoutBitmapGenerator(this)
-            layoutBitmapGenerator.generateBitmap(holidayNameData, holidaybannerurl) { generatedBitmap ->
-                if (generatedBitmap != null) {
-                    Glide.with(this)
-                        .load(generatedBitmap)
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                        .into(binding.homeBanner)
-                } else {
-                    Log.e("MyActivity", "Failed to generate bitmap from layout")
-                }
+            val imageView = binding.homeBanner
+
+            val fixedHeightDp = 530
+            val fixedHeightPx = (fixedHeightDp * binding.root.context.resources.displayMetrics.density).toInt()
+
+            imageView.layoutParams = binding.homeBanner.layoutParams.apply {
+                height = fixedHeightPx
             }
+
+
+
+            Glide.with(binding.root.context)
+
+                .load(holidaybannerurl)
+                .transition(DrawableTransitionOptions.withCrossFade(600))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(imageView)
 
             val todayimage = holidayurl
             handler.postDelayed({
@@ -1138,32 +1137,27 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     val randomImage = todayimage
                     Log.d("appbar", "rN$randomImage")
 
-// Adjust ImageView height
-                    val maxHeightInDp = 700
-                    val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
+                    ///
 
-                    val imageView = binding.homeBanner
 
-                    val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            val contentHeight = imageView.height
-                            val params = imageView.layoutParams as ViewGroup.LayoutParams
 
-                            // If the content height is greater than maxHeight, use maxHeight
-                            params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                            imageView.layoutParams = params
 
-                            // Remove the listener to prevent it from being called again
-                            imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        }
-                    }
+                                                val imageView = binding.homeBanner
 
-                    // Add the global layout listener
-                    imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+                                                  val fixedHeightDp = 530
+                                                val fixedHeightPx = (fixedHeightDp * binding.root.context.resources.displayMetrics.density).toInt()
 
-                    Glide.with(binding.root.context).load(randomImage)
-                        .into(imageView)
+                                                imageView.layoutParams = binding.homeBanner.layoutParams.apply {
+                                                    height = fixedHeightPx
+                                                }
+
+
+                                                Glide.with(binding.root.context).load(randomImage)
+                                                    .transition(DrawableTransitionOptions.withCrossFade(800))
+                                                    .into(imageView)
                     imageView.invalidate()
+
+
 
                 } else {
                     Log.d("appbar", "inelse")
@@ -1178,34 +1172,26 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
                     ///
-                    val maxHeightInDp = 700
-                    val maxHeightInPx = (maxHeightInDp * binding.root.context.resources.displayMetrics.density).toInt()
+                        val imageView = binding.homeBanner
 
-                    val imageView = binding.homeBanner
+                    val fixedHeightDp = 520
+                        val fixedHeightPx = (fixedHeightDp * binding.root.context.resources.displayMetrics.density).toInt()
 
-                    val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            val contentHeight = imageView.height
-                            val params = imageView.layoutParams as ViewGroup.LayoutParams
-
-                            // If the content height is greater than maxHeight, use maxHeight
-                            params.height = if (contentHeight > maxHeightInPx) maxHeightInPx else ViewGroup.LayoutParams.WRAP_CONTENT
-                            imageView.layoutParams = params
-
-                            // Remove the listener to prevent it from being called again
-                            imageView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        imageView.layoutParams = binding.homeBanner.layoutParams.apply {
+                            height = fixedHeightPx
                         }
+
+
+
+
+                                                   Glide.with(binding.root.context)
+                                                       .load(            appbarbannerurls[random])
+                                                       .transition(DrawableTransitionOptions.withCrossFade(800))
+                                         .into(imageView)
+                                     imageView.invalidate()
+
+
                     }
-
-                    // Add the global layout listener
-                    imageView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
-                    Log.d("appbar", "$appbarbannerurls")
-
-                    Glide.with(binding.root.context).load(appbarbannerurls[random])
-                        .into(imageView)
-                    imageView.invalidate()
-
-                }
             }
 
 
@@ -1482,6 +1468,8 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         return Pair(day, month)
     }
+
+
 
 }
 

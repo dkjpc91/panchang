@@ -54,6 +54,7 @@ import com.mithilakshar.mithilapanchang.R
 import com.mithilakshar.mithilapanchang.Room.UpdatesDao
 import com.mithilakshar.mithilapanchang.Room.UpdatesDatabase
 import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
+import com.mithilakshar.mithilapanchang.Utility.DocList
 
 import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.Utility.LayoutBitmapGenerator
@@ -88,7 +89,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var dbHelpercalander1: dbHelper
     private lateinit var dbHelperimage: dbHelper
     private lateinit var dbHelperHoliday: dbHelper
-
+    val docList = DocList()
     val mediaPlayer = MediaPlayer()
     var currentPlaybackPosition: Int = 0
     val handler = Handler(Looper.getMainLooper())
@@ -112,6 +113,7 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var dbSupabaseDownloadeSequence: dbSupabaseDownloadeSequence
     private lateinit var supabasedownloader: SupabaseFileDownloader
 
+    private var firebasedoclist: List<Map<String, Any>> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -216,250 +218,314 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             updatesDao = UpdatesDatabase.getDatabase(applicationContext).UpdatesDao()
             dbSupabaseDownloadeSequence = dbSupabaseDownloadeSequence(updatesDao, supabasedownloader)
 
-            val filesWithIds = listOf(
-                Pair("iauto",85),
-                Pair("holi2025", 80),
 
-                Pair("t2025", 65),
-                Pair("t2026", 66),
-
-                Pair("n2025", 67),
-                Pair("k2025", 68),
-                Pair("y2025", 69),
-
-                Pair("n2026", 70),
-                Pair("k2026", 71),
-                Pair("y2026", 72),
-
-                Pair("caln2025", 34)
-
-
-                )
-
-            lifecycleScope.launch {
-                val updateChecker = UpdateChecker(updatesDao)
-                val isUpdateNeeded = updateChecker.getUpdateStatus()
-
-                Log.d("supabase", "isUpdateNeeded: $isUpdateNeeded")
-                withContext(Dispatchers.Main) {
-                    if (isUpdateNeeded != "a") {
-
-                        Log.d("updatechecker", " :  needed $isUpdateNeeded")
-
-                        dbSupabaseDownloadeSequence.observeMultipleFileExistence(
-                            filesWithIds,
-                            this@HomeActivity,
-                            lifecycleScope,
-                            homeActivity = this@HomeActivity, // Your activity
-                            progressCallback = { progress, filePair ->
-
-
-                                Log.d("Progress", "File: $filePair, Progress: $progress%")
-
-
-                            }, {
-
-
-                                recreateWithDelay(2000)
-
-
-
-                            }
-                        )
-
-
-                    } else {
-
-                        val nonExistentFiles= checkFilesExistence(filesWithIds)
-                        dbSupabaseDownloadeSequence.observeMultipleFileExistence(
-                            nonExistentFiles,
-                            this@HomeActivity,
-                            lifecycleScope,
-                            homeActivity = this@HomeActivity,
-                            progressCallback = { progress, filePair ->
-                                Log.d(
-                                    "FileCheck",
-                                    "File: ${filePair.first()}.db, Progress: $progress%"
-                                )
-                            },
-                            {
-
-                                binding.homeviewloading.visibility = View.GONE
-                                binding.homeviewloading1.visibility = View.GONE
-                                binding.homeview.visibility = View.VISIBLE
-                                binding.homeBanner.visibility = View.VISIBLE
-                                val year=getCurrentYear()
-
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    OneSignal.Notifications.requestPermission(true)
-                                }
-
-
-                                dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
-
-                                dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
-
-
-
-
-
-
-                                val randomHoliday1 =  dbHelperHoliday .getRandomHoliday( currentMonthString.lowercase(Locale.getDefault()),
-                                    currentDay.toString(), "holi$year")
-
-
-                                binding.titleTextView.text=randomHoliday1?.get("name")
-                                binding.subtitleTextView.text="${randomHoliday1?.get("date")}  ${randomHoliday1?.get("desc")}  "
-
-                                Log.d("randomHoliday", "randomHoliday1: $randomHoliday1 ")
-
-
-
-
-
-                                val dbname1="caln$year.db"
-                                var table1="caln"
-                                table1="$table1$year"
-                                val month=getCurrentMonth()
-                                val dATE=getCurrentDay()
-
-
-
-
-                                dbHelpercalander1  = dbHelper(this@HomeActivity, dbname1)
-                                dbHelpercalander = CalendarHelper(this@HomeActivity, dbname1)
-
-                                val todayrow=dbHelpercalander1.getRowByMonthAndDate("${TranslationUtils.translateTomonthnumber(
-                                    month.toString())}",
-                                dATE.toString(),
-                                table1)
-
-                                Log.d("todayrow", "table: $table1")
-                                Log.d("todayrow", "month: ${TranslationUtils.translateTomonthnumber(
-                                    month.toString())}")
-                                Log.d("todayrow", "date: $dATE")
-                                Log.d("todayrow", "dbname1: $dbname1")
-                                Log.d("todayrow", "todayrow: $todayrow")
-
-
-
-                                val selectedyear=getCurrentYear()
-
-
-                                val tithidbname="t$selectedyear.db"
-                                val ttable="t$selectedyear"
-
-                                val dbHelpertithi=dbHelper(this@HomeActivity,tithidbname)
-
-
-                                val (todayDate, todayMonth) = getTodayDateAndMonth()
-                                val todaystithi=dbHelpertithi.getTithiRowsContainingDate(todayDate,todayMonth,tithidbname,ttable)
-
-
-
-                                Log.d("todaystithi", "Received todaystithi: ${todaystithi}")
-                                val formattedTextt = todaystithi.joinToString(separator = "\n") { row ->
-                                    val hindiTithi = row["Hindi Tithi"] ?: "N/A"
-                                    val hindiTiming = row["Hindi Timinig"] ?: ""
-
-                                    // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
-                                    val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
-                                    val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
-
-                                    val startTime = startRegex?.groupValues?.get(1)?.replace("बजे", "")?.trim() ?: "N/A"
-                                    val endTime = endRegex?.groupValues?.get(1)?.replace("बजे", "")?.trim() ?: "N/A"
-
-                                    "$hindiTithi - $startTime से $endTime"
-                                }
-                                Log.d("todaystithi", "Received todaystithi: ${formattedTextt}")
-
-
-
-                                if (todayrow?.isNotEmpty() == true && todayrow != null) {
-                                    val toaydata = todayrow
-
-                                    val sentence = speakFunction(
-                                        formattedTextt,
-                                        month = (toaydata?.get("month")?: ""),
-                                        date = toaydata?.get("date")?.toString() ?: "",
-                                        day = toaydata?.get("day")?.toString() ?: "",
-                                        monthName = toaydata?.get("monthname")?.toString() ?: "",
-                                        rashi = toaydata?.get("rashi")?.toString() ?: " ",
-                                        paksha = toaydata?.get("paksha")?.toString() ?: " ",
-                                        hindiDate = toaydata?.get("hindidate")?.toString() ?: "  ",
-                                        holidayName = toaydata?.get("holiday name")?.toString() ?: " ",
-                                        holidayDesc = toaydata?.get("holidaydesc")?.toString() ?: "  ",
-
-                                    )
-
-                                    loadTodaysDetails( toaydata)
-
-                                    Log.d("toaydata", "$toaydata")
-                                    Log.d("sentence", "$sentence")
-
-                                    speak = sentence
-                                    textToSpeech = TextToSpeech(this@HomeActivity) { status ->
-                                        if (status == TextToSpeech.SUCCESS) {
-                                            textToSpeech?.language = Locale.forLanguageTag("hi")
-                                            Log.d("speak", "TTS initialized successfully")
-                                            delayedTask(1000, speak.toString())
-                                        } else {
-                                            Log.d("speak", "TTS initialization failed")
-                                        }
-                                    }
-                                }
-
-
-
-                                    binding.shareicon.visibility=View.VISIBLE
-                                    binding.homeBanner.visibility=View.VISIBLE
-
-                                    handleHolidayData(
-                                        dbHelpercalander = dbHelpercalander,
-                                        dbHelperimage = dbHelperimage,
-                                        currentMonthString = currentMonthString,
-                                        currentDay = currentDay,
-                                        currentDayName = currentDayName
-                                    )
-                                    binding.holidaycounter.visibility=View.VISIBLE
-                                    randomHoliday1?.get("date")?.let { startCountdown(it) }
-
-
-
-
-
-                                setupViewPagerAndDatabase(
-                                    context = this@HomeActivity,
-                                    currentMonthString = currentMonthString,
-                                    currentDay = currentDay,
-                                    delayMillis = delayMillis,
-                                    dbHelperHoliday
-                                )
-
-                            }
-                        )
-
-
-
-
-
-
-
-
-
-                   /*     homeBroadcast = viewModel.gethomeBroadcast()
-                        Log.d("homeBroadcast", "$homeBroadcast")
-
-                        if (homeBroadcast.isNullOrEmpty()) {
-                            binding.floatingActionButton.visibility = View.GONE
-                        } else {
-                            binding.floatingActionButton.visibility = View.VISIBLE
-                        }*/
-
-
+            docList.getHomeDocuments(
+                callback = { docs ->
+                    firebasedoclist = docs // ✅ Store in global variable
+                        Log.d("Firestore", "Fetched documents: $firebasedoclist")
+
+                    // Optional: log each document individually
+                    firebasedoclist.forEach {
+                        Log.d("Firestore", it.toString())
                     }
+
+                    val filesWithIds = listOf(
+                        "iauto" to 85,
+                        "holi2025" to 80,
+                        "t2025" to 65,
+                        "t2026" to 66,
+                        "n2025" to 67,
+                        "k2025" to 68,
+                        "y2025" to 69,
+                        "n2026" to 70,
+                        "k2026" to 71,
+
+                        "y2026" to 72,
+                        "caln2025" to 34
+                    )
+
+                    val fileIdMap = filesWithIds.toMap()
+
+
+
+                    // Holds full info
+                    data class FileInfo(val name: String, val id: Int, val action: String?)
+
+// Start with known files
+                    val predefinedFileInfoList = filesWithIds.map { (name, id) ->
+                        val action = firebasedoclist.find {
+                            val fname = it["test"] as? String
+                            fname?.removeSuffix(".db") == name
+                        }?.get("action") as? String
+                        FileInfo(name, id, action)
+                    }
+
+// Now add any *new* files from Firestore
+                    val extraFileInfoList = firebasedoclist.mapNotNull { doc ->
+                        val fileName = doc["test"] as? String ?: return@mapNotNull null
+                        val name = fileName.removeSuffix(".db")
+                        if (fileIdMap.containsKey(name)) return@mapNotNull null // already included
+
+                        val action = doc["action"] as? String
+
+                        // Extract digits from filename, fallback to 0
+                        val idFromName = Regex("\\d+").find(name)?.value?.toIntOrNull() ?: 0
+
+                        FileInfo(name, idFromName, action)
+                    }
+
+// Combine all
+                        val fullList = predefinedFileInfoList + extraFileInfoList
+
+// ✅ Log the result
+                    fullList.forEach {
+                        Log.d("newlist", "Name: ${it.name}, ID: ${it.id}, Action: ${it.action}")
+                    }
+
+                    val backToPairs: List<Pair<String, Int>> = fullList.map { it.name to it.id }
+                    backToPairs.forEach { (name, id) ->
+                        Log.d("MyTag", "Name: $name, ID: $id")
+                    }
+
+                    lifecycleScope.launch {
+                        val updateChecker = UpdateChecker(updatesDao)
+                        val isUpdateNeeded = updateChecker.getUpdateStatus()
+
+                        Log.d("supabase", "isUpdateNeeded: $isUpdateNeeded")
+                        withContext(Dispatchers.Main) {
+                            if (isUpdateNeeded != "a") {
+
+                                Log.d("updatechecker", " :  needed $isUpdateNeeded")
+
+                                dbSupabaseDownloadeSequence.observeMultipleFileExistence(
+                                    backToPairs,
+                                    this@HomeActivity,
+                                    lifecycleScope,
+                                    homeActivity = this@HomeActivity, // Your activity
+                                    progressCallback = { progress, filePair ->
+
+
+                                        Log.d("Progress", "File: $filePair, Progress: $progress%")
+
+
+                                    }, {
+
+
+                                        recreateWithDelay(2000)
+
+
+
+                                    }
+                                )
+
+
+                            } else {
+
+                                val nonExistentFiles= checkFilesExistence(backToPairs)
+                                dbSupabaseDownloadeSequence.observeMultipleFileExistence(
+                                    nonExistentFiles,
+                                    this@HomeActivity,
+                                    lifecycleScope,
+                                    homeActivity = this@HomeActivity,
+                                    progressCallback = { progress, filePair ->
+                                        Log.d(
+                                            "FileCheck",
+                                            "File: ${filePair.first()}.db, Progress: $progress%"
+                                        )
+                                    },
+                                    {
+
+                                        binding.homeviewloading.visibility = View.GONE
+                                        binding.homeviewloading1.visibility = View.GONE
+                                        binding.homeview.visibility = View.VISIBLE
+                                        binding.homeBanner.visibility = View.VISIBLE
+                                        val year=getCurrentYear()
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            OneSignal.Notifications.requestPermission(true)
+                                        }
+
+
+                                        dbHelperHoliday = dbHelper(this@HomeActivity, "holi$year.db")
+
+                                        dbHelperimage = dbHelper(this@HomeActivity, "iauto.db")
+
+
+
+
+
+
+                                        val randomHoliday1 =  dbHelperHoliday .getRandomHoliday( currentMonthString.lowercase(Locale.getDefault()),
+                                            currentDay.toString(), "holi$year")
+
+
+                                        binding.titleTextView.text=randomHoliday1?.get("name")
+                                        binding.subtitleTextView.text="${randomHoliday1?.get("date")}  ${randomHoliday1?.get("desc")}  "
+
+                                        Log.d("randomHoliday", "randomHoliday1: $randomHoliday1 ")
+
+
+
+
+
+                                        val dbname1="caln$year.db"
+                                        var table1="caln"
+                                        table1="$table1$year"
+                                        val month=getCurrentMonth()
+                                        val dATE=getCurrentDay()
+
+
+
+
+                                        dbHelpercalander1  = dbHelper(this@HomeActivity, dbname1)
+                                        dbHelpercalander = CalendarHelper(this@HomeActivity, dbname1)
+
+                                        val todayrow=dbHelpercalander1.getRowByMonthAndDate("${TranslationUtils.translateTomonthnumber(
+                                            month.toString())}",
+                                            dATE.toString(),
+                                            table1)
+
+                                        Log.d("todayrow", "table: $table1")
+                                        Log.d("todayrow", "month: ${TranslationUtils.translateTomonthnumber(
+                                            month.toString())}")
+                                        Log.d("todayrow", "date: $dATE")
+                                        Log.d("todayrow", "dbname1: $dbname1")
+                                        Log.d("todayrow", "todayrow: $todayrow")
+
+
+
+                                        val selectedyear=getCurrentYear()
+
+
+                                        val tithidbname="t$selectedyear.db"
+                                        val ttable="t$selectedyear"
+
+                                        val dbHelpertithi=dbHelper(this@HomeActivity,tithidbname)
+
+
+                                        val (todayDate, todayMonth) = getTodayDateAndMonth()
+                                        val todaystithi=dbHelpertithi.getTithiRowsContainingDate(todayDate,todayMonth,tithidbname,ttable)
+
+
+
+                                        Log.d("todaystithi", " todaystithi: ${todaystithi}")
+                                        val formattedTextt = todaystithi.joinToString(separator = " । ") { row ->
+                                            val hindiTithi = row["Hindi Tithi"] ?: "N/A"
+                                            var hindiTiming = row["Hindi Timinig"] ?: ""
+
+                                            // Fix: Move पूर्वाह्न/अपराह्न before the time
+                                            hindiTiming = hindiTiming.replace(Regex("(\\d{2}:\\d{2})\\s*(पूर्वाह्न|अपराह्न)")) {
+                                                "${it.groupValues[2]} ${it.groupValues[1]}"
+                                            }
+
+                                            "$hindiTithi - $hindiTiming"
+                                        }
+
+
+                                        Log.d("todaystithi", "Received todaystithi: ${formattedTextt}")
+
+
+
+                                        if (todayrow?.isNotEmpty() == true && todayrow != null) {
+                                            val toaydata = todayrow
+
+                                            val sentence = speakFunction(
+                                                formattedTextt,
+                                                month = (toaydata?.get("month")?: ""),
+                                                date = toaydata?.get("date")?.toString() ?: "",
+                                                day = toaydata?.get("day")?.toString() ?: "",
+                                                monthName = toaydata?.get("monthname")?.toString() ?: "",
+                                                rashi = toaydata?.get("rashi")?.toString() ?: " ",
+                                                paksha = toaydata?.get("paksha")?.toString() ?: " ",
+                                                hindiDate = toaydata?.get("hindidate")?.toString() ?: "  ",
+                                                holidayName = toaydata?.get("holiday name")?.toString() ?: " ",
+                                                holidayDesc = toaydata?.get("holidaydesc")?.toString() ?: "  ",
+
+                                                )
+
+                                            loadTodaysDetails( toaydata)
+
+                                            Log.d("toaydata", "$toaydata")
+                                            Log.d("sentence", "$sentence")
+
+                                            speak = sentence
+                                            textToSpeech = TextToSpeech(this@HomeActivity) { status ->
+                                                if (status == TextToSpeech.SUCCESS) {
+                                                    textToSpeech?.language = Locale.forLanguageTag("hi")
+                                                    Log.d("speak", "TTS initialized successfully")
+                                                    delayedTask(1000, speak.toString())
+                                                } else {
+                                                    Log.d("speak", "TTS initialization failed")
+                                                }
+                                            }
+                                        }
+
+
+
+                                        binding.shareicon.visibility=View.VISIBLE
+                                        binding.homeBanner.visibility=View.VISIBLE
+
+                                        handleHolidayData(
+                                            dbHelpercalander = dbHelpercalander,
+                                            dbHelperimage = dbHelperimage,
+                                            currentMonthString = currentMonthString,
+                                            currentDay = currentDay,
+                                            currentDayName = currentDayName
+                                        )
+                                        binding.holidaycounter.visibility=View.VISIBLE
+                                        randomHoliday1?.get("date")?.let { startCountdown(it) }
+
+
+
+
+
+                                        setupViewPagerAndDatabase(
+                                            context = this@HomeActivity,
+                                            currentMonthString = currentMonthString,
+                                            currentDay = currentDay,
+                                            delayMillis = delayMillis,
+                                            dbHelperHoliday
+                                        )
+
+                                    }
+                                )
+
+
+
+
+
+
+
+
+
+                                /*     homeBroadcast = viewModel.gethomeBroadcast()
+                                     Log.d("homeBroadcast", "$homeBroadcast")
+
+                                     if (homeBroadcast.isNullOrEmpty()) {
+                                         binding.floatingActionButton.visibility = View.GONE
+                                     } else {
+                                         binding.floatingActionButton.visibility = View.VISIBLE
+                                     }*/
+
+
+                            }
+                        }
+                    }
+
+
+
+                },
+                onError = { e ->
+                    Log.e("Firestore", "Error: ${e.message}")
                 }
-            }
+            )
+
+
+
+
+
+
+
 
 
             val audioAttributes = AudioAttributes.Builder()
@@ -1190,32 +1256,34 @@ class HomeActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
 
                 Log.d("todaystithi", "Received todaystithi: ${todaystithi}")
-                val formattedTextt = todaystithi.joinToString(separator = "\n") { row ->
+
+                val formattedTextt = todaystithi.joinToString(separator = " । ") { row ->
                     val hindiTithi = row["Hindi Tithi"] ?: "N/A"
-                    val hindiTiming = row["Hindi Timinig"] ?: ""
+                    var hindiTiming = row["Hindi Timinig"] ?: ""
 
-                    // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
-                    val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
-                    val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+                    // Fix: Move पूर्वाह्न/अपराह्न before the time
+                    hindiTiming = hindiTiming.replace(Regex("(\\d{2}:\\d{2})\\s*(पूर्वाह्न|अपराह्न)")) {
+                        "${it.groupValues[2]} ${it.groupValues[1]}"
+                    }
 
-                    val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-                    val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-
-                    "$hindiTithi - $startTime से $endTime"
+                    "$hindiTithi - $hindiTiming"
                 }
-                val formattedTextn = todaysnakshatra.joinToString(separator = "\n") { row ->
+
+
+
+
+                val formattedTextn = todaysnakshatra.joinToString(separator = " । ") { row ->
                     val hindiTithi = row["Hindi Tithi"] ?: "N/A"
-                    val hindiTiming = row["Hindi Timinig"] ?: ""
+                    var hindiTiming = row["Hindi Timinig"] ?: ""
 
-                    // Try to match either प्रारंभ or आरंभ for start time, and always match समाप्ति समय for end time
-                    val startRegex = Regex("(?:प्रारंभ समय|आरंभ समय):\\s*([^स]+)").find(hindiTiming)
-                    val endRegex = Regex("समाप्ति समय:\\s*(.+)").find(hindiTiming)
+                    // Fix: Move पूर्वाह्न/अपराह्न before the time
+                    hindiTiming = hindiTiming.replace(Regex("(\\d{2}:\\d{2})\\s*(पूर्वाह्न|अपराह्न)")) {
+                        "${it.groupValues[2]} ${it.groupValues[1]}"
+                    }
 
-                    val startTime = startRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-                    val endTime = endRegex?.groupValues?.get(1)?.trim() ?: "N/A"
-
-                    "$hindiTithi - $startTime से $endTime"
+                    "$hindiTithi - $hindiTiming"
                 }
+
 
 
                 Log.d("todaysnakshatra", "Received data: ${todaysnakshatra}")

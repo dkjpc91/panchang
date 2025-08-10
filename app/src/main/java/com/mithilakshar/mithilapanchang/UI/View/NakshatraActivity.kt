@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -24,6 +25,7 @@ import com.mithilakshar.mithilapanchang.Utility.InterstitialAdManager
 import com.mithilakshar.mithilapanchang.databinding.ActivityKarnaBinding
 import com.mithilakshar.mithilapanchang.databinding.ActivityNakshatraBinding
 import com.mithilakshar.mithilapanchang.databinding.ActivityTithiBinding
+import java.io.File
 import java.util.Calendar
 
 class NakshatraActivity : AppCompatActivity() {
@@ -106,13 +108,31 @@ class NakshatraActivity : AppCompatActivity() {
         }
         handler.post(runnable)
 
+
+        val downloadDirectory = File(this.getExternalFilesDir(null), "test")
+        val itemsn = downloadDirectory.listFiles()
+            ?.map { it.nameWithoutExtension }
+            ?.filter { name ->
+                name.startsWith("n", ignoreCase = true) &&
+                        name.drop(1).all(Char::isDigit) // everything after 'k' must be digits
+            }
+            ?.onEach { kName ->
+                Log.d("MyTagk", "Found k file: $kName")
+            }
+            ?.map { name ->
+                val year = name.drop(1) // remove the 'k'
+                CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, year)
+            }
+            ?: emptyList()
+
+        Log.d("MyTagk", "Spinner Items: $itemsn")
+
         // Spinner setup
         val items = listOf(
             CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2025"),
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2026"),
 
             )
-        val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, items)
+        val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, itemsn)
         spinner = binding.spinner
         spinner.adapter = adapter
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

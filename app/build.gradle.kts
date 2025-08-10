@@ -30,9 +30,9 @@ android {
     defaultConfig {
         applicationId = "com.mithilakshar.mithilapanchang"
         minSdk = 29
-        targetSdk = 34
-        versionCode = 38
-        versionName = "38.0"
+        targetSdk = 35
+        versionCode = 39
+        versionName = "39.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -115,7 +115,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
     implementation(libs.androidx.core.animation)
-    implementation(libs.androidx.animation.graphics.android)
     implementation(libs.androidx.media3.common)
     implementation(libs.androidx.room.runtime)
 
@@ -156,5 +155,5 @@ dependencies {
     implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+
 }

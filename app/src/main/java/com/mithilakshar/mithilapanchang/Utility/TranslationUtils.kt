@@ -387,80 +387,37 @@ object TranslationUtils {
         }
     }
 
-
     fun convertPanchangTextToMaithili(text: String): String {
-        val dayMap = mapOf(
-            "सोमवार" to "सोमदिन", "सोम" to "सोमदिन",
-            "मंगलवार" to "मंगलदिन", "मंगल" to "मंगलदिन",
-            "बुधवार" to "बुधदिन", "बुध" to "बुधदिन",
-            "गुरुवार" to "बृहस्पतिदिन", "गुरु" to "बृहस्पतिदिन",
-            "शुक्रवार" to "शुक्रदिन", "शुक्र" to "शुक्रदिन",
-            "शनिवार" to "शनिदिन", "शनि" to "शनिदिन",
-            "रविवार" to "रविदिन", "रवि" to "रविदिन"
+        val fullFormDays = listOf("रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार")
+        val shortFormMap = mapOf(
+            "रवि" to "रविदिन",
+            "सोम" to "सोमदिन",
+            "मंगल" to "मंगलदिन",
+            "बुध" to "बुधदिन",
+            "गुरु" to "बृहस्पतिदिन",
+            "शुक्र" to "शुक्रदिन",
+            "शनि" to "शनिदिन"
         )
 
-        val resultBuilder = StringBuilder()
-        val lines = text.trim().split("\n")
+        var modifiedText = text
 
-        for (line in lines) {
-            val parts = line.split(" - ")
-            if (parts.size != 2) continue
-
-            val tithi = parts[0].trim()
-            val timeParts = parts[1].split(" से ")
-            if (timeParts.size != 2) continue
-
-            val start = timeParts[0].trim()
-            val end = timeParts[1].trim()
-
-            val startCommaIndex = start.indexOf(",")
-            val endCommaIndex = end.indexOf(",")
-
-            if (startCommaIndex == -1 || endCommaIndex == -1) continue
-
-            // For start time, we don't need the day (it's before "से")
-            val startDateTime = start.substring(startCommaIndex + 1).trim()
-
-            // For end time, we need both day and date
-            val endDay = end.substring(0, endCommaIndex).trim()
-            val endDateTime = end.substring(endCommaIndex + 1).trim()
-
-            // Translate only the end day
-            val endDayMaithili = dayMap[endDay] ?: endDay
-
-            resultBuilder.append("$tithi, तिथि समय, $startDateTime स, $endDayMaithili, $endDateTime तक.\n")
-        }
-
-        return resultBuilder.toString().trim()
-    }
-
-
-
-    fun formatDateTime(dateTimeStr: String): String {
-        // Example: "11 अप्रैल 2025, 01:01 पूर्वाह्न"
-        val parts = dateTimeStr.split(" ")
-        if (parts.size >= 5) {
-            val day = parts[0]
-            val month = parts[1]
-            val year = parts[2].replace(",", "")
-            val time = parts[3]
-            val meridiem = parts[4]
-
-            val timeParts = time.split(":")
-            if (timeParts.size == 2) {
-                val hour = timeParts[0].trim()
-                val minute = timeParts[1].trim()
-                val meridiemMaithili = when {
-                    meridiem.contains("पूर्वाह्न") -> "पूर्वाह्न"
-                    meridiem.contains("अपराह्न") -> "अपराह्न"
-                    else -> meridiem // fallback if unknown
-                }
-
-                return "$day $month, $year, $hour:$minute $meridiemMaithili"
+        // Only apply short-form replacements if the full form is NOT present
+        for ((short, maithili) in shortFormMap) {
+            val fullFormPresent = fullFormDays.any { it.contains(short) && modifiedText.contains(it) }
+            if (!fullFormPresent) {
+                modifiedText = modifiedText.replace(Regex("\\b$short\\b"), maithili)
             }
         }
-        return dateTimeStr
+
+        return modifiedText
     }
+
+
+
+
+
+
+
 
 
 

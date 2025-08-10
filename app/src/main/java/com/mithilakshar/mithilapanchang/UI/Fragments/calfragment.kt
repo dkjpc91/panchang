@@ -28,6 +28,7 @@ import com.mithilakshar.mithilapanchang.Utility.CalendarHelper
 import com.mithilakshar.mithilapanchang.databinding.FragmentMayfragmentBinding
 
 import kotlinx.coroutines.launch
+import java.io.File
 
 import java.time.LocalDate
 import java.util.Calendar
@@ -87,10 +88,31 @@ class calfragment : Fragment() {
 
         selectedYear.value = getCurrentYear()
 
+        val downloadDirectory = File(requireContext().getExternalFilesDir(null), "test")
+
+        val itemsCaln = downloadDirectory.listFiles()
+            ?.map { it.nameWithoutExtension }
+            ?.filter { name ->
+                name.startsWith("caln", ignoreCase = true) &&
+                        name.drop(4).all(Char::isDigit) // everything after "caln" must be digits
+            }
+            ?.onEach { calnName ->
+                Log.d("MyTagCaln", "Found caln file: $calnName")
+            }
+            ?.map { name ->
+                val year = name.drop(4) // remove "caln"
+                CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, year)
+            }
+            ?: emptyList()
+
+        Log.d("MyTagCaln", "Spinner Items: $itemsCaln")
+
+
+
         val items = listOf(
             CustomSpinnerAdapter.SpinnerItem(R.drawable.calendar, "2025"),
         )
-        val adapter = CustomSpinnerAdapter(requireContext(), R.layout.spinner_item, items)
+        val adapter = CustomSpinnerAdapter(requireContext(), R.layout.spinner_item, itemsCaln)
         spinner=binding.spinner
         spinner.adapter = adapter
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

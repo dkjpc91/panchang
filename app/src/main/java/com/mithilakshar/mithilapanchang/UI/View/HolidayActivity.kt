@@ -145,14 +145,31 @@ class HolidayActivity : AppCompatActivity() {
 
 
 
-        val items = listOf(
-            CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, "2025"),
+        val downloadDirectory = File(this.getExternalFilesDir(null), "test")
+            val itemst = downloadDirectory.listFiles()
+                ?.map { it.nameWithoutExtension }
+                ?.filter { it.contains("holi", ignoreCase = true) } // must contain "holi"
+                ?.onEach { holiName ->
+                    Log.d("MyTag", "Found holi file: $holiName")
+                }
+                ?.mapNotNull { name ->
+                    // Remove "holi" and keep the rest as year if it's all digits
+                    name.replace("holi", "", ignoreCase = true)
+                        .takeIf { it.all(Char::isDigit) }
+                }
+                ?.map { year ->
+                    CustomSpinnerAdapter.SpinnerItem(R.drawable.kalash, year)
+                }
+                ?: emptyList()
 
-            )
+        Log.d("MyTagh", "Spinner Items: $itemst")
 
 
 
-        val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, items)
+
+
+
+        val adapter = CustomSpinnerAdapter(this, R.layout.spinner_item, itemst)
         spinner=binding.spinner
         spinner.adapter = adapter
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
